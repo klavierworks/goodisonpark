@@ -4,13 +4,13 @@ import Model from './Model/Model'
 import styles from './Stadium.module.pcss'
 import Controls from './Controls/Controls'
 
-export default function Stadium({ isController }: { isController: boolean }) {
+export default function Stadium({ isController, isTarget }: { isController: boolean, isTarget: boolean }) {
   return (
     <Canvas flat className={styles.canvas}>
       <Bvh>
         <AdaptiveDpr />
         <Preload all />
-        <Controls isController={isController}>
+        <Controls isController={isController} isTarget={isTarget}>
           <Model />
         </Controls>
       </Bvh>

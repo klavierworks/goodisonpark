@@ -14,3 +14,17 @@
     <slot />
 	</body>
 </html>
+
+<style>
+  @import '../styles/variables.pcss';
+  @import '../styles/typography.pcss';
+
+  body {
+    @mixin body;
+    margin: 0;
+    width: 100%;
+    min-height: 100svh;
+    color: white;
+    background-color: var(--blue);
+  }
+</style>

@@ -1,10 +1,16 @@
+import { Group, Mesh, Raycaster, Vector2, Vector3 } from "three";
+import Point from "./Point/Point";
+import { useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
 
 const Model = () => {
+
   return (
-    <mesh>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshBasicMaterial color="white" />
-    </mesh>
+    <group>
+      <Point position={[-2, 0, 2]} />
+      <Point position={[3, 0, 2]} />
+      <Point position={[1, 0, 3]} />
+    </group>
   )
 }
 

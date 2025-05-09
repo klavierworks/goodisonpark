@@ -1,10 +1,17 @@
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Mesh, Raycaster, Vector2, Vector3 } from "three";
+import type { Data, DataKey } from "../../../../api/api";
 
 const CENTER_POINT = new Vector2(0, 0);
 
-const Point = (props) => {
+type PointProps = {
+  data: [DataKey, Data];
+  position: [number, number, number];
+  onItemFocused: (data: [DataKey, Data]) => void;
+}
+
+const Point = ({ data, position, onItemFocused }: PointProps) => {
   const pointRef = useRef<Mesh>(null);
   
   const [worldPosition] = useState(new Vector3());
@@ -23,10 +30,14 @@ const Point = (props) => {
     raycast.setFromCamera(CENTER_POINT, camera);
     const intersects = raycast.intersectObject(pointRef.current);
     setIsIntersected(intersects.length > 0);
+
+    if (isIntersected) {
+      onItemFocused(data);
+    }
   });
 
   return (
-    <mesh {...props} ref={pointRef}>
+    <mesh ref={pointRef} position={position}>
     <boxGeometry args={[1, 1, 1]} />
     <meshBasicMaterial color={isIntersected ? 'red' : 'white'} />
   </mesh>

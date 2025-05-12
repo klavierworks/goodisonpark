@@ -1,11 +1,40 @@
+@font-face {
+  font-family: Dutch801Roman;
+  src: url('/fonts/Dutch 801 Roman BT.woff2') format('woff2'),
+       url('/fonts/Dutch 801 Roman BT.woff') format('woff'),
+       local('Dutch801Roman');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @define-mixin body-font {
   font-family: Dutch801Roman;
   --webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+}
+
+@define-mixin body-style {
+  line-height: 1;
+  letter-spacing: -3%;
+  text-transform: uppercase;
+}
+
+@define-mixin title {
+  @mixin body-font;
+  @mixin body-style;
+  font-size: 62px;
 }
 
 @define-mixin body {
   @mixin body-font;
-  font-size: 16px;
-  line-height: 1.5;
+  @mixin body-style;
+  font-size: 20px;
+}
+
+@define-mixin caption {
+  @mixin body-font;
+  @mixin body-style;
+  font-size: 12px;
 }

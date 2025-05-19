@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import fs from 'fs';
 import { getDatabase } from '../api/api';
 import { getYouTubeVideo } from './_download';
@@ -10,7 +11,6 @@ const OUTPUT_FOLDER = 'public/videos';
   const entries = await getDatabase();
   fs.mkdirSync(OUTPUT_FOLDER, { recursive: true });
   
-  let hasMadeChanges = false;
   let index = 0;
   for await (const entry of entries) {
     index++;
@@ -29,14 +29,9 @@ const OUTPUT_FOLDER = 'public/videos';
     await reformatLocalVideo(path, filenameNoExt);
 
     entry.filename = filename;
-    hasMadeChanges = true;
-  }
-
-  if (hasMadeChanges) {
     console.log('Updating Google Sheets....');
-    await updateGoogleSheet(entries);
+    await updateGoogleSheet(index + 1, entry);
   }
-
 
   return entries;
 })();

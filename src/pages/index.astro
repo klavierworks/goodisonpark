@@ -1,10 +1,9 @@
 ---
 import Layout from "../components/Layout.astro";
-import Stadium from "../components/Stadium/Stadium.tsx";
+import Splash from "../components/Splash/Splash.astro";
 
 ---
 
 <Layout>
-	<h1>Goodison Park Memorial</h1>
-  <Stadium client:only isController={true} isTarget={true} />
+  <Splash />
 </Layout>

@@ -3,7 +3,9 @@ import postcssPresetEnv from 'postcss-preset-env';
 
 export default {
   plugins: [
-    postcssMixins(),
+    postcssMixins({
+      mixinsDir: 'src/styles',
+    }),
     postcssPresetEnv()
   ]
 };

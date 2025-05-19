@@ -1,0 +1,65 @@
+---
+import { getDatabase } from "../../api/api"
+import Tile from "./Tile/Tile.astro";
+
+const entries = await getDatabase();
+const columns = entries.length > 0 ? Math.ceil(Math.sqrt(entries.length)) : 1;
+const rows = Math.ceil(entries.length / columns);
+
+---
+<canvas-element style={{
+  '--columns': columns,
+  '--rows': rows,
+}}>
+  <div class="contents">
+    {entries.map(entry => <Tile entry={entry} />)}
+  </div>
+</canvas-element>
+
+<script>
+import { $entries } from "../../store/data";
+
+class CanvasElement extends HTMLElement {
+  connectedCallback() {
+    $entries.subscribe(entries => {
+      const columns = entries.length > 0 ? Math.ceil(Math.sqrt(entries.length)) : 1;
+      const rows = Math.ceil(entries.length / columns);
+
+      this.style.setProperty('--columns', `${columns}`);
+      this.style.setProperty('--rows', `${rows}`);
+      console.log('CanvasElement connectedCallback', entries);
+    })
+  }
+}
+if (!customElements.get('canvas-element')) {
+  customElements.define('canvas-element', CanvasElement);
+}
+</script>
+
+<style>
+canvas-element {
+  --rows: 0;
+  --columns: 0;
+  --tile-width: 25vw;
+  --tile-height: 33vh;
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  opacity: 0.5;
+  scrollbar-width: none;
+  
+  .contents {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0;
+    height: calc(var(--rows) * var(--tile-height));
+    width: calc(var(--columns) * var(--tile-width));
+    transition: all 0.5s ease-in-out;
+  }
+}
+</style>

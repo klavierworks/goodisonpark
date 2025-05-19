@@ -1,19 +1,64 @@
-import db from "./db.json";
+import { EXPECTED_SHEET_HEADERS, FILTERABLE_HEADERS } from "../constants/constants";
 
-export type Data = typeof db;
-
-export type DataKey = keyof Data[0];
-
-export const getGroupedData = (groupBy: DataKey) => {
-  const groupedData: Record<string, Data[0][]> = {};
-
-  db.forEach((item) => {
-    const key = item[groupBy];
-    if (!groupedData[key]) {
-      groupedData[key] = [];
+const validateHeaders = (keys: string[]) => {
+  const expectedHeaders = EXPECTED_SHEET_HEADERS;
+  expectedHeaders.forEach((header, index) => {
+    if (header.toLowerCase().trim() !== keys[index].toLowerCase().trim()) {
+      throw new Error(`Header mismatch: expected ${header} but got ${keys[index]} at column ${index + 1}`);
     }
-    groupedData[key].push(item);
   });
+}
 
-  return groupedData;
+const getDataFromApi = async (): Promise<Database> => {
+  const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${import.meta.env.VITE_GOOGLE_SHEETS_API_KEY}`);
+  const data = await response.json() as {
+    values: string[][]
+  };
+
+  const keys = data.values[0];
+  validateHeaders(keys);
+
+  const values = data.values.slice(1);
+
+  const formatted: Entry[] = values.map((value) => ({
+    id: `${Date.now() + Math.random()}`,
+    filename: value[0],
+    videoUrl: value[1],
+    memory: value[2],
+    year: value[3],
+    category: value[4],
+    name: value[5],
+    stand: value[6],
+    section: value[7],
+    block: value[8],
+  }));
+
+  return formatted;
+}
+
+let cachedData: Database | null = null;
+export const getDatabase = async (): Promise<Database> => {
+  if (cachedData) {
+    return cachedData;
+  }
+
+  const database = await getDataFromApi();
+  cachedData = database;
+  return database;
+}
+
+export const getFilters = async (): Promise<Filter[]> => {
+  const filters = EXPECTED_SHEET_HEADERS.filter(
+    header => FILTERABLE_HEADERS[header as keyof typeof FILTERABLE_HEADERS]
+  );
+
+  return filters as unknown as Filter[];
+}
+
+export const getOptionsByFilter = async (filter: Filter): Promise<string[]> => {
+  const database = await getDatabase();
+
+  const options = database.map((entry) => entry[filter]);
+  const uniqueOptions = Array.from(new Set(options));
+  return uniqueOptions;
 }

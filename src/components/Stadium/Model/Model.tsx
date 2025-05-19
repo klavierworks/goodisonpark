@@ -1,18 +1,16 @@
-import { getGroupedData, type Data, type DataKey } from "../../../api/api";
 import Point from "./Point/Point";
 
-const db = getGroupedData('MEMORY')
-const DIAMETER = 40; // Diameter of the circle
-const ITEM_COUNT = Object.keys(db).length; // Total number of items
+const DIAMETER = 40;
+const ITEM_COUNT = 10
 
 type ModelProps = {
-  onItemFocused: (data: [DataKey, Data]) => void;
+  onItemFocused: () => void;
 }
 
 const Model = ({ onItemFocused }: ModelProps) => {
   return (
     <group>
-      {Object.entries(db).map((data, index) => {
+      {[].map((data, index) => {
         // Calculate angle in radians based on index and total count
         const angle = (index / ITEM_COUNT) * Math.PI * 2;
         
@@ -23,7 +21,7 @@ const Model = ({ onItemFocused }: ModelProps) => {
         // Return Point component with proper circular positioning
         return (
           <Point 
-            data={data as [DataKey, Data]}
+            data={data}
             key={index} 
             position={[x, 0, z]}
             onItemFocused={onItemFocused}

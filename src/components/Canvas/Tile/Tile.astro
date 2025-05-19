@@ -1,0 +1,50 @@
+---
+const { entry } = Astro.props;
+type Props = {
+  entry: Entry;
+}
+
+---
+<tile-element data-id={entry.id} class="isVisible">
+  {entry.videoUrl}
+</tile-element>
+<script>
+import { $entries } from "../../../store/data";
+
+  export class TileElement extends HTMLElement {
+    connectedCallback() {
+      const id = this.getAttribute('data-id') as string;
+      $entries.subscribe(entries => {
+        const isVisible = !!entries.find(entry => entry.id === id);
+        if (isVisible) {
+          this.classList.add('isVisible');
+        } else {
+          this.classList.remove('isVisible');
+        }
+      });
+    }
+  }
+
+  if (!customElements.get('tile-element')) {
+    customElements.define('tile-element', TileElement);
+  }
+</script>
+
+<style is:global>
+tile-element {
+  display: block;
+  border: 1px solid white;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
+  width: 0px;
+  height: 0px;
+  transition: all 0.5s ease-in-out;
+  
+  &.isVisible {
+    width: var(--tile-width);
+    height: var(--tile-height);
+    display: block;
+    opacity: 1;
+  }
+}
+</style>

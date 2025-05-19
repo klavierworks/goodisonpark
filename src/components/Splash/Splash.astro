@@ -1,4 +1,63 @@
 ---
+const WORDS = [
+  'Nothing',
+  'but',
+  'the',
+  'best'
+];
+
+const DURATION = 0.5;
+const DELAY = 0.25;
 ---
 <div class="splash">
+  <div class="text">
+    {WORDS.map((word, index) => (
+      <div
+        class="word"
+        style={{
+          animationDelay: `${index * DELAY}s`,
+          animationDuration: `${DURATION}s`,
+        }}
+      >
+        {word}
+      </div>
+    ))}
+  </div>
 </div>
+<script>
+const words = document.querySelectorAll('.word');
+const lastWord = [...words].at(-1)
+if (!lastWord) {
+  throw new Error('No last word found');
+}
+lastWord.addEventListener('animationend', () => {
+  window.location.href = '/grid';
+});
+</script>
+<style>
+  .splash {
+    display: flex;
+    place-content: center;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+  }
+  .text {
+    @mixin grid-4;
+    overflow: hidden;
+  }
+  .word {
+    @mixin title;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+    animation-play-state: running;
+    animation-timing-function: ease-out;
+  }
+
+  @keyframes fadeIn {
+    100% {
+      opacity: 1;
+    }
+  }
+</style>

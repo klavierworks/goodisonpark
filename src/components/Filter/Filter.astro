@@ -1,0 +1,132 @@
+---
+import { getOptionsByFilter } from "../../api/api";
+
+type Props = {
+  filter: Filter;
+}
+
+const { filter } = Astro.props as Props;
+
+const options = await getOptionsByFilter(filter)
+---
+<filter-element data-filter={filter}>
+  <input type="checkbox" id={`filter-${filter}`} />
+  <ul class="options">
+    {options.map((option) => (
+      <li>{option}</li>
+    ))}
+  </ul>
+  <label for={`filter-${filter}`}>
+    <span class="filter-name">{filter}</span>
+    <span class="arrow"></span>
+  </label>
+</filter-element>
+<script>
+import { $activeFilters } from "../../store/data";
+import { $hasOpenFilters } from "../../store/ui";
+import { atom } from 'nanostores'
+
+class FilterElement extends HTMLElement {
+  $isOpen = atom(false)
+
+  connectedCallback() {
+    const filter = this.getAttribute('data-filter')?.trim() as Filter;
+
+    const handleClickOption = (event: MouseEvent) => {
+      const target = event.target as HTMLLIElement;
+      const isFilterBeingDeactivated = $activeFilters.get()[filter] === target.innerText;
+    
+      const newFilters = {
+        ...$activeFilters.get(),
+        [filter]: target.innerText,
+      };
+
+      if (isFilterBeingDeactivated) {
+        delete newFilters[filter];
+      }
+      
+      $activeFilters.set(newFilters);
+      this.$isOpen.set(false);
+    }
+
+    this.querySelectorAll('li').forEach((option) => {
+      option.addEventListener('click', handleClickOption);
+    });
+
+    $activeFilters.subscribe((activeFilters) => {
+      const filterNameElement = this.querySelector('.filter-name') as HTMLSpanElement;
+      const currentFilter = activeFilters[filter];
+      if (currentFilter) {
+        filterNameElement.innerText = currentFilter;
+      } else {
+        filterNameElement.innerText = filter;
+      }
+    });
+
+    this.querySelector('input[type="checkbox"]')?.addEventListener('change', (event) => {
+      const target = event.target as HTMLInputElement;
+      $hasOpenFilters.set(!!target.checked);
+      this.$isOpen.set(!!target.checked);
+    });
+
+
+    $hasOpenFilters.subscribe((hasOpenFilters) => {
+      const checkbox = this.querySelector('input[type="checkbox"]') as HTMLInputElement;
+      if (hasOpenFilters && !checkbox.checked) {
+        this.classList.add('isInactive')
+      }
+    });
+  }
+}
+
+if (!customElements.get('filter-element')) {
+  customElements.define('filter-element', FilterElement);
+}
+</script>
+<style>
+input[type="checkbox"] {
+  display: none;
+}
+.options {
+  position: absolute;
+  max-height: 0;
+  transition: max-height 0.5s ease-in-out;
+  overflow: hidden;
+  scrollbar-width: none;
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 200px;
+    width: 100%;
+    background: linear-gradient(to bottom, transparent, black);
+  }
+  
+  li {
+    list-style: none;
+  }
+}
+input[type="checkbox"]:checked + .options {
+  overflow: auto;
+  max-height: 80vh;
+}
+
+filter-element {
+  @mixi body;
+  width: 100%;
+  text-align: center;
+  opacity: 1;
+
+  &.isActive {
+    opacity: 1;
+  }
+}
+
+.filter-name {
+  display: block  ;
+  padding: 20px 0;
+}
+</style>

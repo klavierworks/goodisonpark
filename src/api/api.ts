@@ -45,8 +45,9 @@ export const getDatabase = async (): Promise<Database> => {
   }
 
   const database = await getDataFromApi();
-  cachedData = database;
-  return database;
+  const entriesWithVideos = database.filter((entry) => entry.filename);
+  cachedData = entriesWithVideos;
+  return entriesWithVideos;
 }
 
 export const getFilters = async (): Promise<Filter[]> => {

@@ -19,7 +19,7 @@ $activeFilters.subscribe((activeFilters) => {
   const filterEntries = Object.entries(activeFilters).filter(([_, value]) => value !== undefined);
 
   const filteredEntries = $allEntries.get().filter((entry) => filterEntries.every(([key, value]) => {
-    const entryValue = entry[key as keyof Entry];
+    const entryValue = entry[key as keyof Entry] ?? '';
     return entryValue.toLowerCase() === value.toLowerCase();
   }));
 

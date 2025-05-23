@@ -2,80 +2,115 @@
 import { getOptionsByFilter } from "../../api/api";
 
 type Props = {
+  class: string;
   filter: Filter;
 }
 
-const { filter } = Astro.props as Props;
+const { class: className, filter, ...rest } = Astro.props as Props;
 
-const options = await getOptionsByFilter(filter)
+const unsortedOptions = await getOptionsByFilter(filter)
+const options = unsortedOptions.sort((a, b) => {
+  const aName = a.toLowerCase();
+  const bName = b.toLowerCase();
+  if (aName < bName) {
+    return -1;
+  }
+  if (aName > bName) {
+    return 1;
+  }
+  return 0;
+});
 ---
-<filter-element data-filter={filter}>
+<filter-element data-filter={filter} class={className} {...rest}>
   <input type="checkbox" id={`filter-${filter}`} />
   <ul class="options">
     {options.map((option) => (
-      <li>{option}</li>
+      <li data-option={option}>{option}</li>
     ))}
   </ul>
-  <label for={`filter-${filter}`}>
-    <span class="filter-name">{filter}</span>
+  <label for={`filter-${filter}`} class="filter-name">
+    <span>{filter}</span>
     <span class="arrow"></span>
   </label>
 </filter-element>
 <script>
 import { $activeFilters } from "../../store/data";
-import { $hasOpenFilters } from "../../store/ui";
-import { atom } from 'nanostores'
 
 class FilterElement extends HTMLElement {
-  $isOpen = atom(false)
+  isOpen = false;
+  filter: Filter = this.getAttribute('data-filter')?.trim() as Filter;
+  checkboxElement: HTMLInputElement = this.querySelector('input[type="checkbox"]')!
 
   connectedCallback() {
-    const filter = this.getAttribute('data-filter')?.trim() as Filter;
-
-    const handleClickOption = (event: MouseEvent) => {
-      const target = event.target as HTMLLIElement;
-      const isFilterBeingDeactivated = $activeFilters.get()[filter] === target.innerText;
-    
-      const newFilters = {
-        ...$activeFilters.get(),
-        [filter]: target.innerText,
-      };
-
-      if (isFilterBeingDeactivated) {
-        delete newFilters[filter];
-      }
-      
-      $activeFilters.set(newFilters);
-      this.$isOpen.set(false);
-    }
-
     this.querySelectorAll('li').forEach((option) => {
-      option.addEventListener('click', handleClickOption);
+      option.addEventListener('click', this.handleClickOption.bind(this));
     });
 
     $activeFilters.subscribe((activeFilters) => {
       const filterNameElement = this.querySelector('.filter-name') as HTMLSpanElement;
-      const currentFilter = activeFilters[filter];
+      const currentFilter = activeFilters[this.filter];
+      this.querySelectorAll('li').forEach((option) => {
+        const optionElement = option as HTMLLIElement;
+        const isActive = currentFilter === optionElement.innerText;
+        optionElement.classList.toggle('isActive', isActive);
+      });
       if (currentFilter) {
         filterNameElement.innerText = currentFilter;
+        this.classList.add('hasActiveOption');
       } else {
-        filterNameElement.innerText = filter;
+        filterNameElement.innerText = this.filter;
+        this.classList.remove('hasActiveOption');
       }
     });
 
-    this.querySelector('input[type="checkbox"]')?.addEventListener('change', (event) => {
+    this.checkboxElement.addEventListener('change', (event) => {
       const target = event.target as HTMLInputElement;
-      $hasOpenFilters.set(!!target.checked);
-      this.$isOpen.set(!!target.checked);
-    });
-
-
-    $hasOpenFilters.subscribe((hasOpenFilters) => {
-      const checkbox = this.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      if (hasOpenFilters && !checkbox.checked) {
-        this.classList.add('isInactive')
+      const isOpen = !!target.checked;
+      
+      if (isOpen) {
+        this.handleOpen();
+      } else {
+        this.handleClose();
       }
     });
+  }
+
+  handleOpen() {
+    this.isOpen = true;
+    this.checkboxElement.checked = true;
+
+    window.addEventListener('click', this.handleClickOutside)
+  }
+  handleClose() {
+    this.isOpen = false;
+    this.checkboxElement.checked = false;
+
+    window.removeEventListener('click', this.handleClickOutside)
+  }
+
+  handleClickOutside = (event: MouseEvent) => {
+    const target = event.target as HTMLElement;
+    const isClickInside = this.contains(target);
+    if (!isClickInside) {
+      this.handleClose();
+    }
+  }
+
+  handleClickOption(event: MouseEvent) {
+    this.handleClose();
+    const target = event.target as HTMLLIElement;
+    const isFilterBeingDeactivated = $activeFilters.get()[this.filter] === target.innerText;
+
+    const newFilters = {
+      ...$activeFilters.get(),
+      [this.filter]: target.innerText,
+    };
+
+    if (isFilterBeingDeactivated) {
+      delete newFilters[this.filter];
+    }
+
+    $activeFilters.set(newFilters);
   }
 }
 
@@ -87,46 +122,57 @@ if (!customElements.get('filter-element')) {
 input[type="checkbox"] {
   display: none;
 }
+filter-element {
+  @mixin body;
+  width: 100%;
+  text-align: center;
+  position: relative;
+}
+
 .options {
   position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
   max-height: 0;
   transition: max-height 0.5s ease-in-out;
   overflow: hidden;
   scrollbar-width: none;
-
-  &::after {
-    content: '';
-    display: block;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 200px;
-    width: 100%;
-    background: linear-gradient(to bottom, transparent, black);
-  }
+  margin: 0;
+  cursor: pointer;
+  padding: 0;
   
   li {
+    margin: 0 0 0.125em;
+    padding: 0;
     list-style: none;
-  }
-}
-input[type="checkbox"]:checked + .options {
-  overflow: auto;
-  max-height: 80vh;
-}
+    opacity: 0.5;
 
-filter-element {
-  @mixi body;
-  width: 100%;
-  text-align: center;
-  opacity: 1;
-
-  &.isActive {
-    opacity: 1;
+    &.isActive,
+    &:hover {
+      opacity: 1;
+    }
   }
 }
 
 .filter-name {
-  display: block  ;
-  padding: 20px 0;
+  display: block;
+  padding: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  opacity: 0.5;
+
+  .hasActiveOption & {
+    opacity: 1;
+  }
 }
+input[type="checkbox"]:checked {
+  & + .options {
+    overflow: auto;
+    max-height: 80vh;
+  }
+}
+
 </style>

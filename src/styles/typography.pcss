@@ -30,7 +30,11 @@
 @define-mixin body {
   @mixin body-font;
   @mixin body-style;
-  font-size: 20px;
+  font-size: 16px;
+  
+  @media (min-width: 1440px) {
+    font-size: 20px;
+  }
 }
 
 @define-mixin caption {

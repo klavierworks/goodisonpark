@@ -1,11 +1,19 @@
 ---
+import { Image } from 'astro:assets';
+
 const { entry } = Astro.props;
 type Props = {
   entry: Entry;
 }
 
+const fileNameWithoutExtension = entry.filename.split('.').slice(0, -1).join('.');
+
+const images = Object.entries(import.meta.glob('../../../../public/videos/**/*.jpg', { eager: true }) as Record<string, { default: string }>);
+
+const image = images.find(([key]) => key.includes(fileNameWithoutExtension));
 ---
 <tile-element data-id={entry.id} class="isVisible">
+  <Image src={image![1].default} alt={entry.name} inferSize />
   {entry.videoUrl}
 </tile-element>
 <script>

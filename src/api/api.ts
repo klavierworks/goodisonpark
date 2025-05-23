@@ -9,7 +9,7 @@ const validateHeaders = (keys: string[]) => {
   });
 }
 
-const KEY = import.meta?.env?.VITE_GOOGLE_SHEETS_API_KEY ?? process.env.VITE_GOOGLE_SHEETS_API_KEY;
+const KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY ?? process.env.VITE_GOOGLE_SHEETS_API_KEY;
 
 const getDataFromApi = async (): Promise<Database> => {
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${KEY}`);

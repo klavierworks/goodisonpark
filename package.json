@@ -3,11 +3,13 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "download:assets": "aws s3 sync s3://assets ./public/ --endpoint-url https://216f9ef5b46ffcd99c79313412ff33b4.r2.cloudflarestorage.com",
     "dev": "astro dev",
     "build:videos": "npx tsx src/scripts/process-videos.ts",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "deploy:assets": "aws s3 sync ./public/ s3://assets --endpoint-url https://216f9ef5b46ffcd99c79313412ff33b4.r2.cloudflarestorage.com --checksum-algorithm CRC32"
   },
   "dependencies": {
     "@astrojs/react": "^4.2.7",

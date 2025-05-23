@@ -33,5 +33,5 @@ const OUTPUT_FOLDER = 'public/videos';
     await updateGoogleSheet(index + 1, entry);
   }
 
-  return entries;
+  console.log('All videos processed.');
 })();

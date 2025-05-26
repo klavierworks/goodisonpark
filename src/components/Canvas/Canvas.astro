@@ -50,13 +50,13 @@ class CanvasElement extends HTMLElement {
   connectedCallback() {
     this.classList.remove('noJs');
     $entries.subscribe(entries => {
-      const columns = entries.length > 0 ? Math.ceil(Math.sqrt(entries.length)) : 1;
-      const rows = Math.ceil(entries.length / columns);
+      const cols = Math.ceil(Math.sqrt(entries.length));
+      const rows = Math.ceil(entries.length / cols);
 
-      this.style.setProperty('--columns', `${columns}`);
-      this.style.setProperty('--rows', `${rows}`);
+      this.style.setProperty('--columns', `${cols}`);
+      this.style.setProperty('--rows', `${rows + 1}`);
     })
-
+  
     this.addEventListener('mousemove', this.handleMouseMove);
     this.addEventListener('mouseenter', () => {
       this.isMouseOver = true;
@@ -78,11 +78,19 @@ class CanvasElement extends HTMLElement {
       return;
     }
 
-    this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 5;
-    this.offsetY -= (this.mouseY / (window.innerHeight / 2)) * 5;
+    this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 10;
+    this.offsetY -= (this.mouseY / (window.innerHeight / 2)) *  10;
+    const rect = this.getBoundingClientRect();
+
+    const halfWidth = (rect.width / 2) - (window.innerWidth / 2);
+    const halfHeight = (rect.height / 2) - (window.innerHeight / 2);
+
+    this.offsetX = Math.max(-halfWidth, Math.min(halfWidth, this.offsetX));
+    this.offsetY = Math.max(-halfHeight, Math.min(halfHeight, this.offsetY));
+
     this.style.setProperty('--offset-x', `${this.offsetX}px`);
     this.style.setProperty('--offset-y', `${this.offsetY}px`);
-
+    
     requestAnimationFrame(this.handleFrame.bind(this));
   }
 }
@@ -93,17 +101,22 @@ if (!customElements.get('canvas-element')) {
 
 <style>
 canvas-element {
+  --offset-x: 0px;
+  --offset-y: 0px;
   --rows: 0;
   --columns: 0;
   --tile-width: 33vw;
   --tile-height: 33vw;
   display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   width: calc(var(--columns) * var(--tile-width));
   height: calc(var(--rows) * var(--tile-height));
+  padding: 5vh 5vw;
   overflow: hidden;
   scrollbar-width: none;
-  margin-left: -50%;
-  margin-top: -50%;
+  translate: calc(-50% + var(--offset-x)) calc(-50% + var(--offset-y));
 
   &.noJs {
     overflow: auto;
@@ -112,10 +125,8 @@ canvas-element {
 
   .tile {
     display: inline-block;
-    width: calc(var(--tile-width) - 2vw);
-    height: calc(var(--tile-height) - 2vw);
-    padding: 2vw;
-    transform: translate3d(var(--offset-x), var(--offset-y), 0);
+    width: calc(var(--tile-width));
+    height: calc(var(--tile-height));
   }
 }
 </style>

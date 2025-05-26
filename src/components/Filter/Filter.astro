@@ -34,7 +34,7 @@ const options = unsortedOptions.sort((a, b) => {
   </label>
 </filter-element>
 <script>
-import { $activeFilters } from "../../store/data";
+import { $activeFilters, $entries } from "../../store/data";
 
 class FilterElement extends HTMLElement {
   isOpen = false;
@@ -44,6 +44,20 @@ class FilterElement extends HTMLElement {
   connectedCallback() {
     this.querySelectorAll('li').forEach((option) => {
       option.addEventListener('click', this.handleClickOption.bind(this));
+    });
+
+    $entries.subscribe((entries) => {
+      const options = entries.map((entry) => entry[this.filter]).filter(Boolean);
+      const uniqueOptions = Array.from(new Set(options));
+      this.querySelectorAll('li').forEach((option) => {
+        const optionElement = option as HTMLLIElement;
+        const optionName = optionElement.getAttribute('data-option');
+        if (uniqueOptions.includes(optionName!)) {
+          optionElement.classList.remove('isHidden');
+        } else {
+          optionElement.classList.add('isHidden');
+        }
+      });
     });
 
     $activeFilters.subscribe((activeFilters) => {
@@ -151,6 +165,10 @@ filter-element {
     &.isActive,
     &:hover {
       opacity: 1;
+    }
+
+    &.isHidden {
+      display: none;
     }
   }
 }

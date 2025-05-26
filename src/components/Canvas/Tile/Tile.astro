@@ -60,11 +60,13 @@ tile-element {
   opacity: 0;
   transition: all 0.25s ease-in-out;
   overflow: hidden;
-  height: 100%;
-  width: 100%;
+  height: 0px;
+  width: 0px;
   
   &.isVisible {
-    opacity: 0.6;
+    opacity: 0.6 !important;
+    height: 100%;
+    width: 100%;
   }
   &:hover {
     opacity: 1;

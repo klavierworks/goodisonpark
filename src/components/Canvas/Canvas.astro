@@ -68,9 +68,6 @@ class CanvasElement extends HTMLElement {
     requestAnimationFrame(this.handleFrame.bind(this));
   }
   handleMouseMove(event: MouseEvent) {
-    if (!this.isMouseOver) {
-      return;
-    }
     this.isMouseOver = true;
     this.mouseX = event.screenX - (window.innerWidth / 2);
     this.mouseY = event.screenY - (window.innerHeight / 2);

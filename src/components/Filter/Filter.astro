@@ -34,7 +34,7 @@ const options = unsortedOptions.sort((a, b) => {
   </label>
 </filter-element>
 <script>
-import { $activeFilters, $entries } from "../../store/data";
+import { $activeFilters, $entries, $isFiltering } from "../../store/data";
 
 class FilterElement extends HTMLElement {
   isOpen = false;
@@ -124,7 +124,14 @@ class FilterElement extends HTMLElement {
       delete newFilters[this.filter];
     }
 
-    $activeFilters.set(newFilters);
+    $isFiltering.set(true);
+
+    document.body.classList.add('isFiltering');
+    document.body.addEventListener('transitionend', () => {
+      $activeFilters.set(newFilters);
+      document.body.classList.remove('isFiltering')
+    }, { once: true });
+
   }
 }
 

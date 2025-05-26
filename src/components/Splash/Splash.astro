@@ -6,8 +6,8 @@ const WORDS = [
   'best'
 ];
 
-const DURATION = 0.5;
-const DELAY = 0.25;
+const DURATION = 0.75;
+const DELAY = 0.5;
 ---
 <div class="splash">
   <div class="text">
@@ -15,7 +15,7 @@ const DELAY = 0.25;
       <div
         class="word"
         style={{
-          animationDelay: `${index * DELAY}s`,
+          animationDelay: `${(index + 1) * DELAY}s`,
           animationDuration: `${DURATION}s`,
         }}
       >
@@ -31,7 +31,7 @@ if (!lastWord) {
   throw new Error('No last word found');
 }
 lastWord.addEventListener('animationend', () => {
-  window.location.href = '/grid';
+ window.location.href = '/grid';
 });
 </script>
 <style>
@@ -43,7 +43,10 @@ lastWord.addEventListener('animationend', () => {
     height: 100%;
   }
   .text {
-    @mixin grid-4;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    width: 100%;
     overflow: hidden;
   }
   .word {

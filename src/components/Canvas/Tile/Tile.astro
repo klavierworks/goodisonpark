@@ -1,29 +1,18 @@
 ---
 import type { ImageMetadata } from 'astro';
-import { Image as AstroImage } from 'astro:assets';
+import VideoTile from './VideoTile/VideoTile.astro';
 
 const { class: className, entry, ...rest } = Astro.props;
 type Props = {
+  class?: string;
   entry: Entry & {
     count: number;
   };
 }
 
-const fileNameWithoutExtension = entry.filename.split('.').slice(0, -1).join('.');
-
-const images = Object.entries(import.meta.glob('../../../../public/videos/**/*.jpg', { eager: true }) as Record<string, { default: string }>);
-
-const image = images.find(([key]) => key.includes(fileNameWithoutExtension))![1].default;
-
-const imageMetadata = image as unknown as ImageMetadata;
-const width = imageMetadata.width ?? 0;
-const height = imageMetadata.height ?? 0;
-
-const aspectRatio = width / height;
-const isLandscape = aspectRatio > 1;
 ---
 <tile-element data-id={entry.id} class={`isVisible ${className}`} {...rest}>
-  <AstroImage src={image} alt={entry.name} inferSize style={`--aspect-ratio: ${aspectRatio}`} class={isLandscape ? 'isLandscape' : 'isPortrait'} />
+  <VideoTile filename={entry.filename} name={entry.name} />
   <h2>
     <span class="memory">{entry.memory}</span>
     <span class="year">{entry.year}</span>
@@ -57,41 +46,23 @@ tile-element {
   flex-direction: column;
   align-items: start;
   justify-content: center;
-  opacity: 0;
+  opacity: 0.6;
   transition: all 0.25s ease-in-out;
   overflow: hidden;
-  height: 0px;
-  width: 0px;
-  
-  &.isVisible {
-    opacity: 0.6 !important;
-    height: 100%;
-    width: 100%;
+  height: 100%;
+  width: 100%;
+
+  &.isHidden {
+    opacity: 0 !important;
+    height: 0px;
+    width: 0px;
   }
   &:hover {
     opacity: 1;
   }
 
-  img {
-    grid-row: 1 / 2;
-    object-fit: contain;
-    object-position: left top;
-    cursor: pointer;
-  }
-
-  .isLandscape {
-    width: 100%;
-    height: auto;
-  }
-
-  .isPortrait {
-    width: auto;
-    height: 100%;
-  }
-
   h2 {
     @mixin caption;
-    grid-row: 2 / 3;
     display: flex;
     flex-direction: row;
     align-items: center;

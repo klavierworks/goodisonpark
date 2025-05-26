@@ -24,12 +24,15 @@ const entriesWithCount = entries.map(entry => {
     count: count ?? 0,
   };
 });
+
+// Shuffle the entries
+const shuffledEntries = entriesWithCount.sort(() => Math.random() - 0.5);
 ---
 <canvas-element class="noJs" style={{
   '--columns': columns,
   '--rows': rows,
 }}>
-  {entriesWithCount.map(entry => (
+  {shuffledEntries.map(entry => (
     <div class="tile">
       <Tile entry={entry} />
     </div>
@@ -37,7 +40,7 @@ const entriesWithCount = entries.map(entry => {
 </canvas-element>
 
 <script>
-import { $entries } from "../../store/data";
+import { $entries, $isFiltering } from "../../store/data";
 
 class CanvasElement extends HTMLElement {
   isMouseOver = false;
@@ -56,6 +59,16 @@ class CanvasElement extends HTMLElement {
       this.style.setProperty('--columns', `${cols}`);
       this.style.setProperty('--rows', `${rows + 1}`);
     })
+
+    $isFiltering.subscribe(isFiltering => {
+      if (isFiltering) {
+        this.classList.add('isFiltering');
+      } else {
+        this.classList.remove('isFiltering');
+        this.offsetX = 0;
+        this.offsetY = 0;
+      }
+    });
   
     this.addEventListener('mousemove', this.handleMouseMove);
     this.addEventListener('mouseenter', () => {
@@ -73,7 +86,7 @@ class CanvasElement extends HTMLElement {
     this.mouseY = event.screenY - (window.innerHeight / 2);
   }
   handleFrame() {
-    if (!this.isMouseOver) {
+    if (!this.isMouseOver || $isFiltering.get()) {
       requestAnimationFrame(this.handleFrame.bind(this));
       return;
     }
@@ -117,16 +130,24 @@ canvas-element {
   overflow: hidden;
   scrollbar-width: none;
   translate: calc(-50% + var(--offset-x)) calc(-50% + var(--offset-y));
+  transition: opacity 0.5s ease-in-out;
 
   &.noJs {
     overflow: auto;
     margin: 0;
   }
 
+  &.isFiltering {
+    opacity: 0;
+    pointer-events: none;
+  }
+
   .tile {
     display: inline-block;
     width: calc(var(--tile-width));
     height: calc(var(--tile-height));
+    padding: 2vh 2vw;
   }
 }
+</style>
 </style>

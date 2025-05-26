@@ -18,6 +18,13 @@ export const setEntries = (entriesJson: string) => {
 $activeFilters.subscribe((activeFilters) => {
   const filterEntries = Object.entries(activeFilters).filter(([_, value]) => value !== undefined);
 
+  const searchParams = new URLSearchParams();
+  filterEntries.forEach(([key, value]) => {
+    searchParams.set(key, value);
+  });
+
+  window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+
   const filteredEntries = $allEntries.get().filter((entry) => filterEntries.every(([key, value]) => {
     const entryValue = entry[key as keyof Entry] ?? '';
     return entryValue.toLowerCase() === value.toLowerCase();
@@ -25,3 +32,5 @@ $activeFilters.subscribe((activeFilters) => {
 
   $entries.set(filteredEntries)
 });
+
+export const $isFiltering = atom(false);

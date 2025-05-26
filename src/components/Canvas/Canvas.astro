@@ -71,7 +71,7 @@ class CanvasElement extends HTMLElement {
     if (!this.isMouseOver) {
       return;
     }
-
+    this.isMouseOver = true;
     this.mouseX = event.screenX - (window.innerWidth / 2);
     this.mouseY = event.screenY - (window.innerHeight / 2);
   }

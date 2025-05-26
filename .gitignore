@@ -21,4 +21,7 @@ pnpm-debug.log*
 
 google-service-account.json
 
-public/*
+public/videos/**/*.ts
+public/videos/**/*.mp4
+public/videos/**/*.mp4.part
+public/videos/**/*.m3u8

@@ -6,14 +6,34 @@ const entries = await getDatabase();
 const columns = entries.length > 0 ? Math.ceil(Math.sqrt(entries.length)) : 1;
 const rows = Math.ceil(entries.length / columns);
 
+let memoryCounts = new Map<string, number>();
+entries.forEach(entry => {
+  const memory = entry.memory;
+  if (memoryCounts.has(memory)) {
+    memoryCounts.set(memory, memoryCounts.get(memory)! + 1);
+  } else {
+    memoryCounts.set(memory, 1);
+  }
+});
+
+const entriesWithCount = entries.map(entry => {
+  const memory = entry.memory;
+  const count = memoryCounts.get(memory);
+  return {
+    ...entry,
+    count: count ?? 0,
+  };
+});
 ---
 <canvas-element style={{
   '--columns': columns,
   '--rows': rows,
 }}>
-  <div class="contents">
-    {entries.map(entry => <Tile entry={entry} />)}
-  </div>
+  {entriesWithCount.map(entry => (
+    <div class="tile">
+      <Tile entry={entry} />
+    </div>
+  ))}
 </canvas-element>
 
 <script>
@@ -40,26 +60,20 @@ if (!customElements.get('canvas-element')) {
 canvas-element {
   --rows: 0;
   --columns: 0;
-  --tile-width: 25vw;
-  --tile-height: 33vh;
-  display: inline-flex;
-  flex-direction: row;
-  justify-content: center;
+  --tile-width: 33vw;
+  --tile-height: 33vw;
+  display: grid;
+  grid-template-columns: repeat(var(--columns), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
   width: 100%;
   height: 100%;
   overflow: auto;
-  opacity: 0.5;
   scrollbar-width: none;
-  
-  .contents {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0;
-    height: calc(var(--rows) * var(--tile-height));
-    width: calc(var(--columns) * var(--tile-width));
-    transition: all 0.5s ease-in-out;
+
+  .tile {
+    width: calc(var(--tile-width) - 2vw);
+    height: calc(var(--tile-height) - 2vw);
+    padding: 2vw;
   }
 }
 </style>

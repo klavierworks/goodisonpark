@@ -24,14 +24,22 @@ const Model = ({ entries }: ModelProps) => {
     
     let y = 0;
 
-    if (index % 3 === 0) {
-      y = TILE_HEIGHT;
-    }
     if (index % 2 === 0) {
       y = -TILE_HEIGHT;
+      z += TILE_DEPTH;
     }
-
-    z += (Math.random() > 0.5 ? 1 : -1) * Math.random() * TILE_DEPTH;
+    if (index % 3 === 0) {
+      y = TILE_HEIGHT;
+      z += 0
+    }
+    if (index % 4 === 0) {
+      y = -TILE_HEIGHT / 2;
+      z += TILE_DEPTH / 2;
+    }
+    if (index % 5 === 0) {
+      y = TILE_HEIGHT / 2;
+      z += -TILE_DEPTH / 2;
+    }
 
     const rotation = Math.PI / 2 - angle;
     return {

@@ -1,5 +1,6 @@
 import { Edges, useTexture, useVideoTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { ASSET_URL } from "astro:env/client";
 import { useRef, useState } from "react";
 import { Mesh, Raycaster, Vector2, Vector3 } from "three";
 
@@ -19,7 +20,7 @@ const Tile = ({ data, ...rest }: TileProps) => {
     console.warn('Invalid filename:', data.filename);
     return null;
   }
-  const texture = useTexture(`/videos/${filename}/${filename}.jpg`);
+  const texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
   
   const [worldPosition] = useState(new Vector3());
   const [raycast] = useState(new Raycaster());

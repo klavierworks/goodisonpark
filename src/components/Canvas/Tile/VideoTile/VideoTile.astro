@@ -24,6 +24,7 @@ const isLandscape = aspectRatio > 1;
   <AstroImage src={image} alt={name} inferSize class="image" />
 </video-tile-element>
 <script>
+  import { ASSET_URL } from "astro:env/client";
   import Hls from 'hls.js';
 export class VideoTileElement extends HTMLElement {
   videoElement: HTMLVideoElement | null = null;
@@ -48,7 +49,7 @@ export class VideoTileElement extends HTMLElement {
     this.appendChild(this.videoElement);
 
     const hls = new Hls();
-    hls.loadSource(`/videos/${filename}/master.m3u8`);
+    hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
     hls.attachMedia(this.videoElement);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       if (this.videoElement) {

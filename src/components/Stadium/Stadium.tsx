@@ -9,14 +9,12 @@ import { CAMERA_DISTANCE } from './constants'
 
 export default function Stadium({ isController, isTarget }: { isController: boolean, isTarget: boolean }) {
   const [entries, setEntries] = useState($entries.get());
-  console.log(entries)
+
   useEffect(() => {
     const unsubscribe = $entries.subscribe((newEntries) => {
-      console.log('New entries received:', newEntries);
       setEntries(newEntries as Entry[]);
     });
 
-    // Cleanup subscription on unmount
     return () => {
       unsubscribe();
     };

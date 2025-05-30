@@ -1,0 +1,67 @@
+---
+import { getFilters } from "../../api/api";
+import Filter from "../../components/Filter/Filter.astro";
+
+type Props = {
+  section: "grid" | "space";
+}
+
+const {section} = Astro.props;
+
+const filters = getFilters();
+---
+<div class="filters">
+  {filters.map(filter => <Filter class="filter" filter={filter} />)}
+  <div class="view-toggle">
+    <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/grid">Grid</a>
+    <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
+  </div>
+</div>
+
+
+<style>
+.filters {
+  @mixin grid;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.filter {
+  grid-column: span 1;
+
+  &:nth-child(1),
+  &:nth-child(2) {
+    order: 1;
+  }
+
+  &:nth-child(4),
+  &:nth-child(5) {
+    order: 3;
+  }
+}
+
+.view-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  order: 2;
+  place-self: center;
+
+  .view {
+    @mixin caption;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    border: 1px solid white;
+    padding: 5px 6px;
+    text-decoration: none;
+    color: white;
+  }
+
+  .isActive {
+    background-color: white;
+    color: var(--navy);
+  }
+}
+</style>

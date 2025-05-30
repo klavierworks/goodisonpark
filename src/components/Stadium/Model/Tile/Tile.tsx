@@ -1,4 +1,4 @@
-import { useTexture, useVideoTexture } from "@react-three/drei";
+import { Edges, useTexture, useVideoTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { useRef, useState } from "react";
 import { Mesh, Raycaster, Vector2, Vector3 } from "three";
@@ -49,10 +49,13 @@ const Tile = ({ data, ...rest }: TileProps) => {
     height = 1;
   }
 
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <mesh ref={pointRef} {...rest}>
+    <mesh ref={pointRef} {...rest} onPointerOver={() => setIsHovered(true)} onPointerOut={() => setIsHovered(false)}>
       <boxGeometry args={[width, height, 0.001]} />
       <meshBasicMaterial color="white" map={texture} />
+      <Edges linewidth={2} threshold={15} color="white" visible={isHovered} />
     </mesh>
   )
 }

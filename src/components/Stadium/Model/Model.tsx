@@ -31,7 +31,7 @@ const Model = ({ entries }: ModelProps) => {
       y = -TILE_HEIGHT;
     }
 
-    z += Math.random() * TILE_DEPTH;
+    z += (Math.random() > 0.5 ? 1 : -1) * Math.random() * TILE_DEPTH;
 
     const rotation = Math.PI / 2 - angle;
     return {
@@ -52,8 +52,8 @@ const Model = ({ entries }: ModelProps) => {
 
   return (
     <group>
-      <mesh position={[0, -2, 0]} ref={meshRef}>
-        <boxGeometry args={[STADIUM_SCALE, 1, STADIUM_SCALE]} />
+      <mesh position={[0, 0, 0]} ref={meshRef}>
+        <boxGeometry args={[STADIUM_SCALE, STADIUM_SCALE, STADIUM_SCALE]} />
         <meshBasicMaterial color="lightgray" />
       </mesh>
       {dedupedLayout.map(

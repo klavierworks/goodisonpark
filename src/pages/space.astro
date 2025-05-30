@@ -1,29 +1,12 @@
 ---
 import Layout from "../components/Layout.astro";
-import { getFilters } from "../api/api";
 import Stadium from "../components/Stadium/Stadium";
-import Filter from "../components/Filter/Filter.astro";
-
-const filters = await getFilters();
+import Navigation from "../components/Navigation/Navigation.astro";
+import Header from "../components/Header/Header.astro";
 ---
 
 <Layout>
+  <Header />
   <Stadium client:only isController isTarget />
-  <div class="filters">
-    {filters.map(filter => <Filter class="filter" filter={filter} />)}
-  </div>
+  <Navigation section="space" />
 </Layout>
-
-<style>
-.filters {
-  @mixin grid;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
-.filter {
-  grid-column: span 1;
-}
-</style>

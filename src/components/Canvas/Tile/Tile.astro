@@ -12,14 +12,16 @@ type Props = {
 
 ---
 <tile-element data-id={entry.id} class={`isVisible ${className}`} {...rest}>
-  <VideoTile filename={entry.filename} name={entry.name} />
-  {!isRear && (
-    <h2>
+  <a href={`/space?memory=${entry.memory}`}>
+    <VideoTile filename={entry.filename} name={entry.name} />
+    {!isRear && (
+      <h2>
       <span class="memory">{entry.memory}</span>
       <span class="year">{entry.year}</span>
       <span class="count">+{entry.count}</span>
     </h2>
   )}
+  </a>
 </tile-element>
 <script>
 import { $entries } from "../../../store/data";
@@ -53,6 +55,12 @@ tile-element {
   transition: all 0.25s ease-in-out;
   overflow: hidden;
   height: 100%;
+
+  a {
+    display: contents;
+    color: inherit;
+    text-decoration: none;
+  }
 
   &.isHidden {
     opacity: 0 !important;

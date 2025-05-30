@@ -1,67 +1,13 @@
 ---
 import Layout from "../components/Layout.astro";
-import { getFilters } from "../api/api";
 import Canvas from "../components/Canvas/Canvas.astro";
-import Filter from "../components/Filter/Filter.astro";
-
-const filters = getFilters();
+import Header from "../components/Header/Header.astro";
+import Navigation from "../components/Navigation/Navigation.astro";
 ---
 
 <Layout>
+  <Header />
   <Canvas />
   <Canvas isRear />
-  <div class="filters">
-    {filters.map(filter => <Filter class="filter" filter={filter} />)}
-    <div class="view-toggle">
-      <a class="view isActive" href="/grid">Grid</a>
-      <a class="view" href="/space">Space</a>
-    </div>
-  </div>
+  <Navigation section="grid" />
 </Layout>
-
-<style>
-.filters {
-  @mixin grid;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
-.filter {
-  grid-column: span 1;
-
-  &:nth-child(1),
-  &:nth-child(2) {
-    order: 1;
-  }
-
-  &:nth-child(4),
-  &:nth-child(5) {
-    order: 3;
-  }
-}
-
-.view-toggle {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  order: 2;
-  place-self: center;
-
-  .view {
-    @mixin caption;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    border: 1px solid white;
-    padding: 5px 6px;
-    text-decoration: none;
-    color: white;
-  }
-
-  .isActive {
-    background-color: white;
-    color: var(--navy);
-  }
-}
-</style>

@@ -109,8 +109,13 @@ class CanvasElement extends HTMLElement {
       return;
     }
 
-    this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 10;
-    this.offsetY -= (this.mouseY / (window.innerHeight / 2)) *  10;
+    if (Math.abs(this.mouseX) > window.innerWidth / 8) {
+      this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 10;
+    }
+    
+    if (Math.abs(this.mouseY) > window.innerHeight / 8) {
+      this.offsetY -= (this.mouseY / (window.innerHeight / 2)) *  10;
+    }
     const rect = this.getBoundingClientRect();
 
     const halfWidth = (rect.width / 2) - (window.innerWidth / 2);
@@ -142,6 +147,8 @@ canvas-element {
   --columns: 0;
   --tile-width: 33vw;
   --tile-height: 33vw;
+
+  user-select: none;
   display: block;
   position: absolute;
   left: 50%;

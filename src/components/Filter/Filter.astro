@@ -1,5 +1,6 @@
 ---
 import { getOptionsByFilter } from "../../api/api";
+import { getFilterLabel } from "../../api/utils";
 
 type Props = {
   class: string;
@@ -29,11 +30,12 @@ const options = unsortedOptions.sort((a, b) => {
     ))}
   </ul>
   <label for={`filter-${filter}`} class="filter-name">
-    <span>{filter}</span>
+    <span>{getFilterLabel(filter)}</span>
     <span class="arrow"></span>
   </label>
 </filter-element>
 <script>
+import { getFilterLabel } from "../../api/utils";
 import { $activeFilters, $entries, $isFiltering } from "../../store/data";
 
 class FilterElement extends HTMLElement {
@@ -72,7 +74,7 @@ class FilterElement extends HTMLElement {
         filterNameElement.innerText = currentFilter;
         this.classList.add('hasActiveOption');
       } else {
-        filterNameElement.innerText = this.filter;
+        filterNameElement.innerText = getFilterLabel(this.filter);
         this.classList.remove('hasActiveOption');
       }
     });

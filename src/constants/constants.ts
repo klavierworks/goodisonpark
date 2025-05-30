@@ -1,10 +1,8 @@
 export const FILTERABLE_HEADERS = {
-  memory: 'memory',
   year: 'year',
+  memory: 'memory',
+  name: 'name',
   category: 'category',
-  stand: 'stand',
-  section: 'section',
-  block: 'block',
 } as const;
 
 export const EXPECTED_SHEET_HEADERS = [

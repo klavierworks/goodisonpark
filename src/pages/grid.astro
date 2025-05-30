@@ -4,13 +4,18 @@ import { getFilters } from "../api/api";
 import Canvas from "../components/Canvas/Canvas.astro";
 import Filter from "../components/Filter/Filter.astro";
 
-const filters = await getFilters();
+const filters = getFilters();
 ---
 
 <Layout>
   <Canvas />
+  <Canvas isRear />
   <div class="filters">
     {filters.map(filter => <Filter class="filter" filter={filter} />)}
+    <div class="view-toggle">
+      <a class="view isActive" href="/grid">Grid</a>
+      <a class="view" href="/space">Space</a>
+    </div>
   </div>
 </Layout>
 
@@ -25,5 +30,38 @@ const filters = await getFilters();
 
 .filter {
   grid-column: span 1;
+
+  &:nth-child(1),
+  &:nth-child(2) {
+    order: 1;
+  }
+
+  &:nth-child(4),
+  &:nth-child(5) {
+    order: 3;
+  }
+}
+
+.view-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  order: 2;
+  place-self: center;
+
+  .view {
+    @mixin caption;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    border: 1px solid white;
+    padding: 5px 6px;
+    text-decoration: none;
+    color: white;
+  }
+
+  .isActive {
+    background-color: white;
+    color: var(--navy);
+  }
 }
 </style>

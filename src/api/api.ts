@@ -50,12 +50,8 @@ export const getDatabase = async (): Promise<Database> => {
   return entriesWithVideos;
 }
 
-export const getFilters = async (): Promise<Filter[]> => {
-  const filters = EXPECTED_SHEET_HEADERS.filter(
-    header => FILTERABLE_HEADERS[header as keyof typeof FILTERABLE_HEADERS]
-  );
-
-  return filters as unknown as Filter[];
+export const getFilters = (): Filter[] => {
+  return Object.values(FILTERABLE_HEADERS) as unknown as Filter[];
 }
 
 export const getOptionsByFilter = async (filter: Filter): Promise<string[]> => {

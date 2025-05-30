@@ -34,3 +34,6 @@ $activeFilters.subscribe((activeFilters) => {
 });
 
 export const $isFiltering = atom(false);
+
+
+export const $canvasOffset = atom({ x: 0, y: 0 });

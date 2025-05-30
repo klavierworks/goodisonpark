@@ -1,6 +1,6 @@
 import { PresentationControls } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
-import { useRef, type ReactNode } from "react"
+import { useFrame, useThree } from "@react-three/fiber"
+import { useEffect, useRef, type ReactNode } from "react"
 import { Euler, type Group } from "three"
 
 type ControlsProps = {
@@ -39,7 +39,7 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
 
   return (
     <PresentationControls global={true} speed={4} polar={[0, 0]}>
-      <group ref={interactiveModelRef}>
+      <group ref={interactiveModelRef} name="contents">
         {children}
       </group>
     </PresentationControls>

@@ -17,8 +17,21 @@ const filters = getFilters();
     <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
   </div>
 </div>
-
-
+<script>
+  document.querySelectorAll('a.view').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = link.getAttribute('href');
+      if (!href) {
+        return;
+      }
+      const currentUrl = new URL(window.location.href);
+      const newUrl = new URL(href, currentUrl.origin);
+      newUrl.search = currentUrl.search;
+      window.location.href = newUrl.toString();
+    });
+  });
+</script>
 <style>
 .filters {
   @mixin grid;

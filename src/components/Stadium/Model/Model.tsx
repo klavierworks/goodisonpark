@@ -62,7 +62,7 @@ const Model = ({ entries }: ModelProps) => {
 
   return (
     <group>
-      <mesh position={[0, 0, 0]} ref={meshRef} name="model">  
+      <mesh position={[0, 0, 0]} ref={meshRef} name="model" visible={false}>
         <boxGeometry args={[STADIUM_SCALE, STADIUM_SCALE, STADIUM_SCALE]} />
         <meshBasicMaterial color="lightgray" />
       </mesh>

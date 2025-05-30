@@ -46,8 +46,8 @@ $activeFilters.subscribe((activeFilters) => {
     searchParams.set(key, value);
     console.log(`Filter set: ${key} = ${value}`);
   });
-  console.log('Clearing URL search params', filterEntries, activeFilters);
-  window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
+  const hasSearchParams = [...searchParams.values()].length > 0;
+  window.history.replaceState({}, '', `${window.location.pathname}${hasSearchParams ? `?${searchParams.toString()}` : '' }`);
 
   filterAllEntries();
 });

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { $entries } from "../../../store/data";
 import Tile from "./Tile/Tile";
 import { SPHERE_SCALE, STADIUM_SCALE, TILE_DEPTH, TILE_HEIGHT } from "../constants";
@@ -58,13 +58,14 @@ const Model = ({ entries }: ModelProps) => {
       </mesh>
       {dedupedLayout.map(
         (tile) => (
-        <Tile
-          key={tile.id}
-          data={tile.data}
-          position={[tile.x, tile.y, tile.z]}
-          rotation={[0, tile.rotation, 0]}
-        />)
-      )}
+          <Suspense key={tile.id} fallback={null}>
+            <Tile
+              data={tile.data}
+              position={[tile.x, tile.y, tile.z]}
+              rotation={[0, tile.rotation, 0]}
+            />
+          </Suspense>
+        ))}
     </group>
   )
 }

@@ -99,6 +99,11 @@ video-tile-element {
   aspect-ratio: var(--aspect-ratio, 1);
   overflow: hidden;
   cursor: pointer;
+  border: 1px solid transparent;
+
+  &:hover {
+    border-color: white;
+  }
 
   &.isLandscape {
     width: 100%;

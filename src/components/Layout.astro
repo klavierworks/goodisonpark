@@ -24,9 +24,13 @@ import { setEntries } from "../store/data";
   }
   setEntries(entries);
 </script>
-<style>
+<style is:global>
   @import '../styles/variables.pcss';
   @import '../styles/typography.pcss';
+
+  * {
+    box-sizing: border-box;
+  }
   body {
     @mixin body;
     margin: 0;

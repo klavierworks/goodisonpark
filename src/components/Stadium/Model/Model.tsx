@@ -23,10 +23,12 @@ const Model = ({ entries }: ModelProps) => {
     let z = Math.sin(angle) * (SPHERE_SCALE / 2);
     
     let y = 0;
+    const Z_DIRECTION = z < 0 ? -1 : 1;
+    const tileDepth = TILE_DEPTH * Z_DIRECTION;
 
     if (index % 2 === 0) {
       y = -TILE_HEIGHT;
-      z += TILE_DEPTH;
+      z += tileDepth;
     }
     if (index % 3 === 0) {
       y = TILE_HEIGHT;
@@ -34,11 +36,11 @@ const Model = ({ entries }: ModelProps) => {
     }
     if (index % 4 === 0) {
       y = -TILE_HEIGHT / 2;
-      z += TILE_DEPTH / 2;
+      z += tileDepth / 2;
     }
     if (index % 5 === 0) {
       y = TILE_HEIGHT / 2;
-      z += -TILE_DEPTH / 2;
+      z += -tileDepth / 2;
     }
 
     const rotation = Math.PI / 2 - angle;

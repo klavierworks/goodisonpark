@@ -50,7 +50,7 @@ const Tile = ({ data, ...rest }: TileProps) => {
     <mesh ref={pointRef} {...rest} onPointerOver={() => setIsHovered(true)} onPointerOut={() => setIsHovered(false)} scale={[0,0,0]}>
       <boxGeometry args={[1, 1, 0.001]} />
       <Suspense fallback={<meshBasicMaterial color="white" transparent opacity={0} />}>
-        <Thumbnail filename={filename} pointRef={pointRef} />
+        <Thumbnail filename={filename} isHovered={isHovered} pointRef={pointRef} />
       </Suspense>
       <Edges linewidth={2} threshold={15} color="white" visible={isHovered} />
     </mesh>

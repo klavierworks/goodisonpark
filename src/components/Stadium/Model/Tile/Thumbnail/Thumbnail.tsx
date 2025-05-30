@@ -1,16 +1,18 @@
 import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { ASSET_URL } from "astro:env/client";
-import { useEffect, type RefObject } from "react";
+import { Suspense, useEffect, type RefObject } from "react";
 import type { Mesh } from "three";
 import { lerp } from "three/src/math/MathUtils.js";
+import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
 
 type ThumbnailProps = {
   filename: string;
+  isHovered: boolean;
   pointRef: RefObject<Mesh | null>
 }
 
-const Thumbnail = ({ filename, pointRef }: ThumbnailProps) => {
+const Thumbnail = ({ filename, isHovered, pointRef }: ThumbnailProps) => {
   const texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
   let [width, height] = [1, texture.image.height / texture.image.width];
   if (height > width) {
@@ -29,7 +31,16 @@ const Thumbnail = ({ filename, pointRef }: ThumbnailProps) => {
     pointRef.current.updateMatrix();
   });
 
-  return <meshBasicMaterial color="white" map={texture} />;
+  const imageMaterial = <meshBasicMaterial color="white" map={texture} />;
+  if (isHovered) {
+    return (
+      <Suspense fallback={imageMaterial}>
+        <VideoThumbnail filename={filename} />
+      </Suspense>
+    )
+  }
+
+  return imageMaterial;
 }
 
 export default Thumbnail;

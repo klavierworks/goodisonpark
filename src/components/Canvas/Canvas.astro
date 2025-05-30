@@ -39,9 +39,7 @@ const shuffledEntries = entriesWithCount.sort(() => Math.random() - 0.5);
   '--rows': rows,
 }}>
   {shuffledEntries.map(entry => (
-    <div class="tile">
-      <Tile entry={entry} isRear={isRear} />
-    </div>
+    <Tile entry={entry} isRear={isRear} />
   ))}
 </canvas-element>
 </div>
@@ -67,7 +65,9 @@ class CanvasElement extends HTMLElement {
       const rows = Math.ceil(entries.length / cols);
 
       this.style.setProperty('--columns', `${cols}`);
-      this.style.setProperty('--rows', `${rows + 1}`);
+      this.style.setProperty('--rows', `${rows}`);
+
+      console.log(entries.length, cols, rows);
     })
 
     if (this.isRear) {
@@ -80,7 +80,7 @@ class CanvasElement extends HTMLElement {
 
     $isFiltering.subscribe(isFiltering => {
       if (isFiltering) {
-        this.classList.add('isFiltering');
+      //  this.classList.add('isFiltering');
       } else {
         this.classList.remove('isFiltering');
         this.offsetX = 0;
@@ -104,7 +104,7 @@ class CanvasElement extends HTMLElement {
     this.mouseY = event.screenY - (window.innerHeight / 2);
   }
   handleFrame() {
-    if (!this.isMouseOver || $isFiltering.get()) {
+    if (!this.isMouseOver) {
       requestAnimationFrame(this.handleFrame.bind(this));
       return;
     }
@@ -149,7 +149,6 @@ canvas-element {
   --tile-height: 33vw;
 
   user-select: none;
-  display: block;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -160,6 +159,7 @@ canvas-element {
   scrollbar-width: none;
   translate: calc(-50% + var(--offset-x)) calc(-50% + var(--offset-y));
   transition: opacity 0.5s ease-in-out;
+  margin: 0 auto;
 
   &.noJs {
     overflow: auto;
@@ -171,18 +171,11 @@ canvas-element {
     pointer-events: none;
   }
 
-  .tile {
-    display: inline-block;
-    width: calc(var(--tile-width));
-    height: calc(var(--tile-height));
-    padding: 2vh 2vw;
+  &.isRear {
+    pointer-events: none;
+    opacity: 0.05 !important;
+    transform: translateZ(-100px);
+    z-index: -1;
   }
-}
-
-.isRear {
-  pointer-events: none;
-  opacity: 0.1 !important;
-  transform: translateZ(-75px);
-  z-index: -1;
 }
 </style>

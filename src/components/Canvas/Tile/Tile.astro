@@ -11,7 +11,7 @@ type Props = {
 }
 
 ---
-<tile-element data-id={entry.id} class={`isVisible ${className}`} {...rest}>
+<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''}`} isRear={isRear} {...rest}>
   <a href={`/space?memory=${entry.memory}`}>
     <VideoTile filename={entry.filename} name={entry.name} />
     {!isRear && (
@@ -29,12 +29,16 @@ import { $entries } from "../../../store/data";
   export class TileElement extends HTMLElement {
     connectedCallback() {
       const id = this.getAttribute('data-id') as string;
+      const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
+      if (isRear) {
+        return;
+      }
       $entries.subscribe(entries => {
         const isVisible = !!entries.find(entry => entry.id === id);
         if (isVisible) {
-          this.classList.add('isVisible');
+          this.classList.remove('isHidden');
         } else {
-          this.classList.remove('isVisible');
+          this.classList.add('isHidden');
         }
       });
     }
@@ -47,6 +51,10 @@ import { $entries } from "../../../store/data";
 
 <style is:global>
 tile-element {
+  width: calc(var(--tile-width));
+  height: calc(var(--tile-height));
+  padding: 2vh 2vw;
+
   display: inline-flex;
   flex-direction: column;
   align-items: start;
@@ -54,7 +62,7 @@ tile-element {
   opacity: 1;
   transition: all 0.25s ease-in-out;
   overflow: hidden;
-  height: 100%;
+  transform-origin: center center;
 
   a {
     display: contents;
@@ -65,6 +73,7 @@ tile-element {
   &.isHidden {
     opacity: 0 !important;
     height: 0px;
+    padding: 0px;
     width: 0px;
   }
 
@@ -83,6 +92,24 @@ tile-element {
     background-color: rgba(255 255 255 / 0.05);
     padding: 0.25em;
     line-height: 1;
+  }
+
+  &:nth-child(odd) {
+    transform: translateZ(5px);
+  }
+  &:nth-child(even) {
+    transform: translateZ(-5px);
+  }
+
+  &.isRear {
+
+    &:nth-child(odd) {
+      transform: translateZ(50px);
+    }
+
+    &:nth-child(even) {
+      transform: translateZ(-50px);
+    }
   }
 }
 </style>

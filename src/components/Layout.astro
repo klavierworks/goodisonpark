@@ -1,5 +1,7 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import { getDatabase } from "../api/api"
+import FocusedPlayer from "./FocusedPlayer/FocusedPlayer.astro";
 
 const entries = await getDatabase();
 ---
@@ -11,13 +13,15 @@ const entries = await getDatabase();
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Goodison Memorial</title>
+    <ClientRouter />
 	</head>
 	<body data-entries={JSON.stringify(entries)}>
     <slot />
+    <FocusedPlayer />
 	</body>
 </html>
 <script>
-import { setEntries } from "../store/data";
+  import { setEntries } from "../store/data";
   const entries = document.body.getAttribute("data-entries");
   if (!entries) {
     throw new Error("No entries found");

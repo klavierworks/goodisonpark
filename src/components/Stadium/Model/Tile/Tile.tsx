@@ -1,11 +1,9 @@
-import { Edges, useTexture, useVideoTexture, type EdgesRef } from "@react-three/drei";
+import { Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import { ASSET_URL } from "astro:env/client";
-import { Suspense, useRef, useState } from "react";
-import { Mesh, Raycaster, Vector2, Vector3 } from "three";
+import {$focusedEntry} from '../../../../store/data';
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Mesh, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
-
-const CENTER_POINT = new Vector2(0, 0);
 
 type TileProps = {
   data: Entry
@@ -23,31 +21,30 @@ const Tile = ({ data, ...rest }: TileProps) => {
   }
 
   const [worldPosition] = useState(new Vector3());
-  const [raycast] = useState(new Raycaster());
-  const [isIntersected, setIsIntersected] = useState(false);
+  const [isForegrounded, setIsForegrounded] = useState(false);
   
-  useFrame(({camera}) => {
+  useFrame(() => {
     if (!pointRef.current) {
       return;
     }
     pointRef.current.getWorldPosition(worldPosition);
-    if (worldPosition.z > 0) {
-      setIsIntersected(false);
-      return;
-    }
-    raycast.setFromCamera(CENTER_POINT, camera);
-    const intersects = raycast.intersectObject(pointRef.current);
-    setIsIntersected(intersects.length > 0);
-
-    if (isIntersected) {
-     // onItemFocused(data);
-    }
+    setIsForegrounded(worldPosition.z > 0);
   });
 
   const [isHovered, setIsHovered] = useState(false);
 
+  const handleToggleActive = useCallback(() => {
+    $focusedEntry.set(data.id);
+  }, [data]);
+
+  const pointerAttributes = useMemo(() => isForegrounded ? ({
+    onPointerOver: () => setIsHovered(true),
+    onPointerOut: () => setIsHovered(false),
+    onClick: handleToggleActive,
+  }) : {}, [handleToggleActive, isForegrounded]);
+
   return (
-    <mesh ref={pointRef} {...rest} onPointerOver={() => setIsHovered(true)} onPointerOut={() => setIsHovered(false)} scale={[0,0,0]}>
+    <mesh ref={pointRef} {...rest} scale={[0,0,0]} {...pointerAttributes}>
       <boxGeometry args={[1, 1, 0.001]} />
       <Suspense fallback={<meshBasicMaterial color="white" transparent opacity={0} />}>
         <Thumbnail filename={filename} isHovered={isHovered} pointRef={pointRef} />

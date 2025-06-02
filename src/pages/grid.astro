@@ -6,8 +6,8 @@ import Navigation from "../components/Navigation/Navigation.astro";
 ---
 
 <Layout>
-  <Header />
+  <Header transition:persist />
   <Canvas />
   <Canvas isRear />
-  <Navigation section="grid" />
+  <Navigation section="grid" transition:persist />
 </Layout>

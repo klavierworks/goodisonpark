@@ -32,6 +32,7 @@ const Thumbnail = ({ filename, isHovered, pointRef }: ThumbnailProps) => {
   });
 
   const imageMaterial = <meshBasicMaterial color="white" map={texture} />;
+  
   if (isHovered) {
     return (
       <Suspense fallback={imageMaterial}>

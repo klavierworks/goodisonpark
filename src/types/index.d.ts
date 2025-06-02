@@ -9,7 +9,7 @@ declare global {
     id: string
     name: string
     filename: string
-    videoUrl: string
+    //videoUrl: string
     memory: string
     year: string
     category: string

@@ -31,7 +31,6 @@ export class VideoTileElement extends HTMLElement {
   isPlaying = false;
 
   connectedCallback() {
-    console.log('VideoTileElement connected:', this);
     this.addEventListener('hover', this.playVideo)
     this.addEventListener('mouseover', this.playVideo)
     this.addEventListener('mouseleave', this.pauseVideo);

@@ -1,4 +1,4 @@
-import { EXPECTED_SHEET_HEADERS, FILTERABLE_HEADERS } from "../constants/constants";
+import { EXPECTED_SHEET_HEADERS } from "../constants/constants";
 
 const validateHeaders = (keys: string[]) => {
   const expectedHeaders = EXPECTED_SHEET_HEADERS;
@@ -25,7 +25,7 @@ const getDataFromApi = async (): Promise<Database> => {
   const formatted: Entry[] = values.map((value) => ({
     id: `${Date.now() + Math.random()}`,
     filename: value[0],
-    videoUrl: value[1],
+    // videoUrl: value[1],
     memory: value[2],
     year: value[3],
     category: value[4],
@@ -48,10 +48,6 @@ export const getDatabase = async (): Promise<Database> => {
   const entriesWithVideos = database.filter((entry) => entry.filename);
   cachedData = entriesWithVideos;
   return entriesWithVideos;
-}
-
-export const getFilters = (): Filter[] => {
-  return Object.values(FILTERABLE_HEADERS) as unknown as Filter[];
 }
 
 export const getOptionsByFilter = async (filter: Filter): Promise<string[]> => {

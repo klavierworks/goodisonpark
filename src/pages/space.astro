@@ -6,7 +6,7 @@ import Header from "../components/Header/Header.astro";
 ---
 
 <Layout>
-  <Header />
+  <Header transition:persist />
   <Stadium client:only isController isTarget />
-  <Navigation section="space" />
+  <Navigation section="space" transition:persist />
 </Layout>

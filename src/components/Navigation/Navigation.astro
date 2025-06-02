@@ -1,5 +1,5 @@
 ---
-import { getFilters } from "../../api/api";
+import { getFilters } from "../../api/utils";
 import Filter from "../../components/Filter/Filter.astro";
 
 type Props = {
@@ -39,6 +39,7 @@ const filters = getFilters();
   bottom: 0;
   left: 0;
   width: 100%;
+  pointer-events: none;
 }
 
 .filter {
@@ -70,6 +71,7 @@ const filters = getFilters();
     padding: 5px 6px;
     text-decoration: none;
     color: white;
+    pointer-events: auto;
   }
 
   .isActive {

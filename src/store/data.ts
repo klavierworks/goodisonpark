@@ -1,25 +1,96 @@
 import { atom } from 'nanostores'
+import { getFilters } from '../api/utils';
 
 export const $allEntries = atom<Entry[]>([])
 export const $entries = atom<Entry[]>([])
-
-$entries.subscribe((entries) => {
-  console.log('Entries updated:', entries)
-});
+export const $focusedEntry = atom<string | null>(null);
 
 export const $activeFilters = atom<ActiveFilters>({})
 
-if (typeof window !== 'undefined') {
-  const urlParams = new URLSearchParams(window.location.search);
-  let newFilters: ActiveFilters = {};
-  urlParams.forEach((value, key) => {
-    if (value) {
-      newFilters[key as keyof ActiveFilters] = value;
-      console.log(`Filter loaded from URL: ${key} = ${value}.`);
+export const $canvasOffset = atom({ x: 0, y: 0 });
+export const $isFiltering = atom(false);
+
+export const $images = atom<{
+  [key: string]: {
+    src: string;
+    width: number;
+    height: number;
+  };
+}>({});
+
+const setUrlSearchParams = () => {
+  if (typeof window === 'undefined') {
+    console.warn('setUrlSearchParams called on server side, skipping.');
+    return;
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  const focusedEntry = $focusedEntry.get();
+  if (focusedEntry) {
+    searchParams.set('focus', focusedEntry);
+    console.log(`Focused entry set: ${focusedEntry}`);
+  } else {
+    searchParams.delete('focus');
+    console.log('Focused entry cleared');
+  }
+
+  const filters = getFilters();
+  const activeFilters = $activeFilters.get();
+  filters.forEach((key) => {
+    const activeValue = activeFilters[key as keyof ActiveFilters];
+    if (activeValue) {
+      searchParams.set(key, activeValue);
+      console.log(`Filter set: ${key} = ${activeValue}`);
+    } else {
+      searchParams.delete(key);
+      console.log(`Filter cleared: ${key}`);
     }
   });
-  $activeFilters.set(newFilters);
+
+  const hasSearchParams = Array.from(searchParams.entries()).length > 0;
+  if (hasSearchParams) {
+    window.history.replaceState({}, '', `?${searchParams.toString()}`);
+  } else {
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
+  console.log('URL search params updated:', searchParams.toString());
 }
+
+const getUrlSearchParams = () => {
+  if (typeof window === 'undefined') {
+    console.warn('getUrlSearchParams called on server side, skipping.');
+    return;
+  }
+  const searchParams = new URLSearchParams(window.location.search);
+  
+  const focus = searchParams.get('focus');
+  if (focus) {
+    $focusedEntry.set(focus);
+    console.log(`Focused entry loaded: ${focus}`);
+  } else {
+    $focusedEntry.set(null);
+    console.log('No focused entry found in URL');
+  }
+
+  const filters: ActiveFilters = {};
+  for (const [key, value] of searchParams.entries()) {
+    if (key !== 'focus') {
+      filters[key as keyof ActiveFilters] = value;
+      console.log(`Filter loaded from URL: ${key} = ${value}`);
+    }
+  }
+  
+  $activeFilters.set(filters);
+}
+getUrlSearchParams();
+$focusedEntry.subscribe(() => {
+  setUrlSearchParams();
+})
+
+$activeFilters.subscribe(() => {
+  setUrlSearchParams();
+});
 
 const filterAllEntries = () => {
   const filterEntries = Object.entries($activeFilters.get()).filter(([_, value]) => value !== undefined);
@@ -38,21 +109,6 @@ export const setEntries = (entriesJson: string) => {
   filterAllEntries();
 }
 
-$activeFilters.subscribe((activeFilters) => {
-  const filterEntries = Object.entries(activeFilters).filter(([_, value]) => value !== undefined);
-
-  const searchParams = new URLSearchParams();
-  filterEntries.forEach(([key, value]) => {
-    searchParams.set(key, value);
-    console.log(`Filter set: ${key} = ${value}`);
-  });
-  const hasSearchParams = [...searchParams.values()].length > 0;
-  window.history.replaceState({}, '', `${window.location.pathname}${hasSearchParams ? `?${searchParams.toString()}` : '' }`);
-
+$activeFilters.subscribe(() => {
   filterAllEntries();
 });
-
-export const $isFiltering = atom(false);
-
-
-export const $canvasOffset = atom({ x: 0, y: 0 });

@@ -1,0 +1,52 @@
+---
+import VideoTile from '../Canvas/Tile/VideoTile/VideoTile.astro';
+
+---
+<focused-player-element>
+  test
+  <VideoTile filename="" name="" />
+</focused-player-element>
+
+<script>
+import { $allEntries, $entries, $focusedEntry } from "../../store/data";
+
+export class FocusedPlayerElement extends HTMLElement {
+  entry: Entry | null = null;
+  connectedCallback() {
+    $focusedEntry.subscribe(entry => {
+      this.setActiveFocusedEntry();
+    });
+
+    $allEntries.subscribe(entries => {
+      this.setActiveFocusedEntry();
+    });
+  }
+
+  setActiveFocusedEntry() {
+    this.entry = $allEntries.get().find(e => e.id === $focusedEntry.get()) || null;
+
+    console.log('FocusedPlayerElement: entry changed', this.entry, $allEntries.get());
+
+    if (this.entry) {
+      this.handleActive();
+    } else {
+      this.handleClose();
+    }
+  }
+
+  handleActive() {
+    if (!this.entry) {
+      return;
+    }
+    this.innerHTML = `
+      <video-tile-element filename="${this.entry.filename}" name="${this.entry.name}"></video-tile-element>
+    `;
+  }
+
+  handleClose() {}
+}
+
+if (!customElements.get('focused-player-element')) {
+  customElements.define('focused-player-element', FocusedPlayerElement);
+}
+</script>

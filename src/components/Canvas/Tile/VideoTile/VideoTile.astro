@@ -1,5 +1,5 @@
 ---
-import { Image as AstroImage } from 'astro:assets';
+import VideoPlayer from '../../../VideoPlayer/VideoPlayer.astro';
 
 const { filename, name } = Astro.props;
 type Props = {
@@ -7,128 +7,37 @@ type Props = {
   name: string;
 }
 
-const fileNameWithoutExtension = filename.split('.').slice(0, -1).join('.');
-
-const images = Object.entries(import.meta.glob('../../../../../public/videos/**/*.jpg', { eager: true }) as Record<string, { default: string }>);
-
-const image = images.find(([key]) => key.includes(fileNameWithoutExtension))![1].default;
-
-const imageMetadata = image as unknown as ImageMetadata;
-const width = imageMetadata.width ?? 0;
-const height = imageMetadata.height ?? 0;
-
-const aspectRatio = width / height;
-const isLandscape = aspectRatio > 1;
 ---
-<video-tile-element class={`tile ${isLandscape ? 'isLandscape' : 'isPortrait'}`} filename={fileNameWithoutExtension} name={name} style={`--aspect-ratio: ${aspectRatio}`}>
-  <AstroImage src={image} alt={name} inferSize class="image" />
-</video-tile-element>
+<div class="tile">
+  {filename && <VideoPlayer filename={filename} name={name} />}
+</div>
 <script>
-  import { ASSET_URL } from "astro:env/client";
-  import Hls from 'hls.js';
-export class VideoTileElement extends HTMLElement {
-  videoElement: HTMLVideoElement | null = null;
-  isPlaying = false;
+import type { VideoPlayerElement } from "../../../VideoPlayer/VideoPlayer.astro.0.mts";
 
-  connectedCallback() {
-    this.addEventListener('hover', this.playVideo)
-    this.addEventListener('mouseover', this.playVideo)
-    this.addEventListener('mouseleave', this.pauseVideo);
+document.querySelectorAll('.tile').forEach(tile => {
+  const videoElement = tile.querySelector('video-player-element') as VideoPlayerElement | null;
+  if (!videoElement) {
+    console.error('VideoTileElement: video-player-element not found');
+    return;
   }
-
-  setupVideo() {
-    const filename = this.getAttribute('filename');
-    this.videoElement = document.createElement('video');
-    this.videoElement.muted = true;
-    this.videoElement.loop = true;
-    this.videoElement.playsInline = true;
-    this.videoElement.autoplay = true;
-    this.videoElement.disablePictureInPicture = true;
-    this.videoElement.classList.add('video');
-    this.appendChild(this.videoElement);
-
-    const hls = new Hls();
-    hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
-    hls.attachMedia(this.videoElement);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      if (this.videoElement) {
-        this.videoElement.play();
-        this.isPlaying = true;
-      }
-    });
-
-    this.videoElement.addEventListener('loadeddata', () => {
-      if (this.isPlaying) {
-        this.videoElement?.play();
-      }
-    });
-    this.videoElement.addEventListener('play', () => {
-      this.isPlaying = true;
-    });
-    this.videoElement.addEventListener('pause', () => {
-      this.isPlaying = false;
-    });
-    
-  }
-  playVideo() {
-    if (!this.videoElement) {
-      this.setupVideo();
-    }
-    if (this.videoElement && !this.isPlaying) {
-      this.videoElement.play();
-      this.isPlaying = true;
-    }
-  }
-
-  pauseVideo() {
-    if (this.videoElement && this.isPlaying) {
-      this.videoElement.pause();
-      this.isPlaying = false;
-    }
-  }
-}
-
-if (!customElements.get('video-tile-element')) {
-  customElements.define('video-tile-element', VideoTileElement);
-}
+  tile.addEventListener('mouseover', () => {
+    videoElement.playVideo()
+  });
+  tile.addEventListener('mouseleave', () => {
+    videoElement.pauseVideo();
+  });
+});
 </script>
 
 <style is:global>
-video-tile-element {
+.tile {
   position: relative;
-  aspect-ratio: var(--aspect-ratio, 1);
   overflow: hidden;
   cursor: pointer;
   border: 1px solid transparent;
 
   &:hover {
     border-color: white;
-  }
-
-  &.isLandscape {
-    width: 100%;
-    height: auto;
-  }
-
-  &.isPortrait {
-    width: auto;
-    height: 100%;
-  }
-
-  .image {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    z-index: 1;
-  }
-  
-  .video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
   }
 }
 </style>

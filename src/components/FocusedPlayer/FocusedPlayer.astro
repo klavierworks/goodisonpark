@@ -1,14 +1,22 @@
 ---
-import VideoTile from '../Canvas/Tile/VideoTile/VideoTile.astro';
+import VideoPlayer from '../VideoPlayer/VideoPlayer.astro';
+
+type Props = {
+  filename: string;
+  name: string;
+}
+
+const { filename, name } = Astro.props;
 
 ---
 <focused-player-element>
-  test
-  <VideoTile filename="" name="" />
+  <VideoPlayer filename={filename} name={name} />
+  <div class="details"></div>
 </focused-player-element>
 
 <script>
-import { $allEntries, $entries, $focusedEntry } from "../../store/data";
+import { $allEntries, $focusedEntry } from "../../store/data";
+import type { VideoPlayerElement } from "../VideoPlayer/VideoPlayer.astro.0.mts";
 
 export class FocusedPlayerElement extends HTMLElement {
   entry: Entry | null = null;
@@ -38,15 +46,97 @@ export class FocusedPlayerElement extends HTMLElement {
     if (!this.entry) {
       return;
     }
-    this.innerHTML = `
-      <video-tile-element filename="${this.entry.filename}" name="${this.entry.name}"></video-tile-element>
+    console.log('FocusedPlayerElement: handleActive', this.entry);
+
+    const fileNameWithoutExtension = this.entry.filename.split('.').slice(0, -1).join('.');
+    const videoPlayerElement = this.querySelector('video-player-element') as VideoPlayerElement | null;
+    if (!videoPlayerElement) {
+      console.error('FocusedPlayerElement: video-player-element not found');
+      return;
+    }
+    videoPlayerElement.setAttribute('filename', fileNameWithoutExtension);
+    videoPlayerElement.setAttribute('name', this.entry.name);
+    videoPlayerElement.setAttribute('muted', 'false');
+    videoPlayerElement.playVideo();
+    this.querySelector('.details')!.innerHTML = `
+        <div>${this.entry.year}</div>
+        <div>${this.entry.memory}</div>
+        <div>${this.entry.stand}</div>
+        <div>${this.entry.block}</div>
     `;
+    
+    window.addEventListener('click', this.handleClick.bind(this));
+    this.classList.add('isActive');
   }
 
-  handleClose() {}
+  handleClose() {
+    console.log('FocusedPlayerElement: handleClose');
+    this.classList.remove('isActive');
+    const videoPlayerElement = this.querySelector('video-player-element') as VideoPlayerElement;
+    videoPlayerElement!.reset();
+    $focusedEntry.set(null);
+    window.removeEventListener('click', this.handleClick.bind(this));
+  }
+
+  handleClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const hasClickedVideoTile = target.closest('video-tile-element');
+    const hasClickedRear = target.closest('focused-player-element');
+
+    if (hasClickedVideoTile) {
+      (this.querySelector('video-player-element') as VideoPlayerElement).toggleVideo();
+      return;
+    }
+
+    if (hasClickedRear) {
+      console.log('FocusedPlayerElement: clicked on rear, closing');
+      this.handleClose();
+      return;
+    }
+  }
+
 }
 
 if (!customElements.get('focused-player-element')) {
   customElements.define('focused-player-element', FocusedPlayerElement);
 }
 </script>
+
+<style is:global>
+focused-player-element {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  z-index: 2000;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+  
+  &.isActive {
+    opacity: 1;
+    pointer-events: auto;
+    backdrop-filter: blur(10px);
+  }
+
+  video-player-element {
+    z-index: 1;
+    width: 80% !important;
+    height: 80% !important;
+  }
+
+  .details {
+    @mixin caption;
+    z-index: 2;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    text-align: center;
+  }
+}
+</style>

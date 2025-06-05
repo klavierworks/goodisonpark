@@ -1,0 +1,162 @@
+---
+import { Image as AstroImage } from 'astro:assets';
+
+const { filename, name } = Astro.props;
+type Props = {
+  filename: string;
+  name: string;
+}
+
+const fileNameWithoutExtension = filename?.split('.').slice(0, -1).join('.') ?? null;
+
+const images = Object.entries(import.meta.glob('../../../public/videos/**/*.jpg', { eager: true }) as Record<string, { default: string }>);
+let matchingImage = images.find(([key]) => key.includes(fileNameWithoutExtension));
+
+let image: string | undefined;
+if (matchingImage) {
+  image = matchingImage[1].default;
+} else {
+  console.warn(`No matching image found for filename: ${fileNameWithoutExtension}`);
+}
+
+const imageMetadata = image as unknown as ImageMetadata;
+const width = imageMetadata?.width ?? 0;
+const height = imageMetadata?.height ?? 0;
+
+const aspectRatio = width / height;
+const isLandscape = aspectRatio > 1;
+---
+<video-player-element class={`${isLandscape ? 'isLandscape' : 'isPortrait'}`} filename={fileNameWithoutExtension} name={name} style={`--aspect-ratio: ${aspectRatio}`}>
+  {fileNameWithoutExtension && image && <AstroImage src={image} alt={name} inferSize class="image" />}
+</video-player-element>
+<script>
+  import { ASSET_URL } from "astro:env/client";
+  import Hls from 'hls.js';
+export class VideoPlayerElement extends HTMLElement {
+  videoElement: HTMLVideoElement | null = null;
+  isAutoplay = false;
+  isPlaying = false;
+
+  connectedCallback() {
+    this.isAutoplay = this.hasAttribute('autoplay') && this.getAttribute('autoplay') === 'true';
+    console.log('VideoPlayerElement: connectedCallback', this.isAutoplay);
+    if (this.isAutoplay) {
+      this.playVideo();
+    }
+  }
+
+  setupVideo() {
+    const filename = this.getAttribute('filename');
+    this.videoElement = document.createElement('video');
+    this.videoElement.muted = !this.hasAttribute('muted') || this.getAttribute('muted') === 'true';
+
+    this.videoElement.loop = true;
+    this.videoElement.playsInline = true;
+    this.videoElement.autoplay = true;
+    this.videoElement.disablePictureInPicture = true;
+    this.videoElement.classList.add('video');
+    this.appendChild(this.videoElement);
+
+    const hls = new Hls();
+    hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
+    hls.attachMedia(this.videoElement);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      if (this.videoElement) {
+        console.log(this.videoElement)
+        this.videoElement.play();
+        this.isPlaying = true;
+      }
+    });
+
+    this.videoElement.addEventListener('loadeddata', () => {
+      this.style.setProperty('--aspect-ratio', `${this.videoElement!.videoWidth / this.videoElement!.videoHeight}`);
+      if (this.isPlaying) {
+        this.videoElement?.play();
+      }
+    });
+    this.videoElement.addEventListener('play', () => {
+      this.isPlaying = true;
+    });
+    this.videoElement.addEventListener('pause', () => {
+      this.isPlaying = false;
+    }); 
+  }
+
+  reset() {
+    console.log('VideoPlayerElement: reset called');
+    if (this.videoElement) {
+      this.videoElement.pause();
+      this.videoElement.src = '';
+      this.videoElement.load();
+      this.isPlaying = false;
+    }
+    this.innerHTML = '';
+    this.videoElement = null;
+  }
+
+  playVideo() {
+    console.log('VideoPlayerElement: playVideo called');
+    if (!this.videoElement) {
+      this.setupVideo();
+    }
+    if (this.videoElement && !this.isPlaying) {
+      this.videoElement.play();
+      this.isPlaying = true;
+    }
+  }
+
+  pauseVideo() {
+    if (this.videoElement && this.isPlaying) {
+      this.videoElement.pause();
+      this.isPlaying = false;
+    }
+  }
+
+  toggleVideo() {
+    if (this.isPlaying) {
+      this.pauseVideo();
+    } else {
+      this.playVideo();
+    }
+  }
+}
+
+if (!customElements.get('video-player-element')) {
+  customElements.define('video-player-element', VideoPlayerElement);
+}
+</script>
+
+<style is:global>
+video-player-element {
+  position: relative;
+  display: flex;
+  aspect-ratio: var(--aspect-ratio, 1);
+  overflow: hidden;
+
+  &.isLandscape {
+    width: 100%;
+    height: auto;
+  }
+
+  &.isPortrait {
+    width: auto;
+    height: 100%;
+  }
+
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    z-index: 1;
+  }
+  
+  .video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+}
+</style>

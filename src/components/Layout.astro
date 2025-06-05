@@ -17,7 +17,7 @@ const entries = await getDatabase();
 	</head>
 	<body data-entries={JSON.stringify(entries)}>
     <slot />
-    {false && <FocusedPlayer />}
+    <FocusedPlayer />
 	</body>
 </html>
 <script>

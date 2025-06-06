@@ -3,6 +3,12 @@ import { getDatabase } from "../../../api/api";
 import Tile from "../Tile/Tile.astro";
 import { createColumns, type EntryWithCount, getEntriesWithCount } from './utils';
 
+type Props = {
+  isRear?: boolean;
+}
+
+const { isRear = false } = Astro.props as Props;
+
 const entries = await getDatabase();
 
 const entriesWithCount = getEntriesWithCount(entries);
@@ -13,7 +19,7 @@ const columns = createColumns(entriesWithCount) as unknown as EntryWithCount[][]
 <masonry-element>
   {columns.map((column, index) => (
     <div class="column" data-column-id={index}>
-      {column.map(entry => <Tile entry={entry} isRear={false} />)}
+      {column.map(entry => <Tile entry={entry} isRear={isRear} />)}
     </div>
   ))}
 </masonry-element>

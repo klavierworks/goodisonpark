@@ -89,11 +89,6 @@ getUrlSearchParams();
 $focusedEntry.subscribe(() => {
   setUrlSearchParams();
 })
-
-$activeFilters.subscribe(() => {
-  setUrlSearchParams();
-});
-
 const filterAllEntries = () => {
   const filterEntries = Object.entries($activeFilters.get()).filter(([_, value]) => value !== undefined);
 
@@ -105,12 +100,14 @@ const filterAllEntries = () => {
   $entries.set(filteredEntries)
 }
 
+
+$activeFilters.subscribe(() => {
+  filterAllEntries();
+  setUrlSearchParams();
+});
+
 export const setEntries = (entriesJson: string) => {
   const parsedEntries = JSON.parse(entriesJson) as Entry[]
   $allEntries.set(parsedEntries)
   filterAllEntries();
 }
-
-$activeFilters.subscribe(() => {
-  filterAllEntries();
-});

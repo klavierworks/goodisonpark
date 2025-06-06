@@ -36,7 +36,7 @@ const options = unsortedOptions.sort((a, b) => {
 </filter-element>
 <script>
 import { getFilterLabel } from "../../api/utils";
-import { $activeFilters, $entries, $isFiltering } from "../../store/data";
+import { $activeFilters, $entries } from "../../store/data";
 
 class FilterElement extends HTMLElement {
   isOpen = false;

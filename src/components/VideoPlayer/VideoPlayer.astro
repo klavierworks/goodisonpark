@@ -39,7 +39,6 @@ export class VideoPlayerElement extends HTMLElement {
 
   connectedCallback() {
     this.isAutoplay = this.hasAttribute('autoplay') && this.getAttribute('autoplay') === 'true';
-    console.log('VideoPlayerElement: connectedCallback', this.isAutoplay);
     if (this.isAutoplay) {
       this.playVideo();
     }
@@ -62,7 +61,6 @@ export class VideoPlayerElement extends HTMLElement {
     hls.attachMedia(this.videoElement);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
       if (this.videoElement) {
-        console.log(this.videoElement)
         this.videoElement.play();
         this.isPlaying = true;
       }
@@ -83,7 +81,6 @@ export class VideoPlayerElement extends HTMLElement {
   }
 
   reset() {
-    console.log('VideoPlayerElement: reset called');
     if (this.videoElement) {
       this.videoElement.pause();
       this.videoElement.src = '';
@@ -95,7 +92,6 @@ export class VideoPlayerElement extends HTMLElement {
   }
 
   playVideo() {
-    console.log('VideoPlayerElement: playVideo called');
     if (!this.videoElement) {
       this.setupVideo();
     }

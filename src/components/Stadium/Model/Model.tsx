@@ -4,7 +4,7 @@ import { SPHERE_SCALE, STADIUM_SCALE, STADIUM_Y_POSITION, TILE_DEPTH, TILE_HEIGH
 import { Mesh } from "three";
 import StadiumModel from "./StadiumModel.tsx";
 import { getEntriesPlacements } from "./utils";
-import { $allEntries, $entries } from "../../../store/data.ts";
+import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
 
 type ModelProps = {
   entries: Entry[]
@@ -22,6 +22,17 @@ const Model = ({ }: ModelProps) => {
 
     return () => {
       unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleFiltering = async (event: CustomEvent) => {
+      $activeFilters.set(event.detail.filters);
+    }
+
+    document.addEventListener('filtering', handleFiltering);
+    return () => {
+      document.removeEventListener('filtering', handleFiltering);
     };
   }, []);
 

@@ -9,7 +9,7 @@ const WORDS = [
 const DURATION = 0.75;
 const DELAY = 0.5;
 ---
-<div class="splash noJs">
+<div class="splash">
   <div class="text">
     {WORDS.map((word, index) => (
       <div
@@ -30,13 +30,14 @@ const splash = document.querySelector('.splash');
 if (!splash) {
   throw new Error('Splash element not found');
 }
-splash.classList.remove('noJs');
+
 const lastWord = [...words].at(-1)
 if (!lastWord) {
   throw new Error('No last word found');
 }
 lastWord.addEventListener('animationend', () => {
   splash.classList.add('isComplete');
+  window.localStorage.setItem('hasViewedSplash', 'true');
 });
 </script>
 <style>
@@ -51,10 +52,6 @@ lastWord.addEventListener('animationend', () => {
     inset: 0;
     z-index: 1000;
     background-color: var(--navy);
-    
-    &.noJs {
-      display: none;
-    }
 
     &.isComplete {
       opacity: 0;
@@ -83,4 +80,14 @@ lastWord.addEventListener('animationend', () => {
       opacity: 1;
     }
   }
+</style>
+
+<style is:global>
+.splash {
+  .hasViewedSplash &,
+  .noJs & {
+    display: none !important;
+    pointer-events: none !important;
+  }
+}
 </style>

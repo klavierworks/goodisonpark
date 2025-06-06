@@ -19,7 +19,7 @@ const entries = await getDatabase();
 	<body data-entries={JSON.stringify(entries)}>
     <slot />
     <FocusedPlayer />
-    {false && <Splash />}
+    <Splash />
 	</body>
 </html>
 <script>

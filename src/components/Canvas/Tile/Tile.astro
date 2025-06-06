@@ -11,7 +11,7 @@ type Props = {
 }
 
 ---
-<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''}`} isRear={isRear} {...rest}>
+<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest}>
   <a href={`/space?memory=${entry.memory}`}>
     <VideoTile filename={entry.filename} name={entry.name} />
     {!isRear && (
@@ -36,9 +36,9 @@ import { $entries } from "../../../store/data";
       $entries.subscribe(entries => {
         const isVisible = !!entries.find(entry => entry.id === id);
         if (isVisible) {
-          this.classList.remove('isHidden');
+          this.classList.add('isVisible');
         } else {
-          this.classList.add('isHidden');
+          this.classList.remove('isVisible');
         }
       });
     }
@@ -51,9 +51,8 @@ import { $entries } from "../../../store/data";
 
 <style is:global>
 tile-element {
-  width: 100%;
-  padding: 4vw;
-
+  height: 0;
+  padding: 0;
   display: inline-flex;
   flex-direction: column;
   align-items: start;
@@ -62,7 +61,6 @@ tile-element {
   transition: all 0.25s ease-in-out;
   overflow: hidden;
   transform-origin: center center;
-  contain: layout style;
 
   a {
     display: contents;
@@ -70,11 +68,9 @@ tile-element {
     text-decoration: none;
   }
 
-  &.isHidden {
-    opacity: 0 !important;
-    height: 0px;
-    padding: 0px;
-    width: 0px;
+  &.isVisible {
+    height: 100%;
+    padding: 4vw;
   }
 
   h2 {

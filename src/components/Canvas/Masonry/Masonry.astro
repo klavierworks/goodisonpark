@@ -1,41 +1,25 @@
 ---
 import { getDatabase } from "../../../api/api";
 import Tile from "../Tile/Tile.astro";
-import { createColumns } from './utils';
+import { createColumns, type EntryWithCount, getEntriesWithCount } from './utils';
 
 const entries = await getDatabase();
 
-let memoryCounts = new Map<string, number>();
-entries.forEach(entry => {
-  const memory = entry.memory;
-  if (memoryCounts.has(memory)) {
-    memoryCounts.set(memory, memoryCounts.get(memory)! + 1);
-  } else {
-    memoryCounts.set(memory, 1);
-  }
-});
-
-const entriesWithCount = entries.map(entry => {
-  const memory = entry.memory;
-  const count = memoryCounts.get(memory);
-  return {
-    ...entry,
-    count: count ?? 0,
-  };
-});
+const entriesWithCount = getEntriesWithCount(entries);
 
 // Shuffle the entries
-const columns = createColumns(entriesWithCount);
+const columns = createColumns(entriesWithCount) as unknown as EntryWithCount[][];
 ---
 <masonry-element>
-  {columns.map(column => (
-    <div class="column">
+  {columns.map((column, index) => (
+    <div class="column" data-column-id={index}>
       {column.map(entry => <Tile entry={entry} isRear={false} />)}
     </div>
   ))}
 </masonry-element>
 
 <script>
+
 class MasonryElement extends HTMLElement {
   connectedCallback() {}
 }
@@ -45,7 +29,7 @@ if (!customElements.get('masonry-element')) {
 }
 </script>
 
-<style>
+<style is:global>
   masonry-element {
     display: flex;
     flex-direction: row;
@@ -57,6 +41,10 @@ if (!customElements.get('masonry-element')) {
       flex-direction: column;
       width: 33vw;
       gap: 1rem;
+    }
+
+    .column:not(:has(.isVisible)) {
+      width: 0;
     }
   }
 </style>

@@ -10,18 +10,6 @@ type WorldProps = {
   isTarget: boolean;
 }
 const World = ({ isController, isTarget}: WorldProps) => {
-  const [entries, setEntries] = useState($entries.get());
-
-  useEffect(() => {
-    const unsubscribe = $entries.subscribe((newEntries) => {
-      setEntries(newEntries as Entry[]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
   const regress = useThree((state) => state.performance.regress);
   const contents = useThree((state) => state.scene.getObjectByName('contents'));
   const previousRotation = useRef<string>('');
@@ -43,7 +31,7 @@ const World = ({ isController, isTarget}: WorldProps) => {
       <AdaptiveDpr />
       <Preload all />
       <Controls isController={isController} isTarget={isTarget}>
-        <Model entries={entries} />
+        <Model />
       </Controls>
     </Bvh>
   );

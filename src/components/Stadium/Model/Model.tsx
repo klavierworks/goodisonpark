@@ -4,29 +4,42 @@ import { SPHERE_SCALE, STADIUM_SCALE, STADIUM_Y_POSITION, TILE_DEPTH, TILE_HEIGH
 import { Mesh } from "three";
 import StadiumModel from "./StadiumModel.tsx";
 import { getEntriesPlacements } from "./utils";
+import { $allEntries, $entries } from "../../../store/data.ts";
 
 type ModelProps = {
   entries: Entry[]
 }
 
-const Model = ({ entries }: ModelProps) => {
-  const meshRef = useRef<Mesh>(null);
+const Model = ({ }: ModelProps) => {
+  const [allEntries] = useState($allEntries.get());
+
+  const [entries, setEntries] = useState($entries.get());
+console.log(entries)
+  useEffect(() => {
+    const unsubscribe = $entries.subscribe((newEntries) => {
+      setEntries(newEntries as Entry[]);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const layout = useMemo(() => {
     const left = getEntriesPlacements(
-      entries.filter(entry => entry.block && ['TB', 'MS', 'FE'].includes(entry.block.slice(0, 2))),
+      allEntries.filter(entry => entry.block && ['TB', 'MS', 'FE'].includes(entry.block.slice(0, 2))),
       'left'
     );
     const right = getEntriesPlacements(
-      entries.filter(entry => entry.block && ['UB', 'UV', 'LV', 'PK', 'LB'].includes(entry.block.slice(0, 2))),
+      allEntries.filter(entry => entry.block && ['UB', 'UV', 'LV', 'PK', 'LB'].includes(entry.block.slice(0, 2))),
       'right'
     );
     const front = getEntriesPlacements(
-      entries.filter(entry => entry.block && ['GT', 'GS'].includes(entry.block.slice(0, 2))),
+      allEntries.filter(entry => entry.block && ['GT', 'GS'].includes(entry.block.slice(0, 2))),
       'front'
     );
     const back = getEntriesPlacements(
-      entries.filter(entry => entry.block && ['PE'].includes(entry.block.slice(0, 2))),
+      allEntries.filter(entry => entry.block && ['PE'].includes(entry.block.slice(0, 2))),
       'back'
     );
 
@@ -36,7 +49,7 @@ const Model = ({ entries }: ModelProps) => {
       ...front,
       ...back,
     ]
-  }, [entries]);
+  }, [allEntries]);
 
   const dedupedLayout = useMemo(() => {
     return layout.filter((tile, index) => {
@@ -55,6 +68,7 @@ const Model = ({ entries }: ModelProps) => {
               position={[tile.x, tile.y, tile.z]}
               rotation={[0, tile.rotation, 0]}
               scale={tile.scale}
+              isVisible={entries.some(entry => entry.id === tile.data.id)}
             />
           </Suspense>
         ))}

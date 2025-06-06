@@ -2,15 +2,17 @@ import { Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {$focusedEntry} from '../../../../store/data';
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
-import { Mesh, Vector3 } from "three";
+import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
+import { useSpring } from "@react-spring/core";
 
 type TileProps = {
   data: Entry
+  isVisible: boolean
   scale: number
 } & Omit<React.ComponentPropsWithoutRef<'mesh'>, 'scale'>;
 
-const Tile = ({ data, ...rest }: TileProps) => {
+const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   const pointRef = useRef<Mesh>(null);
 
   let filenameParts = data.filename.split('.');
@@ -43,6 +45,17 @@ const Tile = ({ data, ...rest }: TileProps) => {
     onPointerOut: () => setIsHovered(false),
     onClick: handleToggleActive,
   }) : {}, [handleToggleActive, isForegrounded]);
+
+  const spring = useSpring({
+    opacity: isVisible ? 1 : 0,
+  })
+
+  useFrame(() => {
+    if (!pointRef.current || !spring.opacity.isAnimating) {
+      return;
+    }
+    (pointRef.current.material as MeshBasicMaterial).opacity = spring.opacity.get();
+  });
 
   return (
     <mesh ref={pointRef} {...rest} scale={[0,0,0]} {...pointerAttributes}>

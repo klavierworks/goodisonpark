@@ -33,7 +33,7 @@ const Thumbnail = ({ filename, isHovered, pointRef, scale }: ThumbnailProps) => 
     pointRef.current.updateMatrix();
   });
 
-  const imageMaterial = <meshBasicMaterial color="white" map={texture} />;
+  const imageMaterial = <meshBasicMaterial color="white" map={texture} transparent />;
   
   if (isHovered) {
     return (

@@ -19,6 +19,7 @@ export default function Stadium({ isController, isTarget }: { isController: bool
       unsubscribe();
     };
   }, []);
+  
   return (
     <>
       <Canvas flat className={styles.canvas} camera={{ position: [0, 0, CAMERA_DISTANCE] }}>

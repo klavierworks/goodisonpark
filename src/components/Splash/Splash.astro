@@ -37,7 +37,7 @@ if (!lastWord) {
 }
 lastWord.addEventListener('animationend', () => {
   splash.classList.add('isComplete');
-  window.localStorage.setItem('hasViewedSplash', 'true');
+  window.localStorage.setItem('timeViewedSplash', Date.now().toString());
 });
 </script>
 <style>

@@ -13,7 +13,7 @@ const filters = getFilters();
 <div class="filters">
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
-    <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/grid">Grid</a>
+    <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
     <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
   </div>
 </div>

@@ -1,9 +1,16 @@
 ---
 import Layout from "../components/Layout.astro";
+import Canvas from "../components/Canvas/Canvas.astro";
+import Header from "../components/Header/Header.astro";
+import Navigation from "../components/Navigation/Navigation.astro";
+import { fade } from "astro:transitions";
 import Splash from "../components/Splash/Splash.astro";
-
 ---
 
 <Layout>
   <Splash />
+  <Header transition:persist />
+  <Canvas transition:animate={fade({ duration: "2s" })} />
+  <Canvas isRear transition:animate={fade({ duration: "2s" })} />
+  <Navigation section="grid" transition:persist />
 </Layout>

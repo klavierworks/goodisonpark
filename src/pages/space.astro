@@ -3,10 +3,11 @@ import Layout from "../components/Layout.astro";
 import Stadium from "../components/Stadium/Stadium";
 import Navigation from "../components/Navigation/Navigation.astro";
 import Header from "../components/Header/Header.astro";
+import { fade } from "astro:transitions";
 ---
 
 <Layout>
   <Header transition:persist />
-  <Stadium client:only isController isTarget />
+  <Stadium transition:animate={fade({ duration: "2s" })} client:only isController isTarget />
   <Navigation section="space" transition:persist />
 </Layout>

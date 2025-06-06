@@ -4,11 +4,21 @@ import Model from './Model/Model'
 import styles from './Stadium.module.pcss'
 import Controls from './Controls/Controls'
 import { useEffect, useState } from 'react'
-import { $entries } from '../../store/data'
+import { $entries, $isLoading } from '../../store/data'
 import { CAMERA_DISTANCE } from './constants'
 import World from './World/World'
 
 export default function Stadium({ isController, isTarget }: { isController: boolean, isTarget: boolean }) {
+  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const unsubscribe = $isLoading.subscribe((newValue) => {
+      setIsLoading(newValue);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
   return (
     <>
       <Canvas flat className={styles.canvas} camera={{ position: [0, 0, CAMERA_DISTANCE] }}>
@@ -16,6 +26,7 @@ export default function Stadium({ isController, isTarget }: { isController: bool
         <ambientLight intensity={0.5} />
         <World />
       </Canvas>
+      <div className={`${styles.loader} ${isLoading ? styles.isLoading : ''}`} />
     </>
   )
 }

@@ -10,6 +10,8 @@ export const $activeFilters = atom<ActiveFilters>({})
 export const $canvasOffset = atom({ x: 0, y: 0 });
 export const $isFiltering = atom(false);
 
+export const $isLoading = atom(false);
+
 export const $images = atom<{
   [key: string]: {
     src: string;

@@ -1,9 +1,10 @@
 import { AdaptiveDpr, AdaptiveEvents, Bvh, Preload, useTrail } from '@react-three/drei'
 import Model from '../Model/Model'
 import Controls from '../Controls/Controls'
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { $entries } from '../../../store/data';
 import { useFrame, useThree } from '@react-three/fiber';
+import Fallback from './Fallback';
 
 type WorldProps = {
   isController: boolean;
@@ -31,7 +32,9 @@ const World = ({ isController, isTarget}: WorldProps) => {
       <AdaptiveDpr />
       <Preload all />
       <Controls isController={isController} isTarget={isTarget}>
-        <Model />
+        <Suspense fallback={<Fallback />}>
+          <Model />
+        </Suspense>
       </Controls>
     </Bvh>
   );

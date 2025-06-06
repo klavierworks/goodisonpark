@@ -7,7 +7,8 @@ import Thumbnail from "./Thumbnail/Thumbnail";
 
 type TileProps = {
   data: Entry
-} & React.ComponentPropsWithoutRef<'mesh'>;
+  scale: number
+} & Omit<React.ComponentPropsWithoutRef<'mesh'>, 'scale'>;
 
 const Tile = ({ data, ...rest }: TileProps) => {
   const pointRef = useRef<Mesh>(null);
@@ -47,7 +48,7 @@ const Tile = ({ data, ...rest }: TileProps) => {
     <mesh ref={pointRef} {...rest} scale={[0,0,0]} {...pointerAttributes}>
       <boxGeometry args={[1, 1, 0.001]} />
       <Suspense fallback={<meshBasicMaterial color="white" transparent opacity={0} />}>
-        <Thumbnail filename={filename} isHovered={isHovered} pointRef={pointRef} />
+        <Thumbnail filename={filename} isHovered={isHovered} pointRef={pointRef} scale={rest.scale} />
       </Suspense>
       <Edges linewidth={2} threshold={15} color="white" visible={isHovered} />
     </mesh>

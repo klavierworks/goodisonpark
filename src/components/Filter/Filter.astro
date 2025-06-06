@@ -126,13 +126,11 @@ class FilterElement extends HTMLElement {
       delete newFilters[this.filter];
     }
 
-    $isFiltering.set(true);
-
-    document.body.classList.add('isFiltering');
-    document.body.addEventListener('transitionend', () => {
-      $activeFilters.set(newFilters);
-      document.body.classList.remove('isFiltering')
-    }, { once: true });
+    document.dispatchEvent(new CustomEvent('filtering', {
+      detail: {
+        filters: newFilters,
+      },
+    }));
 
   }
 }

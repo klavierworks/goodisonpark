@@ -1,5 +1,6 @@
 ---
 import { getDatabase } from "../../api/api"
+import { Masonry } from 'astro-masonry';
 import Tile from "./Tile/Tile.astro";
 
 type Props = {
@@ -34,18 +35,15 @@ const entriesWithCount = entries.map(entry => {
 // Shuffle the entries
 const shuffledEntries = entriesWithCount.sort(() => Math.random() - 0.5);
 ---
-<canvas-element class={`noJs ${isRear ? 'isRear' : ''}`} isRear={isRear} style={{
-  '--columns': columns,
-  '--rows': rows,
-}}>
-  {shuffledEntries.map(entry => (
-    <Tile entry={entry} isRear={isRear} />
-  ))}
+<canvas-element class={`masonry ${isRear ? 'isRear' : ''}`} style={`--columns: ${columns}; --rows: ${rows};`}>
+  <Masonry breakpointCols={{ default: columns}}>
+    {shuffledEntries.map(entry => (
+      <Tile entry={entry} isRear={isRear} />
+    ))}
+  </Masonry>
 </canvas-element>
-</div>
-
 <script>
-import { $entries, $isFiltering, $canvasOffset } from "../../store/data";
+import { $entries, $isFiltering, $canvasOffset, $activeFilters, $allEntries } from "../../store/data";
 
 class CanvasElement extends HTMLElement {
   isMouseOver = false;
@@ -60,32 +58,32 @@ class CanvasElement extends HTMLElement {
     this.isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
 
     this.classList.remove('noJs');
-    $entries.subscribe(entries => {
-      const cols = Math.ceil(Math.sqrt(entries.length));
-      const rows = Math.ceil(entries.length / cols);
-
-      this.style.setProperty('--columns', `${cols}`);
-      this.style.setProperty('--rows', `${rows}`);
-
-      console.log(entries.length, cols, rows);
-    })
 
     if (this.isRear) {
       $canvasOffset.subscribe(offset => {
         this.style.setProperty('--offset-x', `${offset.x / 50}px`);
         this.style.setProperty('--offset-y', `${offset.y / 50}px`);
       });
+      console.log($allEntries.get());
+      this.layoutEntries($allEntries.get());
       return;
     }
 
-    $isFiltering.subscribe(isFiltering => {
-      if (isFiltering) {
-      //  this.classList.add('isFiltering');
-      } else {
-        this.classList.remove('isFiltering');
-        this.offsetX = 0;
-        this.offsetY = 0;
-      }
+    $entries.subscribe(entries => {
+      this.layoutEntries(entries)
+    });
+
+    document.addEventListener('filtering', (event: CustomEvent) => {
+      const newFilters = event.detail.filters as Record<string, string>;
+      this.classList.add('isFiltering');
+      setTimeout(() => {
+        $activeFilters.set(newFilters);
+        setTimeout(() => {
+          this.offsetX = 0;
+          this.offsetY = 0;
+          this.classList.remove('isFiltering');
+        }, 500);
+      }, 600);
     });
   
     this.addEventListener('mousemove', this.handleMouseMove);
@@ -97,6 +95,19 @@ class CanvasElement extends HTMLElement {
     });
 
     requestAnimationFrame(this.handleFrame.bind(this));
+  }
+
+  layoutEntries(entries: readonly Entry[]) {
+    const cols = Math.ceil(Math.sqrt(entries.length));
+    const rows = Math.ceil(entries.length / cols);
+
+    const masonryElement = this.querySelector('.astro-masonry-grid') as HTMLDivElement | null;
+    if (!masonryElement) {
+      console.error('Masonry element not found');
+      return;
+    }
+    this.style.setProperty('--columns', `${cols}`);
+    this.style.setProperty('--rows', `${rows}`);
   }
   handleMouseMove(event: MouseEvent) {
     this.isMouseOver = true;
@@ -139,7 +150,7 @@ if (!customElements.get('canvas-element')) {
 }
 </script>
 
-<style>
+<style is:global>
 canvas-element {
   --offset-x: 0px;
   --offset-y: 0px;
@@ -160,13 +171,14 @@ canvas-element {
   translate: calc(-50% + var(--offset-x)) calc(-50% + var(--offset-y));
   transition: opacity 0.5s ease-in-out;
   margin: 0 auto;
+  opacity: 0.999;
 
   &.noJs {
     overflow: auto;
     margin: 0;
   }
 
-  &.isFiltering {
+  &.isFiltering:not(.isRear) {
     opacity: 0;
     pointer-events: none;
   }
@@ -174,8 +186,12 @@ canvas-element {
   &.isRear {
     pointer-events: none;
     opacity: 0.05 !important;
-    transform: translateZ(-100px);
+    transform: translateZ(-50px);
     z-index: -1;
+  }
+
+  .astro-masonry-grid_column {
+    width: var(--tile-width) !important;
   }
 }
 </style>

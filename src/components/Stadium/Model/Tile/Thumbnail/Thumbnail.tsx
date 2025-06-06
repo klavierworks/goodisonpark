@@ -5,14 +5,16 @@ import { Suspense, useEffect, type RefObject } from "react";
 import type { Mesh } from "three";
 import { lerp } from "three/src/math/MathUtils.js";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
+import { TILE_SCALE } from "../../../constants";
 
 type ThumbnailProps = {
   filename: string;
   isHovered: boolean;
   pointRef: RefObject<Mesh | null>
+  scale: number
 }
 
-const Thumbnail = ({ filename, isHovered, pointRef }: ThumbnailProps) => {
+const Thumbnail = ({ filename, isHovered, pointRef, scale }: ThumbnailProps) => {
   const texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
   let [width, height] = [1, texture.image.height / texture.image.width];
   if (height > width) {
@@ -24,10 +26,10 @@ const Thumbnail = ({ filename, isHovered, pointRef }: ThumbnailProps) => {
     if (!pointRef.current) {
       return;
     }
-    const scale = pointRef.current.scale;
-    scale.x = lerp(scale.x, width, 0.1);
-    scale.y = lerp(scale.y, height, 0.1);
-    scale.z = 0.001;
+    const currentScale = pointRef.current.scale;
+    currentScale.x = lerp(currentScale.x, width * TILE_SCALE * scale, 0.1);
+    currentScale.y = lerp(currentScale.y, height * TILE_SCALE * scale, 0.1);
+    currentScale.z = 0.001;
     pointRef.current.updateMatrix();
   });
 

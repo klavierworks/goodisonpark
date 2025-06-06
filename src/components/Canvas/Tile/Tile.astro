@@ -51,9 +51,8 @@ import { $entries } from "../../../store/data";
 
 <style is:global>
 tile-element {
-  width: calc(var(--tile-width));
-  height: calc(var(--tile-height));
-  padding: 2vh 2vw;
+  width: 100%;
+  padding: 4vw;
 
   display: inline-flex;
   flex-direction: column;
@@ -93,23 +92,30 @@ tile-element {
     padding: 0.25em;
     line-height: 1;
   }
+}
+
+.astro-masonry-grid_column {
+  --column-modifier: 1;
+  
+  tile-element {
+      transform: translateZ(calc(var(--column-modifier) * var(--row-modifier) * 1px));
+
+      &:nth-child(odd) {
+        --row-modifier: 2;
+      }
+      &:nth-child(even) {
+        --row-modifier: 1;
+      }
+      &:nth-child(5n) {
+        --row-modifier: 3;
+      }
+      &:nth-child(3n) {
+        --row-modifier: -1;
+      }
+    }
 
   &:nth-child(odd) {
-    transform: translateZ(5px);
-  }
-  &:nth-child(even) {
-    transform: translateZ(-5px);
-  }
-
-  &.isRear {
-
-    &:nth-child(odd) {
-      transform: translateZ(50px);
-    }
-
-    &:nth-child(even) {
-      transform: translateZ(-50px);
-    }
+    --column-modifier: -1;
   }
 }
 </style>

@@ -73,7 +73,10 @@ export class FocusedPlayerElement extends HTMLElement {
     console.log('FocusedPlayerElement: handleClose');
     this.classList.remove('isActive');
     const videoPlayerElement = this.querySelector('video-player-element') as VideoPlayerElement;
-    videoPlayerElement!.reset();
+    if (!videoPlayerElement) {
+      return;
+    }
+    videoPlayerElement.reset();
     $focusedEntry.set(null);
     window.removeEventListener('click', this.handleClick.bind(this));
   }

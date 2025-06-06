@@ -37,12 +37,25 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleToggleActive = useCallback(() => {
+    if (!isVisible) {
+      return;
+    }
     $focusedEntry.set(data.id);
   }, [data]);
 
   const pointerAttributes = useMemo(() => isForegrounded ? ({
-    onPointerOver: () => setIsHovered(true),
-    onPointerOut: () => setIsHovered(false),
+    onPointerOver: () => {
+      if (!isVisible) {
+        return;
+      }
+      setIsHovered(true);
+    },
+    onPointerOut: () => {
+      if (!isVisible) {
+        return;
+      }
+      setIsHovered(false);
+    },
     onClick: handleToggleActive,
   }) : {}, [handleToggleActive, isForegrounded]);
 
@@ -51,7 +64,7 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   })
 
   useFrame(() => {
-    if (!pointRef.current || !spring.opacity.isAnimating) {
+    if (!pointRef.current) {
       return;
     }
     (pointRef.current.material as MeshBasicMaterial).opacity = spring.opacity.get();

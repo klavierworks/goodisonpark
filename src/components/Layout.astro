@@ -1,5 +1,5 @@
 ---
-import { ClientRouter } from "astro:transitions";
+import { ClientRouter, fade } from "astro:transitions";
 import { getDatabase } from "../api/api"
 import FocusedPlayer from "./FocusedPlayer/FocusedPlayer.astro";
 import Splash from "./Splash/Splash.astro";
@@ -19,11 +19,11 @@ const entries = await getDatabase();
 	<body data-entries={JSON.stringify(entries)}>
     <slot />
     <FocusedPlayer />
-    <Splash />
+    {false && <Splash />}
 	</body>
 </html>
 <script>
-  import { $isFiltering, setEntries } from "../store/data";
+  import { setEntries } from "../store/data";
   const entries = document.body.getAttribute("data-entries");
   if (!entries) {
     throw new Error("No entries found");

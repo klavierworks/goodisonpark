@@ -1,0 +1,62 @@
+---
+import { getDatabase } from "../../../api/api";
+import Tile from "../Tile/Tile.astro";
+import { createColumns } from './utils';
+
+const entries = await getDatabase();
+
+let memoryCounts = new Map<string, number>();
+entries.forEach(entry => {
+  const memory = entry.memory;
+  if (memoryCounts.has(memory)) {
+    memoryCounts.set(memory, memoryCounts.get(memory)! + 1);
+  } else {
+    memoryCounts.set(memory, 1);
+  }
+});
+
+const entriesWithCount = entries.map(entry => {
+  const memory = entry.memory;
+  const count = memoryCounts.get(memory);
+  return {
+    ...entry,
+    count: count ?? 0,
+  };
+});
+
+// Shuffle the entries
+const columns = createColumns(entriesWithCount);
+---
+<masonry-element>
+  {columns.map(column => (
+    <div class="column">
+      {column.map(entry => <Tile entry={entry} isRear={false} />)}
+    </div>
+  ))}
+</masonry-element>
+
+<script>
+class MasonryElement extends HTMLElement {
+  connectedCallback() {}
+}
+
+if (!customElements.get('masonry-element')) {
+  customElements.define('masonry-element', MasonryElement);
+}
+</script>
+
+<style>
+  masonry-element {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      width: 33vw;
+      gap: 1rem;
+    }
+  }
+</style>

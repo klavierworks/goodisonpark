@@ -1,16 +1,9 @@
 ---
 import VideoPlayer from '../VideoPlayer/VideoPlayer.astro';
 
-type Props = {
-  filename: string;
-  name: string;
-}
-
-const { filename, name } = Astro.props;
-
 ---
 <focused-player-element>
-  <VideoPlayer filename={filename} name={name} />
+  <VideoPlayer filename="" name="" />
   <div class="details"></div>
 </focused-player-element>
 

@@ -65,6 +65,7 @@ tile-element {
   a {
     display: contents;
     color: inherit;
+    transform-style: preserve-3d;
     text-decoration: none;
   }
 
@@ -93,6 +94,7 @@ tile-element {
 
 .column {
   --column-modifier: 1;
+  transform-style: preserve-3d;
   
   tile-element {
       transform: translateZ(calc(var(--column-modifier) * var(--row-modifier) * 1px));

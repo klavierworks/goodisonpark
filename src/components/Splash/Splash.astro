@@ -1,93 +1,48 @@
 ---
-const WORDS = [
-  'Nothing',
-  'but',
-  'the',
-  'best'
-];
-
-const DURATION = 0.75;
-const DELAY = 0.5;
+import Stage1 from "./Stage1/Stage1.astro";
+import Stage2 from "./Stage2/Stage2.astro";
 ---
-<div class="splash">
-  <div class="text">
-    {WORDS.map((word, index) => (
-      <div
-        class="word"
-        style={{
-          animationDelay: `${(index + 1) * DELAY}s`,
-          animationDuration: `${DURATION}s`,
-        }}
-      >
-        {word}
-      </div>
-    ))}
-  </div>
+<div class="stages isActive" transition:persist>
+  <Stage1 />
+  <Stage2 />
 </div>
 <script>
-const words = document.querySelectorAll('.word');
-const splash = document.querySelector('.splash');
-if (!splash) {
-  throw new Error('Splash element not found');
-}
-
-const lastWord = [...words].at(-1)
-if (!lastWord) {
-  throw new Error('No last word found');
-}
-lastWord.addEventListener('animationend', () => {
-  splash.classList.add('isComplete');
-  window.localStorage.setItem('timeViewedSplash', Date.now().toString());
+const stages = document.querySelector('.stages')!;
+document.addEventListener('stage2', () => {
+  stages.querySelector('.stage1')?.classList.remove('isActive');
+  stages.querySelector('.stage2')?.classList.add('isActive');
+});
+document.addEventListener('stage3', () => {
+  stages.querySelector('.stage2')?.classList.remove('isActive');
+ // window.sessionStorage.setItem('hasViewedSplash', 'true');
+  document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
+});
+document.addEventListener('splashcomplete', () => {
+  stages.querySelector('.stage1')?.classList.remove('isActive');
+  stages.querySelector('.stage2')?.classList.remove('isActive');
+  stages.classList.remove('isActive');
 });
 </script>
-<style>
-  .splash {
-    display: flex;
-    place-content: center;
-    place-items: center;
-    width: 100%;
-    height: 100%;
-    opacity: 1;
+
+<style is:global>
+  .stages {
     position: fixed;
     inset: 0;
-    z-index: 1000;
     background-color: var(--navy);
+    z-index: 1000;
+    display: none;
 
-    &.isComplete {
+    &.isActive {
+      display: block;
+    }
+    .stage1, .stage2 {
       opacity: 0;
-      transition: opacity 1s ease-out;
+      transition: opacity 0.5s ease-in-out;
       pointer-events: none;
     }
-  }
-  .text {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    width: 100%;
-    overflow: hidden;
-  }
-  .word {
-    @mixin title;
-    text-align: center;
-    opacity: 0;
-    animation: fadeIn 1s forwards;
-    animation-play-state: running;
-    animation-timing-function: ease-out;
-  }
-
-  @keyframes fadeIn {
-    100% {
+    .stage1.isActive, .stage2.isActive {
+      pointer-events: auto;
       opacity: 1;
     }
   }
-</style>
-
-<style is:global>
-.splash {
-  .hasViewedSplash &,
-  .noJs & {
-    display: none !important;
-    pointer-events: none !important;
-  }
-}
 </style>

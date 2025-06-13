@@ -37,6 +37,7 @@ const options = unsortedOptions.sort((a, b) => {
 <script>
 import { getFilterLabel } from "../../api/utils";
 import { $activeFilters, $entries } from "../../store/data";
+import { $hasOpenFilters } from "../../store/ui";
 
 class FilterElement extends HTMLElement {
   isOpen = false;
@@ -71,7 +72,7 @@ class FilterElement extends HTMLElement {
         optionElement.classList.toggle('isActive', isActive);
       });
       if (currentFilter) {
-        filterNameElement.innerText = currentFilter;
+        filterNameElement.innerHTML = `<span>${currentFilter}</span>`;
         this.classList.add('hasActiveOption');
       } else {
         filterNameElement.innerText = getFilterLabel(this.filter);
@@ -103,12 +104,14 @@ class FilterElement extends HTMLElement {
   handleOpen() {
     this.isOpen = true;
     this.checkboxElement.checked = true;
+    $hasOpenFilters.set(true);
 
     window.addEventListener('click', this.handleClickOutside)
   }
   handleClose() {
     this.isOpen = false;
     this.checkboxElement.checked = false;
+    $hasOpenFilters.set(false);
 
     window.removeEventListener('click', this.handleClickOutside)
   }
@@ -205,20 +208,30 @@ filter-element {
 .filter-name {
   display: block;
   padding: 20px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   cursor: pointer;
   opacity: 0.5;
 
+  :global(span) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    position: relative;
+  }
 }
+
 .hasActiveOption .filter-name {
   opacity: 1;
-
-  &::after {
-    @mixin caption;
-    content: '×';
-    margin-left: 0.5em;
+  :global(span) {
+    &::after {
+      @mixin caption;
+      content: '×';
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      margin-left: 0.5em;
+    }
   }
 }
 

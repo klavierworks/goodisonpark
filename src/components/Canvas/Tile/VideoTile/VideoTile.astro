@@ -21,6 +21,7 @@ document.querySelectorAll('.tile').forEach(tile => {
     return;
   }
   let timer: NodeJS.Timeout | null = null;
+  return
   tile.addEventListener('mouseover', () => {
     if (timer) {
       return;

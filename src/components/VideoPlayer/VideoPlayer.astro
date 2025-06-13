@@ -67,7 +67,16 @@ export class VideoPlayerElement extends HTMLElement {
     });
 
     this.videoElement.addEventListener('loadeddata', () => {
-      this.style.setProperty('--aspect-ratio', `${this.videoElement!.videoWidth / this.videoElement!.videoHeight}`);
+      const aspectRatio = this.videoElement!.videoWidth / this.videoElement!.videoHeight;
+      this.style.setProperty('--aspect-ratio', `${aspectRatio}`);
+      const isLandscape = aspectRatio > 1;
+      if (isLandscape) {
+        this.classList.add('isLandscape');
+        this.classList.remove('isPortrait');
+      } else {
+        this.classList.add('isPortrait');
+        this.classList.remove('isLandscape');
+      }
       if (this.isPlaying) {
         this.videoElement?.play();
       }

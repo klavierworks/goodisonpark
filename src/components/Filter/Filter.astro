@@ -79,6 +79,15 @@ class FilterElement extends HTMLElement {
       }
     });
 
+    this.addEventListener('click', (event) => {
+      if (!this.classList.contains('hasActiveOption')) {
+        return;
+      }
+      event.stopPropagation();
+      event.preventDefault();
+      this.clearFilter();
+    });
+
     this.checkboxElement.addEventListener('change', (event) => {
       const target = event.target as HTMLInputElement;
       const isOpen = !!target.checked;
@@ -112,19 +121,31 @@ class FilterElement extends HTMLElement {
     }
   }
 
+  clearFilter() {
+    const newFilters = { ...$activeFilters.get() };
+    delete newFilters[this.filter];
+
+    document.dispatchEvent(new CustomEvent('filtering', {
+      detail: {
+        filters: newFilters,
+      },
+    }));
+  }
+
   handleClickOption(event: MouseEvent) {
     this.handleClose();
     const target = event.target as HTMLLIElement;
     const isFilterBeingDeactivated = $activeFilters.get()[this.filter] === target.innerText;
 
+    if (isFilterBeingDeactivated) {
+      this.clearFilter();
+      return;
+    }
+
     const newFilters = {
       ...$activeFilters.get(),
       [this.filter]: target.innerText,
     };
-
-    if (isFilterBeingDeactivated) {
-      delete newFilters[this.filter];
-    }
 
     document.dispatchEvent(new CustomEvent('filtering', {
       detail: {
@@ -190,12 +211,19 @@ filter-element {
   cursor: pointer;
   opacity: 0.5;
 
-  .hasActiveOption & {
-    opacity: 1;
+}
+.hasActiveOption .filter-name {
+  opacity: 1;
+
+  &::after {
+    @mixin caption;
+    content: '×';
+    margin-left: 0.5em;
   }
 }
+
 input[type="checkbox"]:checked {
-  & + .options {
+& + .options {
     overflow: auto;
     max-height: 80vh;
   }

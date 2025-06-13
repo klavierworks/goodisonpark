@@ -96,8 +96,7 @@ class CanvasElement extends HTMLElement {
     this.offsetX = Math.max(Math.min(halfWidth, this.offsetX), -halfWidth);
     this.offsetY = Math.max(Math.min(halfHeight, this.offsetY), -halfHeight);
 
-    this.style.setProperty('--offset-x', `${Number(this.offsetX).toFixed(1)}px`);
-    this.style.setProperty('--offset-y', `${Number(this.offsetY).toFixed(1)}px`);
+    document.documentElement.style = `--offset-x: ${Number(this.offsetX).toFixed(1)}px; --offset-y: ${Number(this.offsetY).toFixed(1)}px;`;
 
     $canvasOffset.set({
       x: this.offsetX,
@@ -114,8 +113,7 @@ if (!customElements.get('canvas-element')) {
 
 <style is:global>
 canvas-element {
-  --offset-x: 0px;
-  --offset-y: 0px;
+  perspective: 40px;
   position: relative;
   display: block;
   width: 100%;
@@ -144,7 +142,15 @@ canvas-element {
     z-index: -1;
     pointer-events: none;
     opacity: 0.1;
-    transform: translateZ(-50px);
+    transform: scale(0.7) translateX(-5%);
+
+    .column {
+      --column-modifier: 4 !important;
+
+      &:nth(odd) {
+        --row-modifier: -4 !important;
+      }
+    }
   }
 }
 </style>

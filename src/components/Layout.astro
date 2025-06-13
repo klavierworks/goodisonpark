@@ -12,7 +12,8 @@ const entries = await getDatabase();
     <script>
       document.documentElement.classList.remove('noJs');
       const timeViewedSplash = window.localStorage.getItem('timeViewedSplash');
-      const hasViewedSplash = timeViewedSplash && Date.now() - parseInt(timeViewedSplash) < 1000 * 60; // 1 minute
+      //const hasViewedSplash = timeViewedSplash && Date.now() - parseInt(timeViewedSplash) < 1000 * 60; // 1 minute
+      const hasViewedSplash = true;
       if (hasViewedSplash) {
         document.documentElement.classList.add('hasViewedSplash');
       } else if (timeViewedSplash) {

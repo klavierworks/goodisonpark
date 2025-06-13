@@ -98,17 +98,20 @@ export class VideoPlayerElement extends HTMLElement {
     if (this.videoElement && !this.isPlaying) {
       this.videoElement.play();
       this.isPlaying = true;
+      this.classList.add('isPlaying');
     }
   }
-
+  
   pauseVideo() {
     if (this.videoElement && this.isPlaying) {
       this.videoElement.pause();
       this.isPlaying = false;
+      this.classList.remove('isPlaying');
     }
   }
 
   toggleVideo() {
+    console.trace('VideoPlayerElement: toggleVideo');
     if (this.isPlaying) {
       this.pauseVideo();
     } else {

@@ -12,7 +12,7 @@ type Props = {
 
 ---
 <tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest}>
-  <a href={`/space?memory=${entry.memory}`}>
+  <a href={`/space?memory=${entry.memory}`} data-astro-prefetch="tap">
     <VideoTile filename={entry.filename} name={entry.name} />
     {!isRear && (
       <h2>

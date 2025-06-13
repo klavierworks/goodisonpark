@@ -20,10 +20,22 @@ document.querySelectorAll('.tile').forEach(tile => {
     console.error('VideoTileElement: video-player-element not found');
     return;
   }
+  let timer: NodeJS.Timeout | null = null;
   tile.addEventListener('mouseover', () => {
-    videoElement.playVideo()
+    if (timer) {
+      return;
+    }
+    timer = setTimeout(() => {
+      if (videoElement) {
+        videoElement.playVideo();
+      }
+    }, 500);
   });
   tile.addEventListener('mouseleave', () => {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
     videoElement.pauseVideo();
   });
 });

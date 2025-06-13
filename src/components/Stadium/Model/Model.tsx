@@ -14,7 +14,7 @@ const Model = ({ }: ModelProps) => {
   const [allEntries] = useState($allEntries.get());
 
   const [entries, setEntries] = useState($entries.get());
-console.log(entries)
+
   useEffect(() => {
     const unsubscribe = $entries.subscribe((newEntries) => {
       setEntries(newEntries as Entry[]);

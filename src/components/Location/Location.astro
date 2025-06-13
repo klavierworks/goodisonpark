@@ -1,0 +1,56 @@
+---
+---
+
+<div class="locator stand">
+  <div class="title">Stand</div>
+  <div class="detail"></div>
+</div>
+<div class="locator block">
+  <div class="title">Block</div>
+  <div class="detail"></div>
+</div>
+
+<script>
+import { $block, $stand } from "../../store/ui";
+
+$block.subscribe(block => {
+  const blockElement = document.querySelector('.locator.block .detail');
+  if (blockElement) {
+    blockElement.textContent = block;
+  }
+});
+
+$stand.subscribe(stand => {
+  const standElement = document.querySelector('.locator.stand .detail');
+  if (standElement) {
+    standElement.textContent = stand;
+  }
+});
+</script>
+<style>
+.locator {
+  @mixin caption;
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  display: flex;
+  place-content: center;
+  place-items: center;
+  padding: 20px;
+
+  .title {
+    opacity: 0.7;
+  }
+}
+
+.stand {
+  left: 0;
+  right: initial;
+}
+
+.block {
+  left: initial;
+  right: 0;
+}
+</style>

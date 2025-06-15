@@ -8,7 +8,7 @@ type VideoThumbnailProps = {
 const VideoThumbnail = ({ filename }: VideoThumbnailProps) => {
   const videoTexture = useVideoTexture(ASSET_URL + `videos/${filename}/master.m3u8`);
 
-  return <meshBasicMaterial color="white" map={videoTexture} toneMapped={false} transparent />;
+  return <spriteMaterial color="white" map={videoTexture} toneMapped={false} transparent />;
 }
 
 export default VideoThumbnail;

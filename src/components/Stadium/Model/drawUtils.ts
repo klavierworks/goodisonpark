@@ -92,7 +92,6 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
     const t = subsectionStart + ratio * (subsectionEnd - subsectionStart)
     const point = line.getPoint(t)
     const tangent = line.getTangent(t)
-    const normalAngle = Math.atan2(tangent.y, tangent.x)
 
     let inwardOffset = index % 2 * TILE_DEPTH
     if (index % 3 === 0) {
@@ -110,6 +109,7 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
     if (index % 5 === 0) {
       verticalOffset = -TILE_Y_DEPTH * 1.5
     }
+    const normalAngle = Math.atan2(tangent.y, tangent.x)
     const normal = new Vector2(-Math.sin(normalAngle), Math.cos(normalAngle))
     const offsetPoint = point.clone().add(normal.multiplyScalar(inwardOffset))
     

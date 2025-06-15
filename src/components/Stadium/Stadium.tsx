@@ -23,8 +23,9 @@ export default function Stadium({ isController, isTarget }: { isController: bool
   return (
     <>
       <Canvas flat className={styles.canvas} camera={{ position: [0, 0, CAMERA_DISTANCE] }}>
-        <directionalLight position={[0, 10, 0]} intensity={1} />
-        <ambientLight intensity={0.5} />
+        <directionalLight position={[0, 0, 400]} intensity={1} />
+        <directionalLight position={[0, 0, -400]} intensity={1} />
+        <ambientLight intensity={50} />
         <World />
       </Canvas>
       <div className={`${styles.loader} ${isLoading ? styles.isLoading : ''}`} />

@@ -2,7 +2,7 @@ import { Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {$focusedEntry} from '../../../../store/data';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Mesh, MeshBasicMaterial, Vector3 } from "three";
+import { DoubleSide, Sprite, SpriteMaterial, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
 import { useSpring } from "@react-spring/core";
 import { $hoveredEntry } from "../../../../store/ui";
@@ -14,11 +14,12 @@ type TileProps = {
 } & Omit<React.ComponentPropsWithoutRef<'mesh'>, 'scale'>;
 
 const Tile = ({ data, isVisible, ...rest }: TileProps) => {
-  const pointRef = useRef<Mesh>(null);
-
+  const spriteRef = useRef<Sprite>(null);
+  
   let filenameParts = data.filename.split('.');
   filenameParts.pop();
   const filename = filenameParts.join('.');
+  
   if (!filename) {
     console.warn('Invalid filename:', data.filename);
     return null;
@@ -26,13 +27,13 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
 
   const [worldPosition] = useState(new Vector3());
   const [isForegrounded, setIsForegrounded] = useState(false);
-  
-  useFrame(() => {
-    if (!pointRef.current) {
+
+  useFrame(({ camera }) => {
+    if (!spriteRef.current) {
       return;
     }
-    pointRef.current.getWorldPosition(worldPosition);
-    setIsForegrounded(worldPosition.z > 0);
+    const distance = spriteRef.current.position.distanceTo(camera.position);
+    setIsForegrounded(distance < 10);
   });
 
   const [isHovered, setIsHovered] = useState(false);
@@ -73,21 +74,22 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   })
 
   useFrame(() => {
-    if (!pointRef.current) {
+    if (!spriteRef.current) {
       return;
     }
-    (pointRef.current.material as MeshBasicMaterial).opacity = spring.opacity.get();
+    (spriteRef.current.material as SpriteMaterial).opacity = spring.opacity.get();
   });
 
   return (
-    <mesh ref={pointRef} {...rest} scale={[0,0,0]} {...pointerAttributes}>
-      <boxGeometry args={[1, 1, 0.001]} />
-      <Suspense fallback={<meshBasicMaterial color="white" transparent opacity={0} />}>
-        <Thumbnail filename={filename} isHovered={isHovered} pointRef={pointRef} scale={rest.scale} />
-      </Suspense>
-      <Edges linewidth={2} threshold={15} color="white" visible={isHovered} />
-    </mesh>
-  )
+    <>
+      <sprite ref={spriteRef} {...rest} scale={[rest.scale, rest.scale, 1]} {...pointerAttributes} renderOrder={1}>
+        <Suspense fallback={<spriteMaterial color="white" transparent opacity={0} side={DoubleSide} />}>
+          <Thumbnail filename={filename} isHovered={isHovered} spriteRef={spriteRef} scale={rest.scale} />
+        </Suspense>
+
+      </sprite>
+    </>
+  );
 }
 
 export default Tile;

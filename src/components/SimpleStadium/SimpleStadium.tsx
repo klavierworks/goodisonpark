@@ -2,15 +2,20 @@ import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import Overview from './Overview/Overview';
 
-const SimpleStadium = () => {
+type Props = {
+  autoRotate?: boolean;
+  className?: string;
+  isControllable?: boolean;
+}
+const SimpleStadium = ({ autoRotate, className, isControllable } : Props) => {
   return (
-    <Canvas flat frameloop='always' camera={{
-      position: [0, 120, -120],
+    <Canvas flat frameloop='always' className={className} camera={{
+      position: [0, 180, -100],
     }}>
       <Preload all />
       <ambientLight intensity={10} />
       <directionalLight position={[0, 10, 0]} intensity={10} />
-      <Overview />
+      <Overview autoRotate={autoRotate} isControllable={isControllable} />
     </Canvas>
   );
 }

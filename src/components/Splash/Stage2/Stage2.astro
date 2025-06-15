@@ -6,24 +6,18 @@ const text = [
   'Paragraph #3'
 ]
 ---
-<div class="stage2 splash">
-  <div class="box">
-    <Image src={import('../stadium.png')} alt="Stadium" class="image" />
-    <div class="title">Goodison Memorial</div>
-    <div class="text">
-      {text[0]}
-    </div>
-    <button class="stage2-nav" data-text={JSON.stringify(text)}>
-      Click<br />
-      <span>1 / 3</span>
-    </button>
-  </div>
+<div class="title">Goodison Memorial</div>
+<div class="text">
+  {text[0]}
 </div>
+<button class="stage2-nav" data-text={JSON.stringify(text)}>
+  Click<br />
+  <span>1 / 3</span>
+</button>
 
 <script>
 let page = 1;
 const nav = document.querySelector('.stage2-nav')!
-console.log(nav);
 const text = JSON.parse(nav.getAttribute('data-text') || '[]');
 nav.addEventListener('click', e => console.log(e));
 nav.addEventListener('click', () => {
@@ -39,60 +33,6 @@ nav.addEventListener('click', () => {
 </script>
 
 <style>
-.splash {
-  --duration: 3s;
-  --delay: 0.5s;
-  display: flex;
-  place-content: center;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background-color: var(--navy);
-}
-
-
-.box {
-  transition: opacity 0.25s ease-in-out;
-  position: relative;
-  display: grid;
-  grid-template-rows: 1fr max-content 1fr max-content 1fr max-content 1fr;
-  grid-template-columns: 1fr;
-  place-items: center;
-  place-content: center;
-  width: 65%;
-  height: 70%;
-
-  .image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-    object-position: center;
-  }
-
-  &::before,
-  &::after {
-    content: '';
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: center center;
-    height: 1px;
-    background-color: white;
-  }
-
-  &::after {
-    top: auto;
-    bottom: 0;
-  }
-}
-
 .title {
   grid-row: 2 / 3;
 }

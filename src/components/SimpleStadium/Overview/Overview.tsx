@@ -3,10 +3,15 @@ import { $hoveredEntry } from "../../../store/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Controls from "../../Stadium/Controls/Controls";
 import StadiumModel from "../../StadiumModel";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { $activeFilters, $allEntries } from "../../../store/data";
+import type { Group } from "three";
 
-const Overview = () => {
+type Props = {
+  autoRotate?: boolean;
+  isControllable?: boolean;
+}
+const Overview = ({ autoRotate, isControllable }: Props) => {
   const [edges, setEdges] = useState<BufferGeometry | null>(null);
   const [node, setNode] = useState<Mesh | null>(null);
   const [blocks, setBlocks] = useState<Mesh[]>([]);
@@ -45,7 +50,7 @@ const Overview = () => {
         memory ? 
         $allEntries.get().filter(entry => entry.memory.toLowerCase() === memory.toLowerCase()).map(entry => entry.block)
         : [];
-      console.log('matchingBlocks', matchingBlocks);
+
       blocks.forEach((block) => {
         (block.material as MeshBasicMaterial).color = new Color(0xffffff);
         (block.material as MeshBasicMaterial).visible = matchingBlocks.includes(block.name);
@@ -62,10 +67,21 @@ const Overview = () => {
     });
   }, [node]);
 
+  const introRef = useRef<Group>(null);
+  useFrame(() => {
+    if (autoRotate && introRef.current) {
+      introRef.current.position.y = 20
+      introRef.current.position.x = 0
+      introRef.current.position.z = 0
+      introRef.current.rotation.x = Math.PI / 7
+      introRef.current.rotation.y -= 0.001;
+    }
+  });
+
   return (
-    <group position={[0,20,0]}>
-      <Controls isController={true} isTarget={true}>
-          <StadiumModel ref={handleRef} visible={false} />
+    <group position={[0,20,0]} ref={introRef}>
+      <Controls isController={false} isTarget={true}>
+        <StadiumModel ref={handleRef} visible={false} />
         <group rotation={[Math.PI / 2,0,Math.PI / -1.7]} position={[0,0,0]}>
         {edges && (
           <lineSegments geometry={edges} position={[0, 0,0]}>
@@ -75,7 +91,7 @@ const Overview = () => {
         </group>
   
         <group rotation={[0,Math.PI ,0]}>
-          {blocks.map(block => <primitive key={block.uuid} object={block} />)}
+          {!autoRotate && blocks.map(block => <primitive key={block.uuid} object={block} />)}
         </group>
       </Controls>
     </group>

@@ -21,9 +21,13 @@ const isSpaceView = url.pathname.includes('space');
     <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
   </div>
   <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
-    <a href="/space">
-      <SimpleStadium client:only />
-    </a>
+    {isSpaceView ? (
+      <SimpleStadium isControllable client:only />
+    ) : (
+      <a href="/space">
+        <SimpleStadium client:only />
+      </a>
+    )}
   </div>
 </div>
 <script>
@@ -69,11 +73,6 @@ const isSpaceView = url.pathname.includes('space');
   &.isSpaceView {
     pointer-events: auto;
     cursor: grab;
-
-    a {
-      display: contents;
-      pointer-events: auto;
-    }
   }
 }
 .filter {
@@ -117,6 +116,9 @@ const isSpaceView = url.pathname.includes('space');
 </style>
 
 <style is:global>
+  .map div {
+    touch-action: none;
+  }
   .map:not(.isSpaceView) canvas {
     pointer-events: none;
   }

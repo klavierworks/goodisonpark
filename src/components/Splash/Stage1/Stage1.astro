@@ -9,35 +9,30 @@ const WORDS = [
 ];
 
 ---
-<div class="stage1 isActive splash isLoading">
-  <div class="box">
-    <Image src={import('../stadium.png')} alt="Stadium" class="image" />
-    <div class="credit">A project<br /> by Global Fandom</div>
-    <div class="lines">
-      <div class="line">
-        {WORDS.slice(0,2).map((word, index) => (
-          <div class={`word word${index + 1}`}>
-          {word}
-        </div>
-      ))}
-      </div>
-      <div class="line">
-        {WORDS.slice(-2).map((word, index) => (
-          <div class={`word word${index + 3}`}>
-            {word}
-          </div>
-        ))}
-      </div>
+<div class="credit">A project<br /> by Global Fandom</div>
+<div class="lines">
+  <div class="line">
+    {WORDS.slice(0,2).map((word, index) => (
+      <div class={`word word${index + 1}`}>
+      {word}
     </div>
-    <div class="loading">
-      Loading<br />
-      <span class="progress">0%</span>
-    </div>
-    <div class="loaded">
-      Click to<br />
-      Enter
-    </div>
+  ))}
   </div>
+  <div class="line">
+    {WORDS.slice(-2).map((word, index) => (
+      <div class={`word word${index + 3}`}>
+        {word}
+      </div>
+    ))}
+  </div>
+</div>
+<div class="loading">
+  Loading<br />
+  <span class="progress">0%</span>
+</div>
+<div class="loaded">
+  Click to<br />
+  Enter
 </div>
 <script>
 import { $loadProgress } from "../../../store/ui";
@@ -47,6 +42,7 @@ $loadProgress.subscribe((progress) => {
   if (progressElement) {
     progressElement.textContent = `${progress}%`;
   }
+  console.log(`Load progress: ${progress}%`);
   if (progress >= 100) {
     document.querySelector('.isLoading')?.classList.remove('isLoading');
   }
@@ -63,79 +59,17 @@ document.querySelector('.loaded')?.addEventListener('click', () => {
 
 window.setTimeout(() => {
   $loadProgress.set(100);
-}, 5000); // Simulate loading completion after 3 seconds
+}, 2000); // Simulate loading completion after 3 seconds
 </script>
 <style>
-.splash {
-  --duration: 3s;
-  --delay: 0.5s;
+
+.line {
   display: flex;
-  place-content: center;
-  place-items: center;
-  width: 100%;
-  height: 100%;
-  opacity: 1;
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  background-color: var(--navy);
-
-  &.isComplete {
-    opacity: 0;
-    transition: opacity 1s ease-out;
-    pointer-events: none;
-  }
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
 }
 
-
-.box {
-  transition: opacity 0.25s ease-in-out;
-  position: relative;
-  display: grid;
-  grid-template-rows: 1fr max-content 1fr max-content 1fr max-content 1fr;
-  grid-template-columns: 1fr;
-  place-items: center;
-  place-content: center;
-  width: 65%;
-  height: 70%;
-
-  .image {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    object-fit: contain;
-    object-position: center;
-    animation: stadium var(--duration) var(--delay) linear forwards;
-  }
-
-  .line {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: center;
-  }
-
-  &::before,
-  &::after {
-    content: '';
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: center center;
-    height: 1px;
-    background-color: white;
-    scale: 0 1;
-    animation: border var(--duration) var(--delay) linear forwards;
-  }
-
-  &::after {
-    top: auto;
-    bottom: 0;
-  }
-}
 .lines {
   grid-row: 4 / 5;
 }
@@ -158,14 +92,6 @@ window.setTimeout(() => {
 .loaded {
   display: block;
   cursor: pointer;
-}
-.isLoading {
-  .loading {
-    display: block;
-  }
-  .loaded {
-    display: none;
-  }
 }
 .word {
   @mixin title;

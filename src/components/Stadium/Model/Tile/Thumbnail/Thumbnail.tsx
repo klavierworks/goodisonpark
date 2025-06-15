@@ -2,7 +2,7 @@ import { useTexture } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import { ASSET_URL } from "astro:env/client";
 import { Suspense, useEffect, type RefObject } from "react";
-import type { Mesh } from "three";
+import type { Mesh, Sprite } from "three";
 import { lerp } from "three/src/math/MathUtils.js";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
 import { TILE_SCALE } from "../../../constants";
@@ -10,11 +10,11 @@ import { TILE_SCALE } from "../../../constants";
 type ThumbnailProps = {
   filename: string;
   isHovered: boolean;
-  pointRef: RefObject<Mesh | null>
+  spriteRef: RefObject<Sprite | null>
   scale: number
 }
 
-const Thumbnail = ({ filename, isHovered, pointRef, scale }: ThumbnailProps) => {
+const Thumbnail = ({ filename, isHovered, spriteRef, scale }: ThumbnailProps) => {
   const texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
   let [width, height] = [1, texture.image.height / texture.image.width];
   if (height > width) {
@@ -23,17 +23,17 @@ const Thumbnail = ({ filename, isHovered, pointRef, scale }: ThumbnailProps) => 
   }
 
   useFrame(() => {
-    if (!pointRef.current) {
+    if (!spriteRef.current) {
       return;
     }
-    const currentScale = pointRef.current.scale;
+    const currentScale = spriteRef.current.scale;
     currentScale.x = lerp(currentScale.x, width * TILE_SCALE * scale, 0.1);
     currentScale.y = lerp(currentScale.y, height * TILE_SCALE * scale, 0.1);
     currentScale.z = 0.001;
-    pointRef.current.updateMatrix();
+    spriteRef.current.updateMatrix();
   });
 
-  const imageMaterial = <meshBasicMaterial color="white" map={texture} transparent />;
+  const imageMaterial = <spriteMaterial color="white" map={texture} transparent />;
   
   if (isHovered) {
     return (

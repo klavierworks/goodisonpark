@@ -1,10 +1,18 @@
 ---
+import SimpleStadium from "../SimpleStadium/SimpleStadium";
 import Stage1 from "./Stage1/Stage1.astro";
 import Stage2 from "./Stage2/Stage2.astro";
 ---
-<div class="stages isActive" transition:persist>
-  <Stage1 />
-  <Stage2 />
+<div class="stages isActive isLoading" transition:persist>
+  <div class="box">
+    <SimpleStadium className="stadium" client:only autoRotate />
+    <div class="stage stage1 isActive">
+      <Stage1 />
+    </div>
+    <div class="stage stage2">
+      <Stage2 />
+    </div>
+  </div>
 </div>
 <script>
 const stages = document.querySelector('.stages')!;
@@ -21,6 +29,7 @@ document.addEventListener('splashcomplete', () => {
   stages.querySelector('.stage1')?.classList.remove('isActive');
   stages.querySelector('.stage2')?.classList.remove('isActive');
   stages.classList.remove('isActive');
+  stages.querySelector('.stadium')?.remove()
 });
 const url = new URL(window.location.href);
 if (url.searchParams.get('bypassSplash') === 'true') {
@@ -29,24 +38,103 @@ if (url.searchParams.get('bypassSplash') === 'true') {
 </script>
 
 <style is:global>
-  .stages {
-    position: fixed;
-    inset: 0;
-    background-color: var(--navy);
-    z-index: 1000;
-    display: none;
+.stages {
+  --duration: 3s;
+  --delay: 0.5s;
+  place-content: center;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background-color: var(--navy);
+  display: none;
 
-    &.isActive {
-      display: block;
-    }
-    .stage1, .stage2 {
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-      pointer-events: none;
-    }
-    .stage1.isActive, .stage2.isActive {
-      pointer-events: auto;
-      opacity: 1;
-    }
+  &.isActive {
+    display: flex;
   }
+
+  &.isComplete {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+    pointer-events: none;
+  }
+
+  .stage1, .stage2 {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+  }
+  .stage1.isActive, .stage2.isActive {
+    pointer-events: auto;
+    opacity: 1;
+  }
+}
+
+.stadium {
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  opacity: 1;
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 0.5s ease-in-out;
+
+  .isLoading & {
+    opacity: 0;
+  }
+}
+.box {
+  transition: opacity 0.25s ease-in-out;
+  position: relative;
+  width: 65%;
+  height: 70%;
+  &::before,
+  &::after {
+    content: '';
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-origin: center center;
+    height: 1px;
+    background-color: white;
+    scale: 0 1;
+    animation: border var(--duration) var(--delay) linear forwards;
+  }
+
+  &::after {
+    top: auto;
+    bottom: 0;
+  }
+}
+.stage {
+  display: none;
+  grid-template-rows: 1fr max-content 1fr max-content 1fr max-content 1fr;
+  grid-template-columns: 1fr;
+  place-items: center;
+  place-content: center;
+  height: 100%;
+  width: 100%;
+
+  &.isActive {
+  display: grid;
+  }
+}
+</style>
+<style is:global>
+
+.isLoading {
+  .loading {
+    display: block;
+  }
+  .loaded {
+    display: none;
+  }
+}
 </style>

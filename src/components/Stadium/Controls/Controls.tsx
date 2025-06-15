@@ -1,4 +1,4 @@
-import { PresentationControls } from "@react-three/drei"
+import { OrbitControls, PresentationControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { useEffect, useRef, type ReactNode } from "react"
 import { Euler, type Group } from "three"
@@ -26,7 +26,6 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
       window.modelRotation.copy(interactiveModelRef.current.parent.rotation);
       regress();
       invalidate();
-      console.log('Parent rotation updated:', previousRotation.current);
     }
   })
 
@@ -38,7 +37,6 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
       interactiveModelRef.current.rotation.copy(window.modelRotation);
       regress();
       invalidate();
-      console.log('Model rotation updated:', window.modelRotation);
     }
   })
 
@@ -51,11 +49,11 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
   }
 
   return (
-    <PresentationControls global={true} speed={4} polar={[0, 0]}>
+    <>
       <group ref={interactiveModelRef} name="contents">
         {children}
       </group>
-    </PresentationControls>
+    </>
   )  
 }
 

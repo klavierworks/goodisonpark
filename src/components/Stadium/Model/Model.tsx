@@ -1,15 +1,23 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Tile from "./Tile/Tile";
 import { SPHERE_SCALE, STADIUM_SCALE, STADIUM_Y_POSITION, TILE_DEPTH, TILE_HEIGHT } from "../constants";
 import StadiumModel from "../../StadiumModel.tsx";
 import { getEntriesPlacements } from "./utils";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
+import { DoubleSide, FrontSide, Group, Mesh,type Line as LineType, MeshBasicMaterial, Vector3, EllipseCurve } from "three";
+import { useFrame } from "@react-three/fiber";
+import { Line, Sphere, Text } from "@react-three/drei";
+import { distributeElementsOnStadium, drawStadiumShape } from "./drawUtils.ts";
 
 type ModelProps = {
   entries: Entry[]
 }
 
 const Model = ({ }: ModelProps) => {
+  const [isDebug] = useState(() => {
+    const url = new URL(window.location.href);
+    return url.searchParams.get('isDebug') === 'true';
+  }) 
   const [allEntries] = useState($allEntries.get());
 
   const [entries, setEntries] = useState($entries.get());
@@ -35,53 +43,134 @@ const Model = ({ }: ModelProps) => {
     };
   }, []);
 
-  const layout = useMemo(() => {
-    const left = getEntriesPlacements(
-      allEntries.filter(entry => entry.block && ['TB', 'MS', 'FE'].includes(entry.block.slice(0, 2))),
-      'left'
-    );
-    const right = getEntriesPlacements(
-      allEntries.filter(entry => entry.block && ['UB', 'UV', 'LV', 'PK', 'LB'].includes(entry.block.slice(0, 2))),
-      'right'
-    );
-    const front = getEntriesPlacements(
-      allEntries.filter(entry => entry.block && ['GT', 'GS'].includes(entry.block.slice(0, 2))),
-      'front'
-    );
-    const back = getEntriesPlacements(
-      allEntries.filter(entry => entry.block && ['PE'].includes(entry.block.slice(0, 2))),
-      'back'
-    );
+  const [labels, setLabels] = useState<Record<string, Vector3>>({});
+  const modelRef = useRef<Group>(null);
 
-    return [
-      ...left,
-      ...right,
-      ...front,
-      ...back,
-    ]
-  }, [allEntries]);
-
-  const dedupedLayout = useMemo(() => {
-    return layout.filter((tile, index) => {
-      return index === layout.findIndex(t => t.id === tile.id);
+  useFrame(() => {
+    if (!modelRef.current || !isDebug) {
+      return;
+    }
+    modelRef.current.traverse((child) => {
+      if (child instanceof Mesh) {
+        (child.material as MeshBasicMaterial).side = FrontSide
+        setLabels(currentLabels => ({
+          ...currentLabels,
+          [child.name]: child.getWorldPosition(new Vector3())
+        }));
+      }
     });
-  }, [layout]);
+  });
+  
+  const cameraLine = useMemo(() => drawStadiumShape(1.1), []);
+
+  const [lowerLine, lowerPoints] = useMemo(() => {
+    const line = drawStadiumShape(1);
+    
+    const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), 'lower');
+    return [
+      line,
+      points
+    ]
+  }, []);
+
+  const [middleLine, middlePoints] = useMemo(() => {
+    const line = drawStadiumShape(1);
+    
+    const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), 'middle');
+    return [
+      line,
+      points
+    ]
+  }, []);
+
+  const [upperLine, upperPoints] = useMemo(() => {
+    const line = drawStadiumShape(1);
+    
+    const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), 'upper');
+    return [
+      line,
+      points
+    ]
+  }, []);
 
   return (
     <group>
-      <StadiumModel scale={STADIUM_SCALE} position={[0,STADIUM_Y_POSITION,0]} rotation={[0,Math.PI / 4,0]} />
-      {dedupedLayout.map(
-        (tile) => (
+      <StadiumModel ref={modelRef} />
+      <group rotation={[Math.PI / 2, 0, 0]} position={[0,0,2]}>
+        <Line
+          points={cameraLine.getPoints(100)}
+          color="white"
+          lineWidth={2}
+          visible={isDebug}
+        />
+        <Line
+          points={lowerLine.getPoints(100)}
+          color="red"
+          lineWidth={2}
+          visible={isDebug}
+        />  
+        {lowerPoints.map((tile) => (
           <Suspense key={tile.id} fallback={null}>
             <Tile
-              data={tile.data}
-              position={[tile.x, tile.y, tile.z]}
-              rotation={[0, tile.rotation, 0]}
-              scale={tile.scale}
-              isVisible={entries.some(entry => entry.id === tile.data.id)}
+              data={tile}
+              position={[tile.position[0], tile.position[1], tile.position[2]]}
+              isVisible={true}
+              rotation={tile.rotation}
+              scale={1}
             />
           </Suspense>
         ))}
+      </group>
+      <group rotation={[Math.PI / 2, 0, 0]} position={[0,6,2]}>
+        <Line
+          points={middleLine.getPoints(100)}
+          color="blue"
+          lineWidth={2}
+          visible={isDebug}
+        />
+        {middlePoints.map((tile) => (
+          <Suspense key={tile.id} fallback={null}>
+            <Tile
+              data={tile}
+              position={[tile.position[0], tile.position[1], tile.position[2]]}
+              isVisible={true}
+              rotation={tile.rotation}
+              scale={1}
+            />
+          </Suspense>
+        ))}
+      </group>
+      <group rotation={[Math.PI / 2, 0, 0]} position={[0,8,2]}>
+        <Line
+          points={upperLine.getPoints(100)}
+          color="yellow"
+          lineWidth={2}
+          visible={isDebug}
+        />
+        {upperPoints.map((tile) => (
+          <Suspense key={tile.id} fallback={null}>
+            <Tile
+              data={tile}
+              position={[tile.position[0], tile.position[1], tile.position[2]]}
+              isVisible={true}
+              rotation={tile.rotation}
+              scale={1}
+            />
+          </Suspense>
+        ))}
+      </group>
+      {isDebug && Object.entries(labels).map(([label, location]) => (
+        <Text
+          key={label}
+          position={[location.x, location.y + 50, location.z]}
+          fontSize={10}
+          color="white"
+          anchorX="center"
+          anchorY="bottom"
+        >
+          {label}
+        </Text>
+      ))}
     </group>
   )
 }

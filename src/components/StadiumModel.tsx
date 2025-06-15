@@ -8,6 +8,7 @@ import * as THREE from 'three'
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import type { GLTF } from 'three-stdlib'
+import { STADIUM_SCALE, STADIUM_Y_POSITION } from './Stadium/constants'
 
 type GLTFResult = GLTF & {
   nodes: {
@@ -79,7 +80,7 @@ type GLTFResult = GLTF & {
 export default function Model(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('/stadium-transformed.glb') as GLTFResult
   return (
-    <group {...props} dispose={null}>
+    <group {...props} dispose={null} scale={STADIUM_SCALE} position={[0,STADIUM_Y_POSITION,0]}>
       <mesh name="GoodisonFull" geometry={nodes.GoodisonFull.geometry} material={nodes.GoodisonFull.material} rotation={[1.571, 0, 1.278]} />
       <mesh name="TB5" geometry={nodes.TB5.geometry} material={nodes.TB5.material} position={[-55.311, 24.701, -58.212]} />
       <mesh name="TB4" geometry={nodes.TB4.geometry} material={nodes.TB4.material} position={[-31.047, 28.893, -62.791]} />
@@ -139,7 +140,7 @@ export default function Model(props: JSX.IntrinsicElements['group']) {
       <mesh name="PE4" geometry={nodes.PE4.geometry} material={nodes.PE4.material} position={[-73.778, 8.103, 1.904]} />
       <mesh name="PE5" geometry={nodes.PE5.geometry} material={nodes.PE5.material} position={[-73.778, 8.103, 19.895]} />
       <mesh name="PE6" geometry={nodes.PE6.geometry} material={nodes.PE6.material} position={[-73.778, 8.103, 32.234]} />
-      <mesh name="PE7" geometry={nodes.PE7.geometry} material={nodes.PE7.material} position={[-73.778, 8.103, 41.936]} />
+      <mesh name="PE7" geometry={nodes.PE7.geometry} position={[-73.778, 8.103, 41.936]} />
     </group>
   )
 }

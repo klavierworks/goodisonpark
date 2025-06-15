@@ -63,19 +63,22 @@ const Overview = () => {
   }, [node]);
 
   return (
+    <group position={[0,20,0]}>
       <Controls isController={true} isTarget={true}>
-        <StadiumModel ref={handleRef} visible={false} />
-        
+          <StadiumModel ref={handleRef} visible={false} />
+        <group rotation={[Math.PI / 2,0,Math.PI / -1.7]} position={[0,0,0]}>
         {edges && (
-          <lineSegments geometry={edges} position={[0, 0,0]} rotation={[Math.PI / 2, 0, Math.PI / 2]}>
+          <lineSegments geometry={edges} position={[0, 0,0]}>
             <lineBasicMaterial color="white" opacity={0.1} transparent />
           </lineSegments>
         )}
+        </group>
   
-        <group>
+        <group rotation={[0,Math.PI ,0]}>
           {blocks.map(block => <primitive key={block.uuid} object={block} />)}
         </group>
       </Controls>
+    </group>
   )
 };
 

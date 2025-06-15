@@ -146,3 +146,47 @@ export const distributeElementsOnStadium = (line: EllipseCurve, elements: Entry[
     })
   })
 }
+
+export const getBlockAtPosition = (x: number, y: number): string | null => {
+  // Clamp inputs to valid range
+  x = Math.max(0, Math.min(1, x));
+  y = Math.max(0, Math.min(1, y));
+  
+  // Determine tier based on y value
+  let tier: Tier;
+  if (y < 0.33) {
+    tier = 'lower';
+  } else if (y < 0.67) {
+    tier = 'middle';
+  } else {
+    tier = 'upper';
+  }
+  
+  // Normalize x to the curve parameter range (0.12 to 1.12)
+  const curveParam = 0.12 + x * (1.12 - 0.12);
+  
+  // Find which section contains this curve parameter
+  let currentSection: Section | null = null;
+  for (const [sectionName, sectionData] of Object.entries(sections)) {
+    if (curveParam >= sectionData.start && curveParam <= sectionData.end) {
+      currentSection = sectionName as Section;
+      break;
+    }
+  }
+  
+  if (!currentSection) return null;
+  
+  // Get the blocks for this tier and section
+  const blocks = layout[tier][currentSection];
+  if (blocks.length === 0) return null;
+  
+  // Calculate which block within the section
+  const section = sections[currentSection];
+  const relativePosition = (curveParam - section.start) / (section.end - section.start);
+  const blockIndex = Math.floor(relativePosition * blocks.length);
+  
+  // Ensure we don't go out of bounds
+  const safeBlockIndex = Math.max(0, Math.min(blockIndex, blocks.length - 1));
+  
+  return blocks[safeBlockIndex];
+}

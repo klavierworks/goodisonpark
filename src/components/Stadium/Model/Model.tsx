@@ -5,8 +5,9 @@ import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
 import { FrontSide, Group, Mesh, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Line, Sphere, Text } from "@react-three/drei";
-import { distributeElementsOnStadium, drawStadiumShape } from "./drawUtils.ts";
+import { distributeElementsOnStadium, drawStadiumShape, getBlockAtPosition } from "./drawUtils.ts";
 import Ring from "./Ring/Ring.tsx";
+import { $block, $stand } from "../../../store/ui.ts";
 
 type ModelProps = {
   entries: Entry[]
@@ -115,7 +116,13 @@ const Model = ({ }: ModelProps) => {
     previousRotation.current = newRotationString;
     regress();
     invalidate();
-})
+
+    const block = getBlockAtPosition(normalizedRotationX, camera.position.z)
+    console.log(block)
+    const stand = allEntries.find(entry => entry.block && entry.block.slice(0, 2) === block?.slice(0,2) && entry.stand !== 'undefined');
+    $block.set(block);
+    $stand.set(stand?.stand || 'Unknown stand');
+  })
   
 
   return (

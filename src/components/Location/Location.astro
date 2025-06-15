@@ -35,8 +35,8 @@ $stand.subscribe(stand => {
   pointer-events: none;
   z-index: 1000;
   display: flex;
+  flex-direction: column;
   place-content: center;
-  place-items: center;
   padding: 20px;
 
   .title {
@@ -51,6 +51,7 @@ $stand.subscribe(stand => {
 
 .block {
   left: initial;
+  place-items: end;
   right: 0;
 }
 </style>

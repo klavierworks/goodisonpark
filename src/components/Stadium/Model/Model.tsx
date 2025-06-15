@@ -1,8 +1,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Tile from "./Tile/Tile";
 import { SPHERE_SCALE, STADIUM_SCALE, STADIUM_Y_POSITION, TILE_DEPTH, TILE_HEIGHT } from "../constants";
-import { Mesh } from "three";
-import StadiumModel from "./StadiumModel.tsx";
+import StadiumModel from "../../StadiumModel.tsx";
 import { getEntriesPlacements } from "./utils";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
 

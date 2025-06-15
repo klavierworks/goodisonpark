@@ -1,6 +1,7 @@
 ---
 import { getFilters } from "../../api/utils";
 import Filter from "../../components/Filter/Filter.astro";
+import SimpleStadium from "../SimpleStadium/SimpleStadium.tsx";
 
 type Props = {
   section: "grid" | "space";
@@ -9,12 +10,20 @@ type Props = {
 const {section} = Astro.props;
 
 const filters = getFilters();
+
+const url = Astro.url;
+const isSpaceView = url.pathname.includes('space');
 ---
 <div class="filters">
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
     <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
+  </div>
+  <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
+    <a href="/space">
+      <SimpleStadium client:only />
+    </a>
   </div>
 </div>
 <script>
@@ -42,6 +51,31 @@ const filters = getFilters();
   pointer-events: none;
 }
 
+.map {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12.5vw;
+  height: 12.5vw;
+  border: 1px solid white;
+  background-color: var(--navy);
+  
+  a {
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  &.isSpaceView {
+    pointer-events: auto;
+    cursor: grab;
+
+    a {
+      display: contents;
+      pointer-events: auto;
+    }
+  }
+}
 .filter {
   grid-column: span 1;
 
@@ -80,4 +114,10 @@ const filters = getFilters();
     background-color: transparent;
   }
 }
+</style>
+
+<style is:global>
+  .map:not(.isSpaceView) canvas {
+    pointer-events: none;
+  }
 </style>

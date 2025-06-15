@@ -11,27 +11,12 @@ type WorldProps = {
   isTarget: boolean;
 }
 const World = ({ isController, isTarget}: WorldProps) => {
-  const regress = useThree((state) => state.performance.regress);
-  const contents = useThree((state) => state.scene.getObjectByName('contents'));
-  const previousRotation = useRef<string>('');
-
-  useFrame(() => {
-    if (!contents) {
-      return;
-    }
-    const currentRotation = contents.parent!.rotation.toArray().join(',');
-    if (currentRotation !== previousRotation.current) {
-      regress();
-      previousRotation.current = currentRotation;
-    }
-  });
-
   return (
     <Bvh>
       <AdaptiveEvents />
       <AdaptiveDpr />
       <Preload all />
-      <Controls isController={isController} isTarget={isTarget}>
+      <Controls isController={true} isTarget={true}>
         <Suspense fallback={<Fallback />}>
           <Model />
         </Suspense>

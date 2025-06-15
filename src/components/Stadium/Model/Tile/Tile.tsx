@@ -1,10 +1,11 @@
 import { Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {$focusedEntry} from '../../../../store/data';
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Mesh, MeshBasicMaterial, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
 import { useSpring } from "@react-spring/core";
+import { $hoveredEntry } from "../../../../store/ui";
 
 type TileProps = {
   data: Entry
@@ -35,6 +36,14 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   });
 
   const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    if (!isHovered) {
+      $hoveredEntry.set(null);
+      return;
+    }
+    $hoveredEntry.set(data);
+  }, [isHovered, data.id]);
 
   const handleToggleActive = useCallback(() => {
     if (!isVisible) {

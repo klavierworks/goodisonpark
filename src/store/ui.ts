@@ -8,4 +8,4 @@ export const $stand = atom<string>('');
 
 export const $loadProgress = atom(0);
 
-export const $hoveredEntry = atom<EntryWithCount | null>(null);
+export const $hoveredEntry = atom<Entry | null>(null);

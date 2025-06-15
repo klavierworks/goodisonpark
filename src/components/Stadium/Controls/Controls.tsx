@@ -13,25 +13,38 @@ window.modelRotation = new Euler();
 
 const Controls = ({ children, isController, isTarget }: ControlsProps) => {
   const interactiveModelRef = useRef<Group>(null)
-  const controlledModelRef = useRef<Group>(null)
 
+  const invalidate = useThree((state) => state.invalidate)
+  const previousRotation = useRef<Euler>(new Euler(0, 0, 0));
+  const regress = useThree((state) => state.performance.regress);
   useFrame((state) => {
-    if ((!isController || isTarget) || !interactiveModelRef.current?.parent) {
+    if (!isController || !interactiveModelRef.current?.parent) {
       return;
     }
-    window.modelRotation.copy(interactiveModelRef.current.parent.rotation);
+    if (!interactiveModelRef.current.parent.rotation.equals(previousRotation.current)) {
+      previousRotation.current.copy(interactiveModelRef.current.parent.rotation);
+      window.modelRotation.copy(interactiveModelRef.current.parent.rotation);
+      regress();
+      invalidate();
+      console.log('Parent rotation updated:', previousRotation.current);
+    }
   })
 
   useFrame((state) => {
-    if ((isTarget && isController) || !controlledModelRef.current) {
+    if (!isTarget || !interactiveModelRef.current) {
       return;
     }
-    controlledModelRef.current.rotation.copy(window.modelRotation);
+    if (!window.modelRotation.equals(interactiveModelRef.current.rotation)) {
+      interactiveModelRef.current.rotation.copy(window.modelRotation);
+      regress();
+      invalidate();
+      console.log('Model rotation updated:', window.modelRotation);
+    }
   })
 
   if (isTarget && !isController) {
     return (
-      <group ref={controlledModelRef}>
+      <group ref={interactiveModelRef}>
         {children}
       </group>
     );

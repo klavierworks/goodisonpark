@@ -24,25 +24,24 @@
 @define-mixin title {
   @mixin body-font;
   @mixin body-style;
-  font-size: 48px;
-  
-  @media (min-width: 1440px) {
-    font-size: 124px;
-  }
+  font-size: 124px;
+}
+
+@define-mixin heading {
+  @mixin body-font;
+  @mixin body-style;
+  line-height: 1.2;
+  font-size: 62px;
 }
 
 @define-mixin body {
   @mixin body-font;
   @mixin body-style;
-  font-size: 16px;
-  
-  @media (min-width: 1440px) {
-    font-size: 20px;
-  }
+  font-size: 12px
 }
 
-@define-mixin caption {
+@define-mixin button {
   @mixin body-font;
   @mixin body-style;
-  font-size: 12px;
+  font-size: 10px;
 }

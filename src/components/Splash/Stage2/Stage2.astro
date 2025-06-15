@@ -22,7 +22,6 @@ const text = JSON.parse(nav.getAttribute('data-text') || '[]');
 nav.addEventListener('click', e => console.log(e));
 nav.addEventListener('click', () => {
   page++;
-  console.log('click')
   if (page > text.length) {
     document.dispatchEvent(new CustomEvent('stage3', { bubbles: true }));
     return;

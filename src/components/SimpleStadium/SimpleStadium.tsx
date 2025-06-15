@@ -5,9 +5,9 @@ import Overview from './Overview/Overview';
 type Props = {
   autoRotate?: boolean;
   className?: string;
-  isControllable?: boolean;
+  isShowingPoints?: boolean;
 }
-const SimpleStadium = ({ autoRotate, className, isControllable } : Props) => {
+const SimpleStadium = ({ autoRotate, className, isShowingPoints } : Props) => {
   return (
     <Canvas flat frameloop='always' className={className} camera={{
       position: [0, 180, -100],
@@ -15,7 +15,7 @@ const SimpleStadium = ({ autoRotate, className, isControllable } : Props) => {
       <Preload all />
       <ambientLight intensity={10} />
       <directionalLight position={[0, 10, 0]} intensity={10} />
-      <Overview autoRotate={autoRotate} isControllable={isControllable} />
+      <Overview autoRotate={autoRotate} isShowingPoints={isShowingPoints} />
     </Canvas>
   );
 }

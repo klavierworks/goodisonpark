@@ -22,7 +22,7 @@ const isSpaceView = url.pathname.includes('space');
   </div>
   <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
     {isSpaceView ? (
-      <SimpleStadium isControllable client:only />
+      <SimpleStadium isShowingPoints={true} client:only />
     ) : (
       <a href="/space">
         <SimpleStadium client:only />

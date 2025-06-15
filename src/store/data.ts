@@ -93,12 +93,13 @@ $focusedEntry.subscribe(() => {
   setUrlSearchParams();
 })
 const filterAllEntries = () => {
-  const filterEntries = Object.entries($activeFilters.get()).filter(([_, value]) => value !== undefined);
+  const filterEntries = Object.entries($activeFilters.get())
+    .filter(([_, value]) => value !== undefined);
 
   const filteredEntries = $allEntries.get().filter((entry) => filterEntries.every(([key, value]) => {
     const entryValue = entry[key as keyof Entry] ?? '';
     return entryValue.toLowerCase() === value.toLowerCase();
-  }));
+  })).filter(entry => entry.block);
 
   $entries.set(filteredEntries)
 }

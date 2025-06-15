@@ -4,14 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Controls from "../../Stadium/Controls/Controls";
 import StadiumModel from "../../StadiumModel";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $activeFilters, $allEntries } from "../../../store/data";
+import { $activeFilters, $allEntries, $entries } from "../../../store/data";
 import type { Group } from "three";
 
 type Props = {
   autoRotate?: boolean;
-  isControllable?: boolean;
+  isShowingPoints?: boolean;
 }
-const Overview = ({ autoRotate, isControllable }: Props) => {
+const Overview = ({ autoRotate, isShowingPoints }: Props) => {
   const [edges, setEdges] = useState<BufferGeometry | null>(null);
   const [node, setNode] = useState<Mesh | null>(null);
   const [blocks, setBlocks] = useState<Mesh[]>([]);
@@ -41,21 +41,22 @@ const Overview = ({ autoRotate, isControllable }: Props) => {
 
   const invalidate = useThree((state) => state.invalidate);
 
-  useEffect(() => {
-    if (!node) {
-      return;
-    }
-    const updateActiveMemory = (memory: string | undefined) => {
-      const matchingBlocks = 
-        memory ? 
-        $allEntries.get().filter(entry => entry.memory.toLowerCase() === memory.toLowerCase()).map(entry => entry.block)
-        : [];
+  const updateActiveMemory = useCallback((memory: string | undefined) => {
+    const matchingBlocks = 
+      memory ? 
+      $allEntries.get().filter(entry => entry.memory.toLowerCase() === memory.toLowerCase()).map(entry => entry.block)
+      : [];
 
-      blocks.forEach((block) => {
-        (block.material as MeshBasicMaterial).color = new Color(0xffffff);
-        (block.material as MeshBasicMaterial).visible = matchingBlocks.includes(block.name);
-      });
-      invalidate();
+    blocks.forEach((block) => {
+      (block.material as MeshBasicMaterial).color = new Color(0xffffff);
+      (block.material as MeshBasicMaterial).visible = matchingBlocks.includes(block.name);
+    });
+    invalidate();
+  }, [blocks, invalidate]);
+
+  useEffect(() => {
+    if (!node && isShowingPoints) {
+      return;
     }
     $hoveredEntry.subscribe((hoveredEntry) => {
       const memory = hoveredEntry?.memory;
@@ -66,6 +67,21 @@ const Overview = ({ autoRotate, isControllable }: Props) => {
       updateActiveMemory(memory);
     });
   }, [node]);
+
+  useEffect(() => {
+    if (!isShowingPoints) {
+      return;
+    }
+
+    $entries.subscribe((newEntries) => {
+      const entries = newEntries as Entry[];
+      blocks.forEach((block) => {
+        (block.material as MeshBasicMaterial).color = new Color(0xffffff);
+        (block.material as MeshBasicMaterial).visible = entries.find(entry => entry.block === block.name) !== undefined;
+      });
+      invalidate();
+    });
+  }, [blocks, isShowingPoints]);
 
   const introRef = useRef<Group>(null);
   useFrame(() => {

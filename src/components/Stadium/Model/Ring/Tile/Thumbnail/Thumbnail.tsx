@@ -5,7 +5,7 @@ import { Suspense, useEffect, type RefObject } from "react";
 import type { Mesh, Sprite } from "three";
 import { lerp } from "three/src/math/MathUtils.js";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
-import { TILE_SCALE } from "../../../constants";
+import { TILE_SCALE } from "../../../../constants";
 
 type ThumbnailProps = {
   filename: string;

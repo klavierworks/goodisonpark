@@ -1,12 +1,12 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Tile from "./Tile/Tile";
-import { SPHERE_SCALE, STADIUM_SCALE, STADIUM_Y_POSITION, TILE_Y_DEPTH, TILE_Y_OFFSET } from "../constants";
+import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { STADIUM_Y_POSITION, TILE_Y_DEPTH, TILE_Y_OFFSET } from "../constants";
 import StadiumModel from "../../StadiumModel.tsx";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
-import { DoubleSide, FrontSide, Group, Mesh,type Line as LineType, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils } from "three";
+import { FrontSide, Group, Mesh, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Line, Sphere, Text } from "@react-three/drei";
 import { distributeElementsOnStadium, drawStadiumShape } from "./drawUtils.ts";
+import Ring from "./Ring/Ring.tsx";
 
 type ModelProps = {
   entries: Entry[]
@@ -18,18 +18,6 @@ const Model = ({ }: ModelProps) => {
     return url.searchParams.get('isDebug') === 'true';
   }) 
   const [allEntries] = useState($allEntries.get());
-
-  const [entries, setEntries] = useState($entries.get());
-
-  useEffect(() => {
-    const unsubscribe = $entries.subscribe((newEntries) => {
-      setEntries(newEntries as Entry[]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   useEffect(() => {
     const handleFiltering = async (event: CustomEvent) => {
@@ -139,61 +127,24 @@ const Model = ({ }: ModelProps) => {
         lineWidth={2}
         visible={isDebug}
       />
-      <Line
-        points={lowerLine.getPoints(100)}
-        color="red"
-        lineWidth={2}
-        visible={isDebug}
-      />  
-      {lowerPoints.map((tile) => (
-        <Suspense key={tile.id} fallback={null}>
-          <Tile
-            data={tile}
-            position={[tile.position[0], tile.position[1], tile.position[2]]}
-            isVisible={true}
-            rotation={tile.rotation}
-            scale={1}
-          />
-        </Suspense>
-      ))}
-      <group position={[0, 0, -TILE_Y_OFFSET]}>
-        <Line
-          points={middleLine.getPoints(100)}
-          color="blue"
-          lineWidth={2}
-          visible={isDebug}
-        />
-        {middlePoints.map((tile) => (
-          <Suspense key={tile.id} fallback={null}>
-            <Tile
-              data={tile}
-              position={[tile.position[0], tile.position[1], tile.position[2]]}
-              isVisible={true}
-              rotation={tile.rotation}
-              scale={1}
-            />
-          </Suspense>
-        ))}
-      </group>
-      <group position={[0, 0, -TILE_Y_OFFSET * 2]}>
-        <Line
-          points={upperLine.getPoints(100)}
-          color="yellow"
-          lineWidth={2}
-          visible={isDebug}
-        />
-        {upperPoints.map((tile) => (
-          <Suspense key={tile.id} fallback={null}>
-            <Tile
-              data={tile}
-              position={[tile.position[0], tile.position[1], tile.position[2]]}
-              isVisible={true}
-              rotation={tile.rotation}
-              scale={1}
-            />
-          </Suspense>
-        ))}
-      </group>
+      <Ring
+        isDebug={isDebug}
+        line={lowerLine}
+        points={lowerPoints}
+        y={0}
+      />
+      <Ring
+        isDebug={isDebug}
+        line={middleLine}
+        points={middlePoints}
+        y={TILE_Y_DEPTH}
+      />
+      <Ring
+        isDebug={isDebug}
+        line={upperLine}
+        points={upperPoints}
+        y={TILE_Y_DEPTH * 2}
+      />
       {isDebug && Object.entries(labels).map(([label, location]) => (
         <Text
           key={label}

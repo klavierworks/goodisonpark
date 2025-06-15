@@ -1,11 +1,11 @@
 import { Edges } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
-import {$focusedEntry} from '../../../../store/data';
+import {$focusedEntry} from '../../../../../store/data';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DoubleSide, Sprite, SpriteMaterial, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
 import { useSpring } from "@react-spring/core";
-import { $hoveredEntry } from "../../../../store/ui";
+import { $hoveredEntry } from "../../../../../store/ui";
 
 type TileProps = {
   data: Entry

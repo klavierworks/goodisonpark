@@ -170,6 +170,8 @@ class FilterElement extends HTMLElement {
       },
     }));
 
+    event.preventDefault();
+    event.stopPropagation();
   }
 }
 

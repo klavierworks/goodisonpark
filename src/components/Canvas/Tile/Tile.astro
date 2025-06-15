@@ -11,7 +11,7 @@ type Props = {
 }
 
 ---
-<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest}>
+<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest} data-entry={JSON.stringify(entry)}>
   <a href={`/space?memory=${entry.memory}`} data-astro-prefetch="tap">
     <VideoTile filename={entry.filename} name={entry.name} />
     {!isRear && (
@@ -24,29 +24,53 @@ type Props = {
   </a>
 </tile-element>
 <script>
-import { $entries } from "../../../store/data";
+import { $entries, $focusedEntry } from "../../../store/data";
+import { $hoveredEntry } from "../../../store/ui";
 
-  export class TileElement extends HTMLElement {
-    connectedCallback() {
-      const id = this.getAttribute('data-id') as string;
-      const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
-      if (isRear) {
-        return;
+export class TileElement extends HTMLElement {
+  entry = null as unknown as Entry & { count: number };
+  connectedCallback() {
+    const id = this.getAttribute('data-id') as string;
+    const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
+
+    const entryData = this.getAttribute('data-entry');
+    if (entryData) {
+      try {
+        this.entry = JSON.parse(entryData);
+      } catch (error) {
+        console.error('TileElement: Invalid entry data', error);
       }
-      $entries.subscribe(entries => {
-        const isVisible = !!entries.find(entry => entry.id === id);
-        if (isVisible) {
-          this.classList.add('isVisible');
-        } else {
-          this.classList.remove('isVisible');
-        }
-      });
     }
-  }
+    if (isRear) {
+      return;
+    }
+    $entries.subscribe(entries => {
+      const isVisible = !!entries.find(entry => entry.id === id);
+      if (isVisible) {
+        this.classList.add('isVisible');
+      } else {
+        this.classList.remove('isVisible');
+      }
+    });
 
-  if (!customElements.get('tile-element')) {
-    customElements.define('tile-element', TileElement);
+    const hoverTarget = this.querySelector('a') as HTMLAnchorElement;
+    if (!hoverTarget) {
+      console.error('TileElement: No anchor element found');
+      return;
+    }
+    hoverTarget.addEventListener('mouseover', () => {
+      $hoveredEntry.set(this.entry);
+    });
+
+    hoverTarget.addEventListener('mouseleave', () => {
+      $hoveredEntry.set(null);
+    });
   }
+}
+
+if (!customElements.get('tile-element')) {
+  customElements.define('tile-element', TileElement);
+}
 </script>
 
 <style is:global>
@@ -90,13 +114,20 @@ tile-element {
     padding: 0.25em;
     line-height: 1;
   }
+
+  .memory {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
 
 .column {
   --column-modifier: 1;
   transform-style: preserve-3d;
+  pointer-events: none;
   
   tile-element {
+    pointer-events: auto;
       transform: translateZ(calc(var(--column-modifier) * var(--row-modifier) * 1px));
 
       &:nth-child(odd) {

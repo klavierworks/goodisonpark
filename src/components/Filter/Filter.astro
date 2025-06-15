@@ -37,7 +37,7 @@ const options = unsortedOptions.sort((a, b) => {
 <script>
 import { getFilterLabel } from "../../api/utils";
 import { $activeFilters, $entries } from "../../store/data";
-import { $hasOpenFilters } from "../../store/ui";
+import { $hasOpenFilters, $hoveredEntry } from "../../store/ui";
 
 class FilterElement extends HTMLElement {
   isOpen = false;
@@ -63,8 +63,10 @@ class FilterElement extends HTMLElement {
       });
     });
 
+    const filterNameElement = this.querySelector('.filter-name')! as HTMLSpanElement;
+
+    let previousHtml: string | undefined = undefined;
     $activeFilters.subscribe((activeFilters) => {
-      const filterNameElement = this.querySelector('.filter-name') as HTMLSpanElement;
       const currentFilter = activeFilters[this.filter];
       this.querySelectorAll('li').forEach((option) => {
         const optionElement = option as HTMLLIElement;
@@ -73,10 +75,21 @@ class FilterElement extends HTMLElement {
       });
       if (currentFilter) {
         filterNameElement.innerHTML = `<span>${currentFilter}</span>`;
+        previousHtml = filterNameElement.innerHTML;
         this.classList.add('hasActiveOption');
       } else {
         filterNameElement.innerText = getFilterLabel(this.filter);
         this.classList.remove('hasActiveOption');
+      }
+    });
+
+    $hoveredEntry.subscribe((hoveredEntry) => {
+      if (hoveredEntry) {
+        previousHtml = filterNameElement.innerHTML;
+        filterNameElement.innerHTML = `<span>${hoveredEntry[this.filter]}</span>`;
+      } else if (previousHtml) {
+        filterNameElement.innerHTML = previousHtml;
+        previousHtml = undefined
       }
     });
 

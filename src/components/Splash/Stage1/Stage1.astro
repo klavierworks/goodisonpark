@@ -12,7 +12,7 @@ const WORDS = [
 <div class="stage1 isActive splash isLoading">
   <div class="box">
     <Image src={import('../stadium.png')} alt="Stadium" class="image" />
-    <div class="credit">A project<br /> by R90Two</div>
+    <div class="credit">A project<br /> by Global Fandom</div>
     <div class="lines">
       <div class="line">
         {WORDS.slice(0,2).map((word, index) => (
@@ -143,6 +143,7 @@ window.setTimeout(() => {
   @mixin caption;
   grid-row: 2 / 3;
   opacity: 0;
+  text-align: center;
   animation: initialStage var(--delay) linear forwards;
 }
 .loaded,

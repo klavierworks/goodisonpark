@@ -44,7 +44,7 @@ class CanvasElement extends HTMLElement {
     this.addEventListener('mouseleave', () => {
       this.isMouseOver = false;
     });
-
+    
     document.addEventListener('filtering', (event) => {
       this.handleFiltering(event as CustomEvent);
     })
@@ -72,7 +72,7 @@ class CanvasElement extends HTMLElement {
     this.offsetX = 0;
     this.offsetY = 0;
     $activeFilters.set(event.detail.filters);
-
+    
     $entries.subscribe(() => {
       this.pause(500).then(() => {
         this.classList.remove('isFiltering');

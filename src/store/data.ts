@@ -77,6 +77,9 @@ const getUrlSearchParams = () => {
 
   const filters: ActiveFilters = {};
   for (const [key, value] of searchParams.entries()) {
+    if (!getFilters().includes(key as keyof ActiveFilters)) {
+      continue;
+    }
     if (key !== 'focus') {
       filters[key as keyof ActiveFilters] = value;
       console.log(`Filter loaded from URL: ${key} = ${value}`);

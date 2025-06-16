@@ -6,30 +6,11 @@ import Header from "../components/Header/Header.astro";
 import { fade } from "astro:transitions";
 import Location from "../components/Location/Location.astro";
 
-const anim = {
-  old: {
-    name: "zoomOut",
-    duration: "0.25s",
-    easing: "ease-in",
-    direction: "reverse",
-  },
-  new: {
-    name: "zoomOut",
-    duration: "0.25s",
-    easing: "ease-in-out",
-  },
-};
-
-const customTransition = {
-  forwards: anim,
-  backwards: anim,
-};
-
 ---
 
 <Layout>
   <Header transition:persist />
-  <Stadium transition:animate={customTransition} transition:name="main"  client:only isController isTarget />
+  <Stadium transition:animate={fade()} transition:name="main" client:only isController isTarget />
   <Navigation section="space" transition:persist />
   <Location />
 </Layout>

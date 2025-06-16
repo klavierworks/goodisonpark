@@ -1,6 +1,4 @@
 ---
-import { Image } from "astro:assets";
-
 const WORDS = [
   'Nothing',
   'but',
@@ -46,16 +44,19 @@ $loadProgress.subscribe((progress) => {
   if (progress >= 100) {
     document.querySelector('.isLoading')?.classList.remove('isLoading');
   }
+
+  document.querySelector('.stages')?.addEventListener('click', (e) => {
+    if ($loadProgress.get() >= 100) {
+      if (window.sessionStorage.getItem('hasViewedSplash') === 'true') {
+        document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
+      }
+      document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
+    }
+    e.stopPropagation();
+    e.preventDefault();
+  });
 });
 
-document.querySelector('.loaded')?.addEventListener('click', () => {
-  if ($loadProgress.get() >= 100) {
-    if (window.sessionStorage.getItem('hasViewedSplash') === 'true') {
-      document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
-    }
-    document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
-  }
-});
 
 window.setTimeout(() => {
   $loadProgress.set(100);

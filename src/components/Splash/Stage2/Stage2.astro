@@ -19,15 +19,20 @@ const text = [
 let page = 1;
 const nav = document.querySelector('.stage2-nav')!
 const text = JSON.parse(nav.getAttribute('data-text') || '[]');
-nav.addEventListener('click', e => console.log(e));
-nav.addEventListener('click', () => {
-  page++;
-  if (page > text.length) {
-    document.dispatchEvent(new CustomEvent('stage3', { bubbles: true }));
-    return;
-  }
-  document.querySelector('.text')!.textContent = text[page - 1] || '';
-  nav.querySelector('span')!.textContent = `${page} / 3`;
+const stages = document.querySelector('.stages')!
+document.addEventListener('stage2', () => {
+  stages.addEventListener('click', () => {
+    if (!document.querySelector('.stage2')!.classList.contains('isActive')) {
+      return;
+    }
+    page++;
+    if (page > text.length) {
+      document.dispatchEvent(new CustomEvent('stage3', { bubbles: true }));
+      return;
+    }
+    document.querySelector('.text')!.textContent = text[page - 1] || '';
+    nav.querySelector('span')!.textContent = `${page} / 3`;
+  });
 });
 </script>
 

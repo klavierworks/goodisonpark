@@ -52,6 +52,7 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   background-color: var(--navy);
   display: none;
   cursor: pointer;
+  pointer-events: all;
 
   &.isActive {
     display: flex;
@@ -89,6 +90,13 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   pointer-events: none;
   z-index: -1;
   transition: opacity 0.5s ease-in-out;
+
+  @media (orientation: portrait) {
+    height: auto !important;
+    top: 50%;
+    translate: 0 -50%;
+    aspect-ratio: 5 / 6
+  }
 
   .isLoading & {
     opacity: 0;

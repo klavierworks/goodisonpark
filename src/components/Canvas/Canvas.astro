@@ -110,7 +110,7 @@ class CanvasElement extends HTMLElement {
       requestAnimationFrame(this.handleFrame.bind(this));
       return;
     }
-    
+
     if (Math.abs(this.mouseX) > window.innerWidth / 8) {
       this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 10;
     }
@@ -124,6 +124,13 @@ class CanvasElement extends HTMLElement {
 
     this.offsetX = Math.max(Math.min(halfWidth, this.offsetX), -halfWidth);
     this.offsetY = Math.max(Math.min(halfHeight, this.offsetY), -halfHeight);
+
+    if (this.masonryElement.clientWidth < window.innerWidth) {
+      this.offsetX = 0;
+    }
+    if (this.masonryElement.clientHeight < window.innerHeight) {
+      this.offsetY = 0;
+    }
 
     document.documentElement.style = `--offset-x: ${Number(this.offsetX).toFixed(1)}px; --offset-y: ${Number(this.offsetY).toFixed(1)}px;`;
 

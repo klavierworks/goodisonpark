@@ -33,7 +33,7 @@ const Thumbnail = ({ filename, isHovered, spriteRef, scale }: ThumbnailProps) =>
     spriteRef.current.updateMatrix();
   });
 
-  const imageMaterial = <spriteMaterial color="white" map={texture} transparent />;
+  const imageMaterial = <spriteMaterial color="white" map={texture} transparent depthWrite={false} />;
   
   if (isHovered) {
     return (

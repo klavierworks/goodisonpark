@@ -2,9 +2,9 @@ import { Edges, useCursor } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {$focusedEntry} from '../../../../../store/data';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DoubleSide, Sprite, SpriteMaterial, Vector3 } from "three";
+import { CanvasTexture, DoubleSide, Sprite, SpriteMaterial, Vector3 } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
-import { useSpring } from "@react-spring/core";
+import { config, useSpring } from "@react-spring/core";
 import { $hoveredEntry } from "../../../../../store/ui";
 
 type TileProps = {
@@ -82,13 +82,59 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
     (spriteRef.current.material as SpriteMaterial).opacity = spring.opacity.get();
   });
 
+  const outlineRef = useRef<Sprite>(null);
+
+  const outlineSpring = useSpring({
+    opacity: isHovered ? 1 : 0,
+    config: {
+      tension: 300,
+      friction: 10,
+      clamp: true,
+    }
+  })
+
+  useFrame(() => {
+    if (!outlineRef.current || !spriteRef.current) {
+      return;
+    }
+    outlineRef.current.scale.copy(
+      spriteRef.current.scale
+    );
+    (outlineRef.current.material as SpriteMaterial).opacity = outlineSpring.opacity.get();
+  });
+
+  const canvasTexture = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const context = canvas.getContext('2d');
+    if (!context) {
+      console.error('Failed to get canvas context');
+      return null;
+    }
+    context.fillStyle = 'transparent';
+    context.lineWidth = 5;
+    context.strokeStyle = 'white';
+    context.strokeRect(0, 0, canvas.width, canvas.height);
+    
+    return new CanvasTexture(canvas);
+  }, []);
+
   return (
     <>
       <sprite ref={spriteRef} {...rest} scale={[rest.scale, rest.scale, 1]} {...pointerAttributes} renderOrder={1}>
         <Suspense fallback={<spriteMaterial color="white" transparent opacity={0} side={DoubleSide} />}>
           <Thumbnail filename={filename} isHovered={isHovered} spriteRef={spriteRef} scale={rest.scale} />
         </Suspense>
-
+      </sprite>
+      <sprite {...rest} ref={outlineRef} renderOrder={2} visible={isHovered && isForegrounded}>
+        <spriteMaterial
+          map={canvasTexture}
+          depthWrite={false}
+          color="white"
+          transparent
+          side={DoubleSide}
+        />
       </sprite>
     </>
   );

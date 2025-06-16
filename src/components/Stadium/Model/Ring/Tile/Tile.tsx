@@ -1,4 +1,4 @@
-import { Edges } from "@react-three/drei";
+import { Edges, useCursor } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import {$focusedEntry} from '../../../../../store/data';
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -68,6 +68,8 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
     },
     onClick: handleToggleActive,
   }) : {}, [handleToggleActive, isForegrounded]);
+
+  useCursor(isHovered && isForegrounded, 'pointer', 'grab');
 
   const spring = useSpring({
     opacity: isVisible ? 1 : 0,

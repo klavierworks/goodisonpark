@@ -14,7 +14,7 @@ const filters = getFilters();
 const url = Astro.url;
 const isSpaceView = url.pathname.includes('space');
 ---
-<div class="filters">
+<div class="filters" transition:name="filters">
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
@@ -71,8 +71,11 @@ const isSpaceView = url.pathname.includes('space');
   }
 
   &.isSpaceView {
-    pointer-events: auto;
-    cursor: grab;
+    pointer-events: none !important;
+
+    :global(div) {
+      pointer-events: none !important;
+    }
   }
 }
 .filter {

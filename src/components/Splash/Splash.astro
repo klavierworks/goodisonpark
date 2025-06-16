@@ -51,9 +51,14 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   z-index: 1000;
   background-color: var(--navy);
   display: none;
+  cursor: pointer;
 
   &.isActive {
     display: flex;
+  }
+
+  &.isLoading {
+    cursor: wait;
   }
 
   &.isComplete {

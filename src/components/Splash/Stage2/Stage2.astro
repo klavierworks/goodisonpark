@@ -24,7 +24,7 @@ document.addEventListener('stage2', () => {
     event.stopPropagation();
     event.stopImmediatePropagation();
     event.preventDefault();
-    console.log('Stage 2 clicked', page);
+
     if (!document.querySelector('.stage2')!.classList.contains('isActive')) {
       return;
     }

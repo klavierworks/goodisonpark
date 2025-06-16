@@ -1,5 +1,4 @@
 ---
-import { Image } from "astro:assets";
 const text = [
   'Goodison Park, home of Everton Football Club since 1892, is the first purpose built football stadium in the world.',
   'Paragraph #2',
@@ -21,7 +20,11 @@ const nav = document.querySelector('.stage2-nav')!
 const text = JSON.parse(nav.getAttribute('data-text') || '[]');
 const stages = document.querySelector('.stages')!
 document.addEventListener('stage2', () => {
-  stages.addEventListener('click', () => {
+  stages.addEventListener('click', (event) => {
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    event.preventDefault();
+    console.log('Stage 2 clicked', page);
     if (!document.querySelector('.stage2')!.classList.contains('isActive')) {
       return;
     }
@@ -32,6 +35,7 @@ document.addEventListener('stage2', () => {
     }
     document.querySelector('.text')!.textContent = text[page - 1] || '';
     nav.querySelector('span')!.textContent = `${page} / 3`;
+    return false;
   });
 });
 </script>

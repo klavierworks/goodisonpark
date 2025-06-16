@@ -8,7 +8,7 @@ import { $entries, $isLoading } from '../../store/data'
 import { CAMERA_DISTANCE } from './constants'
 import World from './World/World'
 
-export default function Stadium({ isController, isTarget }: { isController: boolean, isTarget: boolean }) {
+export default function Stadium({ isController, isTarget, ...rest }: { isController: boolean, isTarget: boolean }) {
   const [isLoading, setIsLoading] = useState(true);
   useEffect(() => {
     const unsubscribe = $isLoading.subscribe((newValue) => {
@@ -22,7 +22,7 @@ export default function Stadium({ isController, isTarget }: { isController: bool
   
   return (
     <>
-      <Canvas flat className={styles.canvas} camera={{ position: [0, 0, CAMERA_DISTANCE] }}>
+      <Canvas flat className={styles.canvas} camera={{ position: [0, 0, CAMERA_DISTANCE] }} {...rest}>
         <directionalLight position={[0, 0, 400]} intensity={1} />
         <directionalLight position={[0, 0, -400]} intensity={1} />
         <ambientLight intensity={50} />

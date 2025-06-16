@@ -53,7 +53,7 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
           <Sphere args={[1, 1, 1]} scale={1} visible={false} />
         </group>
       </PresentationControls>
-      <group ref={interactiveModelRef} name="contents" >
+      <group ref={interactiveModelRef} name="contents">
         {children}
       </group>
     </>

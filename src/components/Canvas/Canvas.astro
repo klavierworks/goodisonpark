@@ -5,10 +5,29 @@ type Props = {
   isRear?: boolean;
 }
 
-const { isRear = false } = Astro.props
+const { isRear = false, ...rest } = Astro.props
+
+const anim = {
+  old: {
+    name: "zoomOut",
+    duration: "0.25s",
+    easing: "ease-in",
+    direction: "reverse",
+  },
+  new: {
+    name: "zoomOut",
+    duration: "0.25s",
+    easing: "ease-in-out",
+  },
+};
+
+const customTransition = {
+  forwards: anim,
+  backwards: anim,
+};
 
 ---
-<canvas-element isRear={isRear}>
+<canvas-element isRear={isRear} transition:animate={customTransition} transition:name="main" {...rest}>
   <Masonry isRear={isRear} />
 </canvas-element>
 <script>
@@ -34,6 +53,7 @@ class CanvasElement extends HTMLElement {
       this.classList.add('isRear')
       return;
     }
+    document.documentElement.style = `--offset-x: 0px; --offset-y: 0px;`;
 
     this.masonryElement = this.querySelector('masonry-element') as HTMLDivElement;
 

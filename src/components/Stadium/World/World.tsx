@@ -1,4 +1,4 @@
-import { AdaptiveDpr, AdaptiveEvents, Bvh, Preload, useTrail } from '@react-three/drei'
+import { AdaptiveDpr, AdaptiveEvents, Bvh, Preload, useCursor, useTrail } from '@react-three/drei'
 import Model from '../Model/Model'
 import Controls from '../Controls/Controls'
 import { Suspense, useEffect, useRef, useState } from 'react';
@@ -11,6 +11,7 @@ type WorldProps = {
   isTarget: boolean;
 }
 const World = ({ isController, isTarget}: WorldProps) => {
+  useCursor(true, 'grab', 'auto');
   return (
     <Bvh>
       <AdaptiveEvents />

@@ -25,7 +25,6 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
     return null;
   }
 
-  const [worldPosition] = useState(new Vector3());
   const [isForegrounded, setIsForegrounded] = useState(false);
 
   useFrame(({ camera }) => {

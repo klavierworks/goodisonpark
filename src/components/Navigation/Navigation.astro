@@ -19,15 +19,15 @@ const isSpaceView = url.pathname.includes('space');
   <div class="view-toggle">
     <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
     <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
-  </div>
-  <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
-    {isSpaceView ? (
-      <SimpleStadium isShowingPoints={true} client:only />
-    ) : (
-      <a href="/space">
-        <SimpleStadium client:only />
-      </a>
-    )}
+    <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
+      {isSpaceView ? (
+        <SimpleStadium isShowingPoints={true} client:only />
+      ) : (
+        <a href="/space">
+          <SimpleStadium client:only />
+        </a>
+      )}
+    </div>
   </div>
 </div>
 <script>
@@ -57,11 +57,9 @@ const isSpaceView = url.pathname.includes('space');
 
 .map {
   position: absolute;
+  width: 100%;
   bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12.5vw;
-  height: 12.5vw;
+  aspect-ratio: 1 / 1;
   border: 1px solid white;
   background-color: var(--navy);
   
@@ -97,6 +95,7 @@ const isSpaceView = url.pathname.includes('space');
   grid-template-columns: repeat(2, 1fr);
   order: 2;
   place-self: center;
+  position: relative;
 
   .view {
     @mixin button;
@@ -107,13 +106,13 @@ const isSpaceView = url.pathname.includes('space');
     padding: 5px 6px;
     text-decoration: none;
     pointer-events: auto;
-    color: var(--navy);
-    background-color: white;
+    color: white;
+    background-color: transparent;
   }
   
   .isActive {
-    color: white;
-    background-color: transparent;
+    color: var(--navy);
+    background-color: white;
   }
 }
 </style>

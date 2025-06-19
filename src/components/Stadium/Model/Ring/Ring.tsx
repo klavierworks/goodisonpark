@@ -5,6 +5,7 @@ import type { EllipseCurve } from "three";
 import { $entries } from "../../../../store/data";
 
 type RingProps = {
+  color: string;
   isDebug: boolean;
   line: EllipseCurve;
   points: (Entry & {
@@ -13,7 +14,7 @@ type RingProps = {
   })[]
   y: number;
 }
-const Ring = ({ isDebug, line, points, y }: RingProps) => {
+const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
   const [entries, setEntries] = useState($entries.get());
 
   useEffect(() => {
@@ -30,7 +31,7 @@ const Ring = ({ isDebug, line, points, y }: RingProps) => {
     <group position={[0, 0, -y]}>
       <Line
         points={line.getPoints(100)}
-        color="blue"
+        color={color}
         lineWidth={2}
         visible={isDebug}
         />

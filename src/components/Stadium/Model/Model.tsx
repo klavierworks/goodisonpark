@@ -1,10 +1,10 @@
 import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { STADIUM_Y_POSITION, TILE_Y_DEPTH, TILE_Y_OFFSET } from "../constants";
-import StadiumModel from "../../StadiumModel.tsx";
+import { STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants";
+import StadiumModel from "../../StadiumLineModel.tsx";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data.ts";
-import { FrontSide, Group, Mesh, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils } from "three";
+import { FrontSide, Group, Mesh, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils, DoubleSide } from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Line, Sphere, Text } from "@react-three/drei";
+import { Line, OrbitControls, Sphere, Text } from "@react-three/drei";
 import { distributeElementsOnStadium, drawStadiumShape, getBlockAtPosition } from "./drawUtils.ts";
 import Ring from "./Ring/Ring.tsx";
 import { $block, $stand } from "../../../store/ui.ts";
@@ -39,17 +39,18 @@ const Model = ({ }: ModelProps) => {
       return;
     }
     modelRef.current = node;
+    const material = new MeshBasicMaterial({
+      color: 'white',
+      side: DoubleSide
+    });
     modelRef.current.traverse((child) => {
       if (child instanceof Mesh) {
-        (child.material as MeshBasicMaterial).side = FrontSide
+        child.material = material;
         setLabels(currentLabels => ({
           ...currentLabels,
           [child.name]: child.getWorldPosition(new Vector3())
         }));
-
-        if (child.name !== 'GoodisonFull') {
-          child.visible = isDebug
-        }
+          child.visible = true
       }
     });
   }, []);
@@ -65,7 +66,7 @@ const Model = ({ }: ModelProps) => {
   }, []);
 
   const [middleLine, middlePoints] = useMemo(() => {
-    const line = drawStadiumShape(1);
+    const line = drawStadiumShape(1.05);
     
     const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), 'middle');
     return [
@@ -75,7 +76,7 @@ const Model = ({ }: ModelProps) => {
   }, []);
 
   const [upperLine, upperPoints] = useMemo(() => {
-    const line = drawStadiumShape(1);
+    const line = drawStadiumShape(1.1);
     
     const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), 'upper');
     return [
@@ -91,6 +92,9 @@ const Model = ({ }: ModelProps) => {
   const invalidate = useThree((state) => state.invalidate)
   const regress = useThree((state) => state.performance.regress);
   useFrame((state) => {
+    if (isDebug) {
+      return;
+    }
     const camera = state.camera;
     const normalizedRotationX = window.modelRotation.x / (Math.PI * 2);
 
@@ -111,7 +115,12 @@ const Model = ({ }: ModelProps) => {
     camera.up.set(0, 0, -1);
     camera.lookAt(lookAtPoint);
 
-    camera.position.z = -window.modelRotation.y * (TILE_Y_OFFSET * 2)
+    camera.position.z = -window.modelRotation.y * (TILE_Y_DEPTH * 2)
+
+    const reverseDirection = camera.getWorldDirection(new Vector3()).multiplyScalar(-1);
+    camera.position.add(reverseDirection.multiplyScalar(
+      window.modelRotation.y * 5
+    ));
 
     previousRotation.current = newRotationString;
     regress();
@@ -126,7 +135,8 @@ const Model = ({ }: ModelProps) => {
 
   return (
     <group>
-      <StadiumModel ref={setModelRefCallback} rotation={[Math.PI / -2, 0, 0]} position={[0,0,STADIUM_Y_POSITION]} />
+      {isDebug && <OrbitControls />}
+      <StadiumModel ref={setModelRefCallback} rotation={[Math.PI / -2, Math.PI / 2, 0]} scale={400} position={[0,0,STADIUM_Y_POSITION]} />
       <Line
         points={cameraLine.getPoints(100)}
         color="white"
@@ -137,18 +147,21 @@ const Model = ({ }: ModelProps) => {
         isDebug={isDebug}
         line={lowerLine}
         points={lowerPoints}
+        color="green"
         y={0}
       />
       <Ring
         isDebug={isDebug}
         line={middleLine}
         points={middlePoints}
+        color="yellow"
         y={TILE_Y_DEPTH}
       />
       <Ring
         isDebug={isDebug}
         line={upperLine}
         points={upperPoints}
+        color="red"
         y={TILE_Y_DEPTH * 2}
       />
       {isDebug && Object.entries(labels).map(([label, location]) => (

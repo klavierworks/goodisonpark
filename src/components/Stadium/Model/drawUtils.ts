@@ -1,16 +1,16 @@
 import { Curve, EllipseCurve, Vector2, Vector3, type BufferGeometry, type Line } from "three"
-import { TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
+import { ELLIPSIS_X_RADIUS, ELLIPSIS_Y_RADIUS, TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
 
 export const drawStadiumShape = (scale = 1) => {
  return new EllipseCurve( 
     0,0,
-    54 * scale,35 * scale,
+    ELLIPSIS_X_RADIUS * scale,
+    ELLIPSIS_Y_RADIUS * scale,
     0, Math.PI * 2,
     false,
     0
   )
 }
-
 
 type Tier = 'lower' | 'middle' | 'upper'
 type Section = 'topSemicircle' | 'leftStraight' | 'bottomSemicircle' | 'rightStraight'
@@ -102,13 +102,7 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
     }
 
 
-    let verticalOffset = index % 3 * TILE_Y_DEPTH
-    if (index % 2 === 0) {
-      verticalOffset = -TILE_Y_DEPTH
-    }
-    if (index % 5 === 0) {
-      verticalOffset = -TILE_Y_DEPTH * 1.5
-    }
+    let verticalOffset = index % 3 * TILE_Y_DEPTH / 2
     const normalAngle = Math.atan2(tangent.y, tangent.x)
     const normal = new Vector2(-Math.sin(normalAngle), Math.cos(normalAngle))
     const offsetPoint = point.clone().add(normal.multiplyScalar(inwardOffset))

@@ -9,9 +9,9 @@ const validateHeaders = (keys: string[]) => {
   });
 }
 
-const KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY ?? process.env.VITE_GOOGLE_SHEETS_API_KEY;
+const KEY = 'AIzaSyCvLlAyIZxMWZTV17ElKBhtrq3eE7C1LIs'
 
-const getDataFromApi = async (): Promise<Database> => {
+const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${KEY}`);
   const data = await response.json() as {
     values: string[][]
@@ -25,7 +25,11 @@ const getDataFromApi = async (): Promise<Database> => {
   const formatted: Entry[] = values.map((value) => ({
     id: `${Date.now() + Math.random()}`,
     filename: value[0],
-    // videoUrl: value[1],
+    ...(
+      keepVideoUrls ? {
+        videoUrl: value[1]
+      } : {}
+    ),
     memory: value[2],
     year: value[3],
     category: value[4],
@@ -36,6 +40,12 @@ const getDataFromApi = async (): Promise<Database> => {
   }));
 
   return formatted;
+}
+
+export const getRawDatabase = async (): Promise<Database> => {
+  const database = await getDataFromApi(true);
+  console.log(database)
+  return database;
 }
 
 let cachedData: Database | null = null;

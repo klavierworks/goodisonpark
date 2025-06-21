@@ -52,7 +52,7 @@ export class VideoPlayerElement extends HTMLElement {
 
     this.videoElement.loop = true;
     this.videoElement.playsInline = true;
-    this.videoElement.autoplay = true;
+    this.videoElement.autoplay = false;
     this.videoElement.disablePictureInPicture = true;
     this.videoElement.classList.add('video');
     this.appendChild(this.videoElement);
@@ -60,12 +60,6 @@ export class VideoPlayerElement extends HTMLElement {
     const hls = new Hls();
     hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
     hls.attachMedia(this.videoElement);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      if (this.videoElement) {
-        this.videoElement.play();
-        this.isPlaying = true;
-      }
-    });
 
     this.videoElement.addEventListener('loadeddata', () => {
       const aspectRatio = this.videoElement!.videoWidth / this.videoElement!.videoHeight;
@@ -77,9 +71,6 @@ export class VideoPlayerElement extends HTMLElement {
       } else {
         this.classList.add('isPortrait');
         this.classList.remove('isLandscape');
-      }
-      if (this.isPlaying) {
-        this.videoElement?.play();
       }
     });
     this.videoElement.addEventListener('play', () => {

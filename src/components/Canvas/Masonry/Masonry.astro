@@ -47,6 +47,9 @@ if (!customElements.get('masonry-element')) {
       flex-direction: column;
       width: 25vw;
       gap: 1rem;
+      @media (max-width: 600px) {
+        width: 40vw;
+      }
     }
 
     .column:not(:has(.isVisible)) {

@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { getFilters } from "../../api/utils";
 import Filter from "../../components/Filter/Filter.astro";
 import SimpleStadium from "../SimpleStadium/SimpleStadium.tsx";
@@ -16,10 +17,8 @@ const isSpaceView = url.pathname.includes('space');
 ---
 <div class="filters" transition:name="filters" transition:persist>
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
-  <div class="view-toggle">
-    <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
-    <a class={`view ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
-    <div class={`map ${isSpaceView ? 'isSpaceView' : ''}`}>
+  <div class={`view-toggle ${isSpaceView ? 'isSpaceView' : 'isCanvasView'}`}>
+    <div class="map">
       {isSpaceView ? (
         <SimpleStadium isShowingPoints={true} client:only />
       ) : (
@@ -28,24 +27,87 @@ const isSpaceView = url.pathname.includes('space');
         </a>
       )}
     </div>
+    <button class="arrow left">
+      <Image src={import('./arrow.svg')} alt="Left arrow" width={24} height={24} />
+    </button>
+    <a class={`view grid ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
+    <a class={`view space ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
+    <button class="arrow right">
+      <Image src={import('./arrow.svg')} alt="Right arrow" width={24} height={24} />
+    </button>
   </div>
 </div>
 <script>
 import { navigate } from "astro:transitions/client";
+import { $activeFilters, $focusedEntry } from "../../store/data";
 
-  document.querySelectorAll('a.view').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const href = link.getAttribute('href');
-      if (!href) {
-        return;
-      }
-      const currentUrl = new URL(window.location.href);
-      const newUrl = new URL(href, currentUrl.origin);
-      newUrl.search = currentUrl.search;
-      navigate(newUrl.toString());
-    });
+const mapElement = document.querySelector('.map');
+$activeFilters.subscribe((filters) => {
+  if (!mapElement) {
+    return;
+  }
+  const currentFilterCount = Object.values(filters).length;
+   if (currentFilterCount > 0) {
+    mapElement.classList.add('hasActiveFilters');
+  } else {
+    mapElement.classList.remove('hasActiveFilters');
+  }
+});
+
+
+document.querySelectorAll('a.view').forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const href = link.getAttribute('href');
+    if (!href) {
+      return;
+    }
+    const currentUrl = new URL(window.location.href);
+    const newUrl = new URL(href, currentUrl.origin);
+    newUrl.search = currentUrl.search;
+    navigate(newUrl.toString());
   });
+});
+
+document.addEventListener("astro:after-swap", (event) => {
+  const isSpaceView = window.location.pathname.includes('space');
+  const viewElement = document.querySelector('.view-toggle');
+  if (!viewElement) {
+    return;
+  }
+  if (isSpaceView) {
+    viewElement.classList.add('isSpaceView');
+    viewElement.classList.remove('isCanvasView');
+  } else {
+    viewElement.classList.add('isCanvasView');
+    viewElement.classList.remove('isSpaceView');
+  }
+  const gridElement = document.querySelector('.grid');
+  const spaceElement = document.querySelector('.space');
+
+  if (!gridElement || !spaceElement) {
+    return;
+  }
+  if (isSpaceView) {
+    gridElement.classList.remove('isActive');
+    spaceElement.classList.add('isActive');
+  } else {
+    gridElement.classList.add('isActive');
+    spaceElement.classList.remove('isActive');
+  }
+});
+
+document.querySelectorAll('.arrow').forEach(arrow => {
+  arrow.addEventListener('click', (e) => {
+    e.preventDefault();
+    const isLeft = arrow.classList.contains('left');
+    document.dispatchEvent(new CustomEvent('navigate-arrow', {
+      detail: {
+        direction: isLeft ? 'left' : 'right',
+      }
+    }));
+  });
+});
 </script>
 <style>
 .filters {
@@ -57,29 +119,12 @@ import { navigate } from "astro:transitions/client";
   pointer-events: none;
 }
 
-.map {
-  position: absolute;
-  width: 100%;
-  bottom: 100%;
-  aspect-ratio: 1 / 1;
-  border: 1px solid white;
-  background-color: var(--navy);
-  
-  a {
-    pointer-events: all;
-    cursor: pointer;
-  }
-
-  &.isSpaceView {
-    pointer-events: none !important;
-
-    :global(div) {
-      pointer-events: none !important;
-    }
-  }
-}
 .filter {
   grid-column: span 1;
+  grid-row: 2 / 3;
+  @media (max-width: 600px) {
+    display: none;
+  }
 
   &:nth-child(1),
   &:nth-child(2) {
@@ -94,13 +139,22 @@ import { navigate } from "astro:transitions/client";
 
 .view-toggle {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: 24px repeat(2, 48px) 24px;
+  grid-template-rows: max-content max-content;
   order: 2;
   place-self: center;
   position: relative;
+  overflow: hidden;
+  grid-row: 1 / 3;
+  margin: 0 0 1.5em;
+  
+  @media (max-width: 600px) {
+    grid-column: 1 / 2;
+  }
 
   .view {
     @mixin button;
+    grid-row: 2 / 3;
     display: flex;
     place-content: center;
     place-items: center;
@@ -109,12 +163,101 @@ import { navigate } from "astro:transitions/client";
     text-decoration: none;
     pointer-events: auto;
     color: white;
-    background-color: transparent;
+    background-color: var(--navy);
+
+    &:nth-child(3) {
+      grid-column: 2 / 3 ;
+    }
+    
+    &:nth-child(4){
+      grid-column: 3 / 4;
+    }
   }
   
   .isActive {
     color: var(--navy);
     background-color: white;
+  }
+
+
+  .arrow {
+    @mixin button;
+    display: none;
+    place-content: center;
+    place-items: center;
+    grid-row: 2 / 3;
+    border: 1px solid white;
+    text-decoration: none;
+    appearance: none;
+    pointer-events: all;
+    background-color: var(--navy);
+    @media (max-width: 600px) {
+      display: none !important;
+    }
+
+
+    .isSpaceView & {
+      display: flex;
+    }
+
+    img {
+      width: 1em;
+      height: 1em;
+    }
+
+    &.left {
+      border-right: none;
+    }
+
+    &.right {
+      border-left: none;
+    }
+
+    &.right img {
+      transform: rotate(180deg);
+    }
+
+    &:active {
+      background-color: white;
+      color: var(--navy);
+    }
+  }
+}
+
+.map {
+  position: relative;
+  grid-row: 1 / 2;
+  grid-column: 2 / 4;
+  aspect-ratio: 1 / 1;
+  border: 1px solid white;
+  background-color: var(--navy);
+  z-index: -1;
+
+  @media (max-width: 600px) {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 25%;
+    translate: 0 0 !important;
+  }
+  
+  a {
+    pointer-events: all;
+    cursor: pointer;
+  }
+
+  .isSpaceView & {
+    pointer-events: none !important;
+    translate: 0 100%;
+    transition: translate 0.3s ease-in-out;
+
+    :global(div) {
+      pointer-events: none !important;
+    }
+  }
+
+  &.hasActiveFilters {
+    translate: 0 0;
   }
 }
 </style>
@@ -123,7 +266,7 @@ import { navigate } from "astro:transitions/client";
   .map div {
     touch-action: none;
   }
-  .map:not(.isSpaceView) canvas {
+  .isCanvasView canvas {
     pointer-events: none;
   }
 </style>

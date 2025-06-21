@@ -31,6 +31,7 @@ const customTransition = {
   <Masonry isRear={isRear} />
 </canvas-element>
 <script>
+import { DragGesture } from '@use-gesture/vanilla';
 import { $activeFilters, $canvasOffset, $entries } from "../../store/data";
 import { $hasOpenFilters } from "../../store/ui";
 
@@ -74,6 +75,27 @@ class CanvasElement extends HTMLElement {
         this.classList.add('hasOpenFilters');
       } else {
         this.classList.remove('hasOpenFilters');
+      }
+    });
+
+
+    const gesture = new DragGesture(this.masonryElement, ({ active, movement: [mx, my] }) => {
+      if (active) {
+        this.offsetX += mx / 10;
+        this.offsetY += my / 10;
+
+        const halfWidth = (this.masonryElement.clientWidth / 2) - (window.innerWidth / 2);
+        const halfHeight = (this.masonryElement.clientHeight / 2) - (window.innerHeight / 2);
+
+        this.offsetX = Math.max(Math.min(halfWidth, this.offsetX), -halfWidth);
+        this.offsetY = Math.max(Math.min(halfHeight, this.offsetY), -halfHeight);
+
+        document.documentElement.style = `--offset-x: ${Number(this.offsetX).toFixed(1)}px; --offset-y: ${Number(this.offsetY).toFixed(1)}px;`;
+
+        $canvasOffset.set({
+          x: this.offsetX,
+          y: this.offsetY,
+        });
       }
     });
 
@@ -177,6 +199,7 @@ canvas-element {
   }
 
   masonry-element {
+    touch-action: none;
     transform-style: preserve-3d;
     position: absolute;
     top: 50%;

@@ -86,7 +86,7 @@ export class FocusedPlayerElement extends HTMLElement {
     videoPlayerElement.setAttribute('filename', fileNameWithoutExtension);
     videoPlayerElement.setAttribute('name', this.entry.name);
     videoPlayerElement.setAttribute('muted', 'false');
-    videoPlayerElement.playVideo();
+    videoPlayerElement.setupVideo();
     this.querySelector('.details')!.innerHTML = `
         <div>${this.entry.year}</div>
         <div>${this.entry.memory}</div>
@@ -147,14 +147,18 @@ focused-player-element {
     display: none;
   }
 
+
   &:has(video:hover)::after {
     content: 'Play';
   }
   &:has(.isPlaying video:hover)::after {
     content: 'Pause';
   }
-  &.isActive::after {
-    display: block;
+
+  @media (pointer: fine) {  
+    &.isActive::after {
+      display: block;
+    }
   }
 
   video-player-element {
@@ -188,6 +192,10 @@ focused-player-element {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     text-align: center;
+    @media (max-width: 600px) {
+      display: none !important;
+    }
+
   }
 }
 </style>

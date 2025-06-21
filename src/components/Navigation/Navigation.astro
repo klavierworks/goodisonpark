@@ -14,7 +14,7 @@ const filters = getFilters();
 const url = Astro.url;
 const isSpaceView = url.pathname.includes('space');
 ---
-<div class="filters" transition:name="filters">
+<div class="filters" transition:name="filters" transition:persist>
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <a class={`view ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
@@ -31,6 +31,8 @@ const isSpaceView = url.pathname.includes('space');
   </div>
 </div>
 <script>
+import { navigate } from "astro:transitions/client";
+
   document.querySelectorAll('a.view').forEach(link => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -41,7 +43,7 @@ const isSpaceView = url.pathname.includes('space');
       const currentUrl = new URL(window.location.href);
       const newUrl = new URL(href, currentUrl.origin);
       newUrl.search = currentUrl.search;
-      window.location.href = newUrl.toString();
+      navigate(newUrl.toString());
     });
   });
 </script>

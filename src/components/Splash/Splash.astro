@@ -3,7 +3,7 @@ import SimpleStadium from "../SimpleStadium/SimpleStadium";
 import Stage1 from "./Stage1/Stage1.astro";
 import Stage2 from "./Stage2/Stage2.astro";
 ---
-<div class="stages isActive isLoading" transition:persist>
+<div class="stages isActive isLoading" transition:persist transition:persist-props>
   <div class="box">
     <SimpleStadium className="stadium" client:only autoRotate />
     <div class="stage stage1 isActive">
@@ -128,7 +128,7 @@ if (url.searchParams.get('bypassSplash') === 'true') {
 }
 .stage {
   display: none;
-  grid-template-rows: 1fr max-content 1fr max-content 1fr max-content 1fr;
+  grid-template-rows: 10% 2em 1fr max-content 1fr 2em 10%;
   grid-template-columns: 1fr;
   place-items: center;
   place-content: center;

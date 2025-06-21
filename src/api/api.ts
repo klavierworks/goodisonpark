@@ -9,7 +9,7 @@ const validateHeaders = (keys: string[]) => {
   });
 }
 
-const KEY = 'AIzaSyCvLlAyIZxMWZTV17ElKBhtrq3eE7C1LIs'
+const KEY = '[keyhere]'
 
 const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${KEY}`);

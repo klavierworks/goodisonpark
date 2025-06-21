@@ -22,6 +22,14 @@ document.querySelectorAll('.tile').forEach(tile => {
   }
   let timer: NodeJS.Timeout | null = null;
 
+  const isHoverableDevice = window.matchMedia(
+    '(hover: hover) and (pointer: fine)'
+  )
+
+  if (!isHoverableDevice.matches) {
+    return;
+  }
+
   tile.addEventListener('mouseover', () => {
     if (timer) {
       return;

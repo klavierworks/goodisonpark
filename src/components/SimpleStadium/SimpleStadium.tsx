@@ -9,7 +9,7 @@ type Props = {
 }
 const SimpleStadium = ({ autoRotate, className, isShowingPoints } : Props) => {
   return (
-    <Canvas flat frameloop='always' className={className} camera={{
+    <Canvas flat frameloop='demand' className={className} camera={{
       position: [0, 180, -100],
     }}>
       <Preload all />

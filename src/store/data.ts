@@ -110,8 +110,7 @@ $activeFilters.subscribe(() => {
   setUrlSearchParams();
 });
 
-export const setEntries = (entriesJson: string) => {
-  const parsedEntries = JSON.parse(entriesJson) as Entry[]
+export const setEntries = (parsedEntries: Entry[]) => {
   $allEntries.set(parsedEntries)
   filterAllEntries();
 }

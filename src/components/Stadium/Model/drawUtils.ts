@@ -184,7 +184,7 @@ export const getBlockAtPosition = (x: number, y: number): string | null => {
       }
     }
   }
-  console.log('currentSection', currentSection, curveParam, tier);
+
   if (!currentSection) return null; // No valid section found
   
   // Get the blocks for this tier and section

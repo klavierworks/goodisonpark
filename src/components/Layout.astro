@@ -6,11 +6,15 @@ import Splash from "./Splash/Splash.astro";
 import { setEntries } from "../store/data";
 
 const entries = await getDatabase();
-setEntries(JSON.stringify(entries));
+setEntries(entries);
 ---
 
 <html lang="en" class="noJs">
 	<head>
+    <script define:vars={{entries}}>
+      console.log('Entries loaded:', entries);
+      window.entries = entries;
+    </script>
     <script>
       document.documentElement.classList.remove('noJs');
     </script>
@@ -21,7 +25,7 @@ setEntries(JSON.stringify(entries));
 		<title>Goodison Memorial</title>
     <ClientRouter />
 	</head>
-	<body data-entries={JSON.stringify(entries)}>
+	<body>
     <slot />
     <FocusedPlayer />
     <Splash />
@@ -29,7 +33,7 @@ setEntries(JSON.stringify(entries));
 </html>
 <script>
   import { setEntries } from "../store/data";
-  const entries = document.body.getAttribute("data-entries");
+  const entries = window.entries
   if (!entries) {
     throw new Error("No entries found");
   }
@@ -50,6 +54,10 @@ setEntries(JSON.stringify(entries));
     color: white;
     background-color: var(--navy);
     overflow: hidden;
+  }
+
+  canvas {
+    user-select: none;
   }
 
   @keyframes zoomOut {

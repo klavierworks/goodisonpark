@@ -70,7 +70,7 @@ class FilterElement extends HTMLElement {
         previousHtml = filterNameElement.innerHTML;
         this.classList.add('hasActiveOption');
       } else {
-        filterNameElement.innerText = getFilterLabel(this.filter);
+        filterNameElement.innerHTML = `<span>${getFilterLabel(this.filter)}</span>`;
         this.classList.remove('hasActiveOption');
       }
     });
@@ -152,7 +152,7 @@ class FilterElement extends HTMLElement {
       this.clearFilter();
       return;
     }
-    console.log('Setting filter', this.filter, option);
+
     const newFilters = {
       ...$activeFilters.get(),
       [this.filter]: option,
@@ -316,7 +316,6 @@ input[type="checkbox"]:checked {
         content: '';
         position: fixed;
         inset: 0;
-        backdrop-filter: blur(10px);
         z-index: -1;
       }
     }

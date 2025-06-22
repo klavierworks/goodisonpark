@@ -46,7 +46,9 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   }, [isHovered, data.id]);
 
   const handleToggleActive = useCallback(() => {
-    if (!isVisible || !isHovered) {
+    // Either ishovered or pointer is touch
+    const isHover = isHovered || window.matchMedia('(pointer: coarse)').matches; 
+    if (!isVisible || !isHover) {
       return;
     }
     $focusedEntry.set(data.id);

@@ -11,13 +11,13 @@ type Props = {
 }
 
 ---
-<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest} data-entry={JSON.stringify(entry)}>
+<tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest}>
   <a href={`/space?memory=${entry.memory}`} data-astro-prefetch="tap">
     <VideoTile filename={entry.filename} name={entry.name} />
   </a>
 </tile-element>
 <script>
-import { $entries } from "../../../store/data";
+import { $allEntries, $entries } from "../../../store/data";
 import { $hoveredEntry } from "../../../store/ui";
 
 export class TileElement extends HTMLElement {
@@ -26,14 +26,8 @@ export class TileElement extends HTMLElement {
     const id = this.getAttribute('data-id') as string;
     const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
 
-    const entryData = this.getAttribute('data-entry');
-    if (entryData) {
-      try {
-        this.entry = JSON.parse(entryData);
-      } catch (error) {
-        console.error('TileElement: Invalid entry data', error);
-      }
-    }
+    const entryData = $allEntries.get().find(entry => entry.id === id);
+
     if (isRear) {
       return;
     }

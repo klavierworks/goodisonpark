@@ -53,6 +53,14 @@ export class TileElement extends HTMLElement {
       }
     });
 
+    const isHoverableDevice = window.matchMedia(
+      '(hover: hover) and (pointer: fine)'
+    )
+    
+    if (!isHoverableDevice.matches) {
+      return;
+    }
+
     const hoverTarget = this.querySelector('a') as HTMLAnchorElement;
     if (!hoverTarget) {
       console.error('TileElement: No anchor element found');

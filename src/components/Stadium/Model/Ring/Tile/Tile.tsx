@@ -32,7 +32,7 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
       return;
     }
     const distance = spriteRef.current.position.distanceTo(camera.position);
-    setIsForegrounded(distance < 10);
+    setIsForegrounded(distance < 50);
   });
 
   const [isHovered, setIsHovered] = useState(false);
@@ -53,8 +53,14 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   }, [data]);
 
   const pointerAttributes = useMemo(() => isForegrounded ? ({
-    onPointerOver: () => {
+    onPointerOver: (e) => {
       if (!isVisible) {
+        return;
+      }
+
+      const closestObjectUuid = e.intersections[0].object.uuid;
+
+      if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid) {
         return;
       }
       setIsHovered(true);

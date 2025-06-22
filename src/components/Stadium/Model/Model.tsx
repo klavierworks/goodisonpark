@@ -115,7 +115,7 @@ const Model = ({ }: ModelProps) => {
     camera.up.set(0, 0, -1);
     camera.lookAt(lookAtPoint);
 
-    camera.position.z = -window.modelRotation.y * (TILE_Y_DEPTH * 2)
+    camera.position.z = TILE_Y_DEPTH + (-window.modelRotation.y * (TILE_Y_DEPTH * 3));
 
     const reverseDirection = camera.getWorldDirection(new Vector3()).multiplyScalar(-1);
     camera.position.add(reverseDirection.multiplyScalar(

@@ -13,7 +13,7 @@ type WorldProps = {
 const World = ({ isController, isTarget}: WorldProps) => {
   useCursor(true, 'grab', 'auto');
   return (
-    <Bvh>
+    <>
       <AdaptiveEvents />
       <AdaptiveDpr />
       <Preload all />
@@ -22,7 +22,7 @@ const World = ({ isController, isTarget}: WorldProps) => {
           <Model />
         </Suspense>
       </Controls>
-    </Bvh>
+    </>
   );
 }
 

@@ -97,8 +97,14 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
     if (index % 3 === 0) {
       inwardOffset = -TILE_DEPTH
     }
+    if (index % 4 === 0) {
+      inwardOffset = -TILE_DEPTH * 5
+    }
     if (index % 5 === 0) {
-      inwardOffset = TILE_DEPTH * 1.5
+      inwardOffset = TILE_DEPTH * 2
+    }
+    if (index % 7 === 0) {
+      inwardOffset = TILE_DEPTH * 3
     }
 
 

@@ -70,4 +70,18 @@ setEntries(entries);
       transform: scale(1);
     }
   }
+
+
+
+  @media (pointer: coarse) and (max-width: 600px) {
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
+    }
+
+    [data-astro-transition-scope] {
+      animation: none !important;
+    }
+  }
 </style>

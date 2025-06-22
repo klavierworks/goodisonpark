@@ -12,6 +12,7 @@ import { $allEntries, $focusedEntry } from "../../store/data";
 import type { VideoPlayerElement } from "../VideoPlayer/VideoPlayer.astro.0.mts";
 
 export class FocusedPlayerElement extends HTMLElement {
+  cleanups: (() => void)[] = [];
   entry: Entry | null = null;
   isActive = false
 
@@ -19,16 +20,19 @@ export class FocusedPlayerElement extends HTMLElement {
     window.addEventListener('click', this.handleClick.bind(this));
     window.addEventListener('mousemove', this.handleMouseMove.bind(this));
 
-    $focusedEntry.subscribe(entry => {
+    const focusedEntryListener =  $focusedEntry.subscribe(entry => {
       this.setActiveFocusedEntry();
     });
 
-    $allEntries.subscribe(entries => {
+    const allEntriesListener = $allEntries.subscribe(entries => {
       this.setActiveFocusedEntry();
     });
+
+    this.cleanups.push(focusedEntryListener, allEntriesListener);
   }
 
   disconnectedCallback() {
+    this.cleanups.forEach(cleanup => cleanup());
     window.removeEventListener('click', this.handleClick.bind(this));
     window.removeEventListener('mousemove', this.handleMouseMove.bind(this));
   }

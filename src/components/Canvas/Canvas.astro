@@ -45,6 +45,9 @@ class CanvasElement extends HTMLElement {
   offsetX = 0;
   offsetY = 0;
 
+  cleanups: (() => void)[] = [];
+  gesture: DragGesture | null = null;
+
   connectedCallback() {
     this.isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
 
@@ -70,7 +73,7 @@ class CanvasElement extends HTMLElement {
       this.handleFiltering(event as CustomEvent);
     })
 
-    $hasOpenFilters.subscribe((hasOpenFilters) => {
+    const hasOpenFiltersListener = $hasOpenFilters.subscribe((hasOpenFilters) => {
       if (hasOpenFilters) {
         this.classList.add('hasOpenFilters');
       } else {
@@ -78,8 +81,9 @@ class CanvasElement extends HTMLElement {
       }
     });
 
+    this.cleanups.push(hasOpenFiltersListener);
 
-    const gesture = new DragGesture(this.masonryElement, ({ active, movement: [mx, my] }) => {
+    this.gesture = new DragGesture(this.masonryElement, ({ active, movement: [mx, my] }) => {
       if (active) {
         this.offsetX += mx / 10;
         this.offsetY += my / 10;
@@ -100,6 +104,11 @@ class CanvasElement extends HTMLElement {
     });
 
     requestAnimationFrame(this.handleFrame.bind(this));
+  }
+
+  disconnectedCallback() {
+    this.cleanups.forEach(cleanup => cleanup());
+    this.gesture?.destroy()
   }
 
   pause(ms: number) {

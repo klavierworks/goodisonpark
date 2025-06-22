@@ -22,16 +22,16 @@ import { $hoveredEntry } from "../../../store/ui";
 
 export class TileElement extends HTMLElement {
   entry = null as unknown as Entry & { count: number };
+  entriesListener: (() => void) | null = null;
+
   connectedCallback() {
     const id = this.getAttribute('data-id') as string;
     const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
 
-    const entryData = $allEntries.get().find(entry => entry.id === id);
-
     if (isRear) {
       return;
     }
-    $entries.subscribe(entries => {
+    this.entriesListener = $entries.subscribe(entries => {
       const isVisible = !!entries.find(entry => entry.id === id);
       if (isVisible) {
         this.classList.add('isVisible');
@@ -60,6 +60,12 @@ export class TileElement extends HTMLElement {
     hoverTarget.addEventListener('mouseleave', () => {
       $hoveredEntry.set(null);
     });
+  }
+
+  disconnectedCallback() {
+    if (this.entriesListener) {
+      this.entriesListener();
+    }
   }
 }
 

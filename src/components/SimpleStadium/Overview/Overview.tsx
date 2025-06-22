@@ -58,14 +58,19 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
     if (!node && isShowingPoints) {
       return;
     }
-    $hoveredEntry.subscribe((hoveredEntry) => {
+    const unsubscribe1 = $hoveredEntry.subscribe((hoveredEntry) => {
       const memory = hoveredEntry?.memory;
       updateActiveMemory(memory);
     });
-    $activeFilters.subscribe((activeFilters) => {
+    const unsubscribe2 = $activeFilters.subscribe((activeFilters) => {
       const memory = activeFilters.memory;
       updateActiveMemory(memory);
     });
+
+    return () => {
+      unsubscribe1();
+      unsubscribe2();
+    };
   }, [node]);
 
   useEffect(() => {
@@ -73,7 +78,7 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
       return;
     }
 
-    $entries.subscribe((newEntries) => {
+    const unsubscribe = $entries.subscribe((newEntries) => {
       const entries = newEntries as Entry[];
       blocks.forEach((block) => {
         (block.material as MeshBasicMaterial).color = new Color(0xffffff);
@@ -81,6 +86,10 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
       });
       invalidate();
     });
+
+    return () => {
+      unsubscribe();
+    };
   }, [blocks, isShowingPoints]);
 
   const introRef = useRef<Group>(null);

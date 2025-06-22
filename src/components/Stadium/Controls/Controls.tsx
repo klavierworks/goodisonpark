@@ -1,6 +1,6 @@
 import { PresentationControls, Sphere } from "@react-three/drei"
 import { useFrame } from "@react-three/fiber"
-import { useRef, type ReactNode } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { type Group } from "three"
 
 type ControlsProps = {
@@ -43,9 +43,17 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
     )
   })
 
+  const [speed, setSpeed] = useState(4)
+
+
+  useFrame((state) => {
+    setSpeed(window.innerWidth < 768 ? 1 : 3)
+  })
+
+
   return (
     <>
-      <PresentationControls global={true} speed={4} polar={[0, 1]} rotation={[0, Math.PI / 3, 0]}>
+      <PresentationControls global={true} speed={speed} polar={[0, 1]} rotation={[0, Math.PI / 3, 0]}>
         <group ref={controlsTargetRef}>
           <Sphere args={[1, 1, 1]} scale={1} visible={false} />
         </group>

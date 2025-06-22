@@ -1,6 +1,7 @@
 ---
 import { getOptionsByFilter } from "../../store/data";
 import { getFilterLabel } from "../../api/utils";
+import { Image } from "astro:assets";
 
 type Props = {
   class: string;
@@ -11,7 +12,7 @@ const { class: className, filter, ...rest } = Astro.props as Props;
 
 const options = getOptionsByFilter(filter)
 ---
-<filter-element data-filter={filter} class={className} {...rest}>
+<filter-element data-filter={filter} class={`${className} ${filter}`} {...rest}>
   <input type="checkbox" id={`filter-${filter}`} />
   <ul class="options">
     {options.map((option) => (
@@ -22,6 +23,8 @@ const options = getOptionsByFilter(filter)
     <span class="cross-container">
       <span>{getFilterLabel(filter)}</span>
     </span>
+    <Image class="mobile-filter" alt="filter" src={import('./mdi_filter.svg')} />
+    <Image class="mobile-filter active" alt="filter" src={import('./mdi_filter-active.svg')} />
   </label>
 </filter-element>
 <script>
@@ -140,16 +143,17 @@ class FilterElement extends HTMLElement {
   handleClickOption(event: MouseEvent) {
     this.handleClose();
     const target = event.target as HTMLLIElement;
-    const isFilterBeingDeactivated = $activeFilters.get()[this.filter] === target.innerText;
+    const option = target.getAttribute('data-option');
+    const isFilterBeingDeactivated = $activeFilters.get()[this.filter] === option;
 
     if (isFilterBeingDeactivated) {
       this.clearFilter();
       return;
     }
-
+    console.log('Setting filter', this.filter, option);
     const newFilters = {
       ...$activeFilters.get(),
-      [this.filter]: target.innerText,
+      [this.filter]: option,
     };
 
     document.dispatchEvent(new CustomEvent('filtering', {
@@ -177,6 +181,12 @@ filter-element {
   text-align: center;
   position: relative;
   pointer-events: auto;
+  
+  &:not(.memory) {
+    @media (max-width: 600px) {
+      display: none;
+    }
+  }
 }
 
 .options {
@@ -261,4 +271,95 @@ input[type="checkbox"]:checked {
   }
 }
 
+.mobile-filter {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .filters {
+    bottom: 24px;
+  }
+  .memory {
+    position: relative;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    border: 1px solid white;
+    width: 24px;
+    grid-column: 2 / 3;
+    height: 22px;
+    margin: 0 0 1.5em;
+
+    .filter-name {
+      padding: 0;
+      opacity: 1;
+    }
+
+    .options {
+      position: fixed;
+      inset: 0;
+      top: 20dvh;
+      bottom: 20dvh;
+      text-align: left;
+      padding: 0 20px;
+      max-height: initial !important;
+      overflow: auto;
+      visibility: hidden;
+      z-index: -1;
+      
+      &::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        backdrop-filter: blur(5px);
+        z-index: -1;
+      }
+    }
+
+    .cross-container {
+      height: 0px;
+      width: 0px;
+      overflow: hidden;
+      position: absolute;
+      left: 0;
+      top: 0;
+      visibility: hidden;
+    }
+
+    .mobile-filter {
+      display: flex;
+      place-content: center;
+      place-items: center;
+      height: 1.2em;
+      width: 1.2em;
+
+      &.active {
+        display: none;
+      }
+    }
+ 
+  }
+
+
+  input[type="checkbox"]:checked {
+    & + .options {
+      visibility: visible;
+    }
+  }
+
+
+  .memory.hasActiveOption,
+  .memory:has(input[type="checkbox"]:checked) {
+
+      background-color: white;
+
+      .mobile-filter {
+        display: none;
+
+        &.active {
+          display: flex;
+        }
+    }
+  }
+}
 </style>

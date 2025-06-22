@@ -25,7 +25,6 @@ const height = imageMetadata?.height ?? 0;
 
 const aspectRatio = width / height;
 const isLandscape = aspectRatio > 1;
-console.log(filename, name, 'Aspect Ratio:', aspectRatio, 'Is Landscape:', isLandscape);
 ---
 <video-player-element class={`${isLandscape ? 'isLandscape' : 'isPortrait'}`} filename={fileNameWithoutExtension} name={name} style={`--aspect-ratio: ${aspectRatio}`}>
   {fileNameWithoutExtension && image && <AstroImage src={image} alt={name ?? filename ?? ""} inferSize class="image" />}

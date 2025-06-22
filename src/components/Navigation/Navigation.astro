@@ -27,14 +27,8 @@ const isSpaceView = url.pathname.includes('space');
         </a>
       )}
     </div>
-    <button class="arrow left">
-      <Image src={import('./arrow.svg')} alt="Left arrow" width={24} height={24} />
-    </button>
     <a class={`view grid ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
     <a class={`view space ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
-    <button class="arrow right">
-      <Image src={import('./arrow.svg')} alt="Right arrow" width={24} height={24} />
-    </button>
   </div>
 </div>
 <script>
@@ -97,17 +91,6 @@ document.addEventListener("astro:after-swap", (event) => {
   }
 });
 
-document.querySelectorAll('.arrow').forEach(arrow => {
-  arrow.addEventListener('click', (e) => {
-    e.preventDefault();
-    const isLeft = arrow.classList.contains('left');
-    document.dispatchEvent(new CustomEvent('navigate-arrow', {
-      detail: {
-        direction: isLeft ? 'left' : 'right',
-      }
-    }));
-  });
-});
 </script>
 <style>
 .filters {
@@ -117,14 +100,17 @@ document.querySelectorAll('.arrow').forEach(arrow => {
   left: 0;
   width: 100%;
   pointer-events: none;
+
+  @media (max-width: 600px) {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: start;
+  }
 }
 
 .filter {
   grid-column: span 1;
   grid-row: 2 / 3;
-  @media (max-width: 600px) {
-    display: none;
-  }
 
   &:nth-child(1),
   &:nth-child(2) {
@@ -139,7 +125,7 @@ document.querySelectorAll('.arrow').forEach(arrow => {
 
 .view-toggle {
   display: grid;
-  grid-template-columns: 24px repeat(2, 48px) 24px;
+  grid-template-columns: repeat(2, 48px);
   grid-template-rows: max-content max-content;
   order: 2;
   place-self: center;
@@ -179,55 +165,12 @@ document.querySelectorAll('.arrow').forEach(arrow => {
     background-color: white;
   }
 
-
-  .arrow {
-    @mixin button;
-    display: none;
-    place-content: center;
-    place-items: center;
-    grid-row: 2 / 3;
-    border: 1px solid white;
-    text-decoration: none;
-    appearance: none;
-    pointer-events: all;
-    background-color: var(--navy);
-    @media (max-width: 600px) {
-      display: none !important;
-    }
-
-
-    .isSpaceView & {
-      display: flex;
-    }
-
-    img {
-      width: 1em;
-      height: 1em;
-    }
-
-    &.left {
-      border-right: none;
-    }
-
-    &.right {
-      border-left: none;
-    }
-
-    &.right img {
-      transform: rotate(180deg);
-    }
-
-    &:active {
-      background-color: white;
-      color: var(--navy);
-    }
-  }
 }
 
 .map {
   position: relative;
   grid-row: 1 / 2;
-  grid-column: 2 / 4;
+  grid-column: 1 / 3;
   aspect-ratio: 1 / 1;
   border: 1px solid white;
   background-color: var(--navy);
@@ -246,6 +189,12 @@ document.querySelectorAll('.arrow').forEach(arrow => {
     cursor: pointer;
   }
 
+  .isCanvasView & {
+    @media (max-width: 600px) {
+      display: none;
+    }
+  }
+
   .isSpaceView & {
     pointer-events: none !important;
     translate: 0 100%;
@@ -257,7 +206,7 @@ document.querySelectorAll('.arrow').forEach(arrow => {
   }
 
   &.hasActiveFilters {
-    translate: 0 0;
+    translate: 0 0 !important;
   }
 }
 </style>

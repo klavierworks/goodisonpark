@@ -85,14 +85,15 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
 
   const introRef = useRef<Group>(null);
   useFrame(() => {
-    if (autoRotate && introRef.current) {
-      introRef.current.position.y = 20
-      introRef.current.position.x = 0
-      introRef.current.position.z = 0
-      introRef.current.rotation.x = Math.PI / 7
-      introRef.current.rotation.y -= 0.001;
-      invalidate();
+    if (!introRef.current) {
+      return;
     }
+    introRef.current.position.y = 20
+    introRef.current.position.x = 0
+    introRef.current.position.z = 0
+    introRef.current.rotation.x = Math.PI / 7
+    introRef.current.rotation.y -= 0.001;
+    invalidate();
   });
 
   return (

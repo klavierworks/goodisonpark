@@ -175,6 +175,8 @@ document.addEventListener("astro:after-swap", (event) => {
   border: 1px solid white;
   background-color: var(--navy);
   z-index: -1;
+  translate: 0 100%;
+  transition: translate 0.3s ease-in-out;
 
   @media (max-width: 600px) {
     position: fixed;
@@ -197,8 +199,6 @@ document.addEventListener("astro:after-swap", (event) => {
 
   .isSpaceView & {
     pointer-events: none !important;
-    translate: 0 100%;
-    transition: translate 0.3s ease-in-out;
 
     :global(div) {
       pointer-events: none !important;

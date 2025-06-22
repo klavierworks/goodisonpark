@@ -8,6 +8,10 @@ type Props = {
   isShowingPoints?: boolean;
 }
 const SimpleStadium = ({ autoRotate, className, isShowingPoints } : Props) => {
+  if (window.innerWidth < 600 && !autoRotate) {
+    return null; // Hide the component on small screens
+  }
+
   return (
     <Canvas flat frameloop='demand' className={className} camera={{
       position: [0, 180, -100],

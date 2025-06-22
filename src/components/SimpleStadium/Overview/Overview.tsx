@@ -91,6 +91,7 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
       introRef.current.position.z = 0
       introRef.current.rotation.x = Math.PI / 7
       introRef.current.rotation.y -= 0.001;
+      invalidate();
     }
   });
 

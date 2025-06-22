@@ -27,7 +27,7 @@ const aspectRatio = width / height;
 const isLandscape = aspectRatio > 1;
 ---
 <video-player-element class={`${isLandscape ? 'isLandscape' : 'isPortrait'}`} filename={fileNameWithoutExtension} name={name} style={`--aspect-ratio: ${aspectRatio}`}>
-  {fileNameWithoutExtension && image && <AstroImage src={image} alt={name ?? filename ?? ""} inferSize class="image" />}
+  {fileNameWithoutExtension && image && <AstroImage layout="constrained" src={image} alt={name ?? filename ?? ""} inferSize class="image" />}
 </video-player-element>
 <script>
   import { ASSET_URL } from "astro:env/client";

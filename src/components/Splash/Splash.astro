@@ -52,10 +52,11 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   background-color: var(--navy);
   display: none;
   cursor: pointer;
-  pointer-events: all;
-
+  pointer-events: none;
+  
   &.isActive {
     display: flex;
+    pointer-events: all;
   }
 
   &.isLoading {
@@ -65,7 +66,6 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   &.isComplete {
     opacity: 0;
     transition: opacity 1s ease-out;
-    pointer-events: none;
   }
 
   .stage1, .stage2 {

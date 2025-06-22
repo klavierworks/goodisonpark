@@ -84,23 +84,11 @@ class CanvasElement extends HTMLElement {
     this.cleanups.push(hasOpenFiltersListener);
 
     this.gesture = new DragGesture(this.masonryElement, ({ active, movement: [mx, my] }) => {
-      if (active) {
-        this.offsetX += mx / 10;
-        this.offsetY += my / 10;
-
-        const halfWidth = (this.masonryElement.clientWidth / 2) - (window.innerWidth / 2);
-        const halfHeight = (this.masonryElement.clientHeight / 2) - (window.innerHeight / 2);
-
-        this.offsetX = Math.max(Math.min(halfWidth, this.offsetX), -halfWidth);
-        this.offsetY = Math.max(Math.min(halfHeight, this.offsetY), -halfHeight);
-
-        document.documentElement.style = `--offset-x: ${Number(this.offsetX).toFixed(1)}px; --offset-y: ${Number(this.offsetY).toFixed(1)}px;`;
-
-        $canvasOffset.set({
-          x: this.offsetX,
-          y: this.offsetY,
-        });
+      if (!active) {
+        return;
       }
+
+      this.calculateOffset(-mx, -my);
     });
 
     requestAnimationFrame(this.handleFrame.bind(this));
@@ -136,18 +124,14 @@ class CanvasElement extends HTMLElement {
     this.mouseX = event.screenX - (window.innerWidth / 2);
     this.mouseY = event.screenY - (window.innerHeight / 2);
   }
-  handleFrame() {
-    if (!this.isMouseOver) {
-      requestAnimationFrame(this.handleFrame.bind(this));
-      return;
-    }
 
-    if (Math.abs(this.mouseX) > window.innerWidth / 8) {
-      this.offsetX -= (this.mouseX / (window.innerWidth / 2)) * 10;
+  calculateOffset(x: number, y: number) {
+    if (Math.abs(x) > window.innerWidth / 8) {
+      this.offsetX -= (x / (window.innerWidth / 2)) * 10;
     }
     
-    if (Math.abs(this.mouseY) > window.innerHeight / 8) {
-      this.offsetY -= (this.mouseY / (window.innerHeight / 2)) *  10;
+    if (Math.abs(y) > window.innerHeight / 8) {
+      this.offsetY -= (y / (window.innerHeight / 2)) *  10;
     }
 
     const halfWidth = (this.masonryElement.clientWidth / 2) - (window.innerWidth / 2);
@@ -169,6 +153,14 @@ class CanvasElement extends HTMLElement {
       x: this.offsetX,
       y: this.offsetY,
     });
+  }
+  handleFrame() {
+    if (!this.isMouseOver) {
+      requestAnimationFrame(this.handleFrame.bind(this));
+      return;
+    }
+
+    this.calculateOffset(this.mouseX, this.mouseY);
 
     requestAnimationFrame(this.handleFrame.bind(this));
   }
@@ -187,6 +179,7 @@ canvas-element {
   height: 100%;
   overflow: hidden;
   opacity: 1;
+  user-select: none;
   transition: opacity 0.5s ease-in-out;
 
   &::after {

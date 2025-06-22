@@ -148,22 +148,23 @@ export const distributeElementsOnStadium = (line: EllipseCurve, elements: Entry[
 }
 
 export const getBlockAtPosition = (x: number, y: number): string | null => {
+
   // Clamp inputs to valid range
   x = Math.max(0, Math.min(1, x));
   y = Math.max(0, Math.min(1, y));
   
   // Determine tier based on y value
   let tier: Tier;
-  if (y < 0.33) {
+  if (y <  0.33) {
     tier = 'lower';
   } else if (y < 0.67) {
     tier = 'middle';
   } else {
     tier = 'upper';
   }
-  
+
   // Normalize x to the curve parameter range (0.12 to 1.12)
-  const curveParam = 0.12 + x * (1.12 - 0.12);
+  let curveParam = x + 0;
   
   // Find which section contains this curve parameter
   let currentSection: Section | null = null;
@@ -174,10 +175,31 @@ export const getBlockAtPosition = (x: number, y: number): string | null => {
     }
   }
   
-  if (!currentSection) return null;
+  if (!currentSection) {
+    curveParam += 1;
+    for (const [sectionName, sectionData] of Object.entries(sections)) {
+      if (curveParam >= sectionData.start && curveParam <= sectionData.end) {
+        currentSection = sectionName as Section;
+        break;
+      }
+    }
+  }
+  console.log('currentSection', currentSection, curveParam, tier);
+  if (!currentSection) return null; // No valid section found
   
   // Get the blocks for this tier and section
-  const blocks = layout[tier][currentSection];
+  let blocks = layout[tier][currentSection];
+  if (blocks.length === 0 && tier === 'upper') {
+    tier = 'middle';
+    blocks = layout['middle'][currentSection];
+  }
+
+  if (blocks.length === 0 && tier === 'middle') {
+    tier = 'lower';
+    blocks = layout['lower'][currentSection];
+  }
+
+
   if (blocks.length === 0) return null;
   
   // Calculate which block within the section

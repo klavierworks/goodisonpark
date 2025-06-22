@@ -126,7 +126,7 @@ const Model = ({ }: ModelProps) => {
     regress();
     invalidate();
 
-    const block = getBlockAtPosition(normalizedRotationX, camera.position.z)
+    const block = getBlockAtPosition(normalizedRotationX, window.modelRotation.y)
     const stand = allEntries.find(entry => entry.block && entry.block.slice(0, 2) === block?.slice(0,2) && entry.stand !== 'undefined');
     $block.set(block);
     $stand.set(stand?.stand || 'Unknown stand');

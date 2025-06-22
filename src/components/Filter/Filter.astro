@@ -78,8 +78,10 @@ class FilterElement extends HTMLElement {
     $hoveredEntry.subscribe((hoveredEntry) => {
       if (hoveredEntry && hoveredEntry[this.filter]) {
         previousHtml = filterNameElement.innerHTML;
+        this.classList.add('hasActiveHoverOption');
         filterNameElement.innerHTML = `<span>${hoveredEntry[this.filter]}</span>`;
       } else if (previousHtml) {
+        this.classList.remove('hasActiveHoverOption');
         filterNameElement.innerHTML = previousHtml;
         previousHtml = undefined
       }
@@ -220,7 +222,7 @@ filter-element {
 }
 
 .filter-name {
-  display: block;
+  display: inline-block;
   padding: 20px;
   cursor: pointer;
   opacity: 0.5;
@@ -253,6 +255,9 @@ filter-element {
   }
 }
 
+.hasActiveHoverOption .filter-name {
+  opacity: 1;
+}
 .hasActiveOption .filter-name {
   opacity: 1;
 }

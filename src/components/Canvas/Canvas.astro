@@ -112,9 +112,10 @@ class CanvasElement extends HTMLElement {
     this.offsetY = 0;
     $activeFilters.set(event.detail.filters);
     
-    $entries.subscribe(() => {
+    const unsubscribe = $entries.subscribe(() => {
       this.pause(500).then(() => {
         this.classList.remove('isFiltering');
+        unsubscribe();
       });
     });
   }

@@ -46,11 +46,11 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
   }, [isHovered, data.id]);
 
   const handleToggleActive = useCallback(() => {
-    if (!isVisible) {
+    if (!isVisible || !isHovered) {
       return;
     }
     $focusedEntry.set(data.id);
-  }, [data]);
+  }, [data, isHovered, isVisible]);
 
   const pointerAttributes = useMemo(() => isForegrounded ? ({
     onPointerOver: (e) => {
@@ -72,7 +72,7 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
       setIsHovered(false);
     },
     onClick: handleToggleActive,
-  }) : {}, [handleToggleActive, isForegrounded]);
+  }) : {}, [handleToggleActive, isForegrounded, isVisible, isHovered]);
 
   useCursor(isHovered && isForegrounded, 'pointer', 'grab');
 

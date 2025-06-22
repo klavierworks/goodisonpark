@@ -33,6 +33,7 @@ import { $activeFilters, getOptionsByFilter, $entries } from "../../store/data";
 import { $hasOpenFilters, $hoveredEntry } from "../../store/ui";
 
 class FilterElement extends HTMLElement {
+  cleanups: (() => void)[] = [];
   isOpen = false;
   filter: Filter = this.getAttribute('data-filter')?.trim() as Filter;
   checkboxElement: HTMLInputElement = this.querySelector('input[type="checkbox"]')!
@@ -42,7 +43,7 @@ class FilterElement extends HTMLElement {
       option.addEventListener('click', this.handleClickOption.bind(this));
     });
 
-    $entries.subscribe(() => {
+    const entriesListener = $entries.subscribe(() => {
       const uniqueOptions = getOptionsByFilter(this.filter);
       this.querySelectorAll('li').forEach((option) => {
         const optionElement = option as HTMLLIElement;
@@ -55,10 +56,12 @@ class FilterElement extends HTMLElement {
       });
     });
 
+    this.cleanups.push(entriesListener);
+
     const filterNameElement = this.querySelector('.cross-container')! as HTMLSpanElement;
 
     let previousHtml: string | undefined = undefined;
-    $activeFilters.subscribe((activeFilters) => {
+    const activeFilterListener = $activeFilters.subscribe((activeFilters) => {
       const currentFilter = activeFilters[this.filter];
       this.querySelectorAll('li').forEach((option) => {
         const optionElement = option as HTMLLIElement;
@@ -75,7 +78,9 @@ class FilterElement extends HTMLElement {
       }
     });
 
-    $hoveredEntry.subscribe((hoveredEntry) => {
+    this.cleanups.push(activeFilterListener);
+
+    const hoveredEntryListener = $hoveredEntry.subscribe((hoveredEntry) => {
       if (hoveredEntry && hoveredEntry[this.filter]) {
         previousHtml = filterNameElement.innerHTML;
         this.classList.add('hasActiveHoverOption');
@@ -86,6 +91,8 @@ class FilterElement extends HTMLElement {
         previousHtml = undefined
       }
     });
+
+    this.cleanups.push(hoveredEntryListener);
 
     this.addEventListener('click', (event) => {
       if (!this.classList.contains('hasActiveOption')) {
@@ -106,6 +113,11 @@ class FilterElement extends HTMLElement {
         this.handleClose();
       }
     });
+  }
+
+  disconnectedCallback() {
+    this.cleanups.forEach(cleanup => cleanup());
+    window.removeEventListener('click', this.handleClickOutside);
   }
 
   handleOpen() {

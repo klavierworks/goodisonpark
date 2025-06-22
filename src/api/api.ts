@@ -24,19 +24,19 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
 
   const formatted: Entry[] = values.map((value) => ({
     id: `${Date.now() + Math.random()}`,
-    filename: value[0],
+    filename: value[0].trim(),
     ...(
       keepVideoUrls ? {
-        videoUrl: value[1]
+        videoUrl: value[1].trim()
       } : {}
     ),
-    memory: value[2],
-    year: value[3],
-    category: value[4],
-    name: value[5],
-    stand: value[6],
-    section: value[7],
-    block: value[8],
+    memory: value[2]?.trim(),
+    year: value[3]?.trim(),
+    category: value[4]?.trim(),
+    name: value[5]?.trim(),
+    stand: value[6]?.trim(),
+    section: value[7]?.trim(),
+    block: value[8]?.trim(),
   }));
 
   return formatted;
@@ -44,10 +44,10 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
 
 export const getRawDatabase = async (): Promise<Database> => {
   const database = await getDataFromApi(true);
-  console.log(database)
+
   return database;
 }
-
+  
 let cachedData: Database | null = null;
 export const getDatabase = async (): Promise<Database> => {
   if (cachedData) {
@@ -55,15 +55,8 @@ export const getDatabase = async (): Promise<Database> => {
   }
 
   const database = await getDataFromApi();
-  const entriesWithVideos = database.filter((entry) => entry.filename);
+  // Filter out entries without minimum required fields
+  const entriesWithVideos = database.filter((entry) => entry.filename && entry.block && entry.stand);
   cachedData = entriesWithVideos;
   return entriesWithVideos;
-}
-
-export const getOptionsByFilter = async (filter: Filter): Promise<string[]> => {
-  const database = await getDatabase();
-
-  const options = database.map((entry) => entry[filter]);
-  const uniqueOptions = Array.from(new Set(options));
-  return uniqueOptions;
 }

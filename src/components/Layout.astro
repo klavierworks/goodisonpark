@@ -3,8 +3,10 @@ import { ClientRouter, fade } from "astro:transitions";
 import { getDatabase } from "../api/api"
 import FocusedPlayer from "./FocusedPlayer/FocusedPlayer.astro";
 import Splash from "./Splash/Splash.astro";
+import { setEntries } from "../store/data";
 
 const entries = await getDatabase();
+setEntries(JSON.stringify(entries));
 ---
 
 <html lang="en" class="noJs">

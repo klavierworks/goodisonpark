@@ -99,7 +99,7 @@ const filterAllEntries = () => {
   const filteredEntries = $allEntries.get().filter((entry) => filterEntries.every(([key, value]) => {
     const entryValue = entry[key as keyof Entry] ?? '';
     return entryValue.toLowerCase() === value.toLowerCase();
-  })).filter(entry => entry.block);
+  }));
 
   $entries.set(filteredEntries)
 }
@@ -114,4 +114,32 @@ export const setEntries = (entriesJson: string) => {
   const parsedEntries = JSON.parse(entriesJson) as Entry[]
   $allEntries.set(parsedEntries)
   filterAllEntries();
+}
+
+
+
+export const getOptionsByFilter = (filter: Filter): string[] => {
+  const entries = $entries.get();
+
+  const options = entries.map((entry) => entry[filter]);
+  const uniqueOptionsArray: Record<string, string> = {}
+  options.forEach((option) => {
+    const cleanOption = option.toLowerCase().trim();
+    if (!uniqueOptionsArray[cleanOption]) {
+      uniqueOptionsArray[cleanOption] = option;
+    }
+  });
+  const uniqueOptions = Object.values(uniqueOptionsArray);
+  const sortedOptions = uniqueOptions.sort((a, b) => {
+    const aName = a.toLowerCase();
+    const bName = b.toLowerCase();
+    if (aName < bName) {
+      return -1;
+    }
+    if (aName > bName) {
+      return 1;
+    }
+    return 0;
+  });
+  return sortedOptions;
 }

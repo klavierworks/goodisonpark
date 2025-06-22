@@ -24,7 +24,7 @@ type Props = {
   </a>
 </tile-element>
 <script>
-import { $entries, $focusedEntry } from "../../../store/data";
+import { $entries } from "../../../store/data";
 import { $hoveredEntry } from "../../../store/ui";
 
 export class TileElement extends HTMLElement {
@@ -105,6 +105,7 @@ tile-element {
     align-items: center;
     gap: 1em;
     margin: 0;
+    max-width: 100%;
     white-space: nowrap;
   }
 
@@ -116,6 +117,7 @@ tile-element {
   }
 
   .memory {
+    flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
   }

@@ -17,7 +17,7 @@ const World = ({ isController, isTarget}: WorldProps) => {
       <AdaptiveEvents />
       <AdaptiveDpr />
       <Preload all />
-      <Controls isController={true} isTarget={true}>
+      <Controls isController={true} isTarget={false}>
         <Suspense fallback={<Fallback />}>
           <Model />
         </Suspense>

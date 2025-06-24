@@ -39,6 +39,9 @@ class FilterElement extends HTMLElement {
   checkboxElement: HTMLInputElement = this.querySelector('input[type="checkbox"]')!
 
   connectedCallback() {
+    if (!$hasOpenFilters.get()) {
+      (this.querySelector('input[type="checkbox"]')! as HTMLInputElement).checked = false;
+    }
     this.querySelectorAll('li').forEach((option) => {
       option.addEventListener('click', this.handleClickOption.bind(this));
     });
@@ -245,7 +248,7 @@ filter-element {
 
 .cross-container {
   position: relative;
-  display: inline;
+  display: inline-block;
   line-height: 1;
   max-width: 100%;
 
@@ -254,7 +257,7 @@ filter-element {
     overflow: hidden;
     max-width: 100%;
     text-overflow: ellipsis;
-    display: inline;
+    display: inline-block;
     position: relative;
     pointer-events: all;
   }
@@ -263,7 +266,7 @@ filter-element {
     @mixin button;
     position: absolute;
     left: 100%;
-    top: 50%;
+    top: calc(50% - 1px);
     transform: translateY(-50%);
     margin-left: 0.5em;
   }

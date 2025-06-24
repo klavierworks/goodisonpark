@@ -78,17 +78,32 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
       return;
     }
 
-    const unsubscribe = $entries.subscribe((newEntries) => {
-      const entries = newEntries as Entry[];
+    const updateBlocksVisibility = () => {
+      const entries = $entries.get() as Entry[];
+      const hoveredEntry = $hoveredEntry.get();
+      const hoveredBlock = hoveredEntry ? blocks.find(block => block.name === hoveredEntry.block) : null;
       blocks.forEach((block) => {
         (block.material as MeshBasicMaterial).color = new Color(0xffffff);
+        block.scale.set(4,4,4);
+        if (hoveredBlock && hoveredBlock.name === block.name) {
+          block.scale.set(8,8,8);
+        }
         (block.material as MeshBasicMaterial).visible = entries.find(entry => entry.block === block.name) !== undefined;
       });
       invalidate();
+    }
+
+    const unsubscribe = $entries.subscribe(() => {
+      updateBlocksVisibility();
+    });
+
+    const unsubscribeHover = $hoveredEntry.subscribe(() => {
+      updateBlocksVisibility();
     });
 
     return () => {
       unsubscribe();
+      unsubscribeHover();
     };
   }, [blocks, isShowingPoints]);
 

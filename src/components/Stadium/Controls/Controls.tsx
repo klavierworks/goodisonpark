@@ -1,5 +1,5 @@
 import { PresentationControls, Sphere } from "@react-three/drei"
-import { useFrame } from "@react-three/fiber"
+import { invalidate, useFrame, useThree } from "@react-three/fiber"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { type Group } from "three"
 
@@ -32,15 +32,24 @@ const Controls = ({ children, isController, isTarget }: ControlsProps) => {
     }
   })
 
+  const previousRotation = useRef(0);
   useFrame((state) => {
-    if (isController || !interactiveModelRef.current) {
+    if (!isTarget || !interactiveModelRef.current) {
       return;
     }
+
+    const newRotation = window.modelRotation.x + Math.PI / -2;
+    if (previousRotation.current === newRotation) {
+      return;
+    }
+
+    previousRotation.current = newRotation;
     interactiveModelRef.current.rotation.set(
       0,
-      window.modelRotation.x + Math.PI / -2,
+      newRotation,
       0,
     )
+    state.invalidate();
   })
 
   const [speed, setSpeed] = useState(4)

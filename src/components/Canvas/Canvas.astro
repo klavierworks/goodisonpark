@@ -34,7 +34,6 @@ const customTransition = {
 import { DragGesture } from '@use-gesture/vanilla';
 import { $activeFilters, $canvasOffset, $entries } from "../../store/data";
 import { $hasOpenFilters } from "../../store/ui";
-import { TechnicolorShader } from 'three/examples/jsm/Addons.js';
 
 class CanvasElement extends HTMLElement {
   isMouseOver = false;
@@ -130,6 +129,10 @@ class CanvasElement extends HTMLElement {
   }
 
   calculateOffset(x: number, y: number) {
+    if (!!$hasOpenFilters.get()) {
+      return;
+    }
+
     if (Math.abs(x) > window.innerWidth / 8) {
       this.offsetX -= (x / (window.innerWidth / 2)) * 10;
     }

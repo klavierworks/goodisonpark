@@ -14,7 +14,7 @@ const SimpleStadium = ({ className, isAutoRotating, isSplash, isShowingPoints } 
   }
 
   return (
-    <Canvas flat frameloop='demand' className={className} camera={{
+    <Canvas flat frameloop='always' className={className} camera={{
       position: [0, 180, -100],
     }}>
       <Preload all />

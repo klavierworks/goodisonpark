@@ -13,19 +13,23 @@ const { class: className, filter, ...rest } = Astro.props as Props;
 const options = getOptionsByFilter(filter)
 ---
 <filter-element data-filter={filter} class={`${className} ${filter}`} {...rest}>
-  <input type="checkbox" id={`filter-${filter}`} />
+  <div class="backdrop"></div>
   <ul class="options">
-    {options.map((option) => (
-      <li data-option={option}>{option}</li>
-    ))}
+    <div class="content">
+      {options.map((option) => (
+        <li data-option={option}>{option}</li>
+      ))}
+    </div>
   </ul>
-  <label for={`filter-${filter}`} class="filter-name">
-    <span class="cross-container">
-      <span>{getFilterLabel(filter)}</span>
-    </span>
+  <div class="toggle-box" data-name="name-click-target">
+    <div class="cross-container" data-name="name-click-target">
+      <span class="name">
+        {getFilterLabel(filter)}
+      </span>
+    </div>
     <Image class="mobile-filter" alt="filter" src={import('./mdi_filter.svg')} />
     <Image class="mobile-filter active" alt="filter" src={import('./mdi_filter-active.svg')} />
-  </label>
+  </div>
 </filter-element>
 <script>
 import { getFilterLabel } from "../../api/utils";
@@ -36,86 +40,31 @@ class FilterElement extends HTMLElement {
   cleanups: (() => void)[] = [];
   isOpen = false;
   filter: Filter = this.getAttribute('data-filter')?.trim() as Filter;
-  checkboxElement: HTMLInputElement = this.querySelector('input[type="checkbox"]')!
 
   connectedCallback() {
-    if (!$hasOpenFilters.get()) {
-      (this.querySelector('input[type="checkbox"]')! as HTMLInputElement).checked = false;
-    }
-    this.querySelectorAll('li').forEach((option) => {
-      option.addEventListener('click', this.handleClickOption.bind(this));
-    });
+    this.addEventListener('click', this.handleClick);
+    window.addEventListener('click', this.handleClickOutside)
 
-    const entriesListener = $entries.subscribe(() => {
-      const uniqueOptions = getOptionsByFilter(this.filter);
-      this.querySelectorAll('li').forEach((option) => {
-        const optionElement = option as HTMLLIElement;
-        const optionName = optionElement.getAttribute('data-option');
-        if (uniqueOptions.includes(optionName!)) {
-          optionElement.classList.remove('isHidden');
-        } else {
-          optionElement.classList.add('isHidden');
-        }
-      });
-    });
+    const activeFiltersCleanup = $activeFilters.subscribe(() => {
+      this.writeName();
 
-    this.cleanups.push(entriesListener);
-
-    const filterNameElement = this.querySelector('.cross-container')! as HTMLSpanElement;
-
-    let previousHtml: string | undefined = undefined;
-    const activeFilterListener = $activeFilters.subscribe((activeFilters) => {
-      const currentFilter = activeFilters[this.filter];
-      this.querySelectorAll('li').forEach((option) => {
-        const optionElement = option as HTMLLIElement;
-        const isActive = currentFilter === optionElement.innerText;
-        optionElement.classList.toggle('isActive', isActive);
-      });
-      if (currentFilter) {
-        filterNameElement.innerHTML = `<span>${currentFilter}</span>`;
-        previousHtml = filterNameElement.innerHTML;
+      if ($activeFilters.get()[this.filter]) {
         this.classList.add('hasActiveOption');
       } else {
-        filterNameElement.innerHTML = `<span>${getFilterLabel(this.filter)}</span>`;
         this.classList.remove('hasActiveOption');
       }
     });
 
-    this.cleanups.push(activeFilterListener);
-
-    const hoveredEntryListener = $hoveredEntry.subscribe((hoveredEntry) => {
-      if (hoveredEntry && hoveredEntry[this.filter]) {
-        previousHtml = filterNameElement.innerHTML;
+    const hoveredEntryCleanup = $hoveredEntry.subscribe(() => {
+      this.writeName();
+      if ($hoveredEntry.get()?.[this.filter]) {
         this.classList.add('hasActiveHoverOption');
-        filterNameElement.innerHTML = `<span>${hoveredEntry[this.filter]}</span>`;
-      } else if (previousHtml) {
-        this.classList.remove('hasActiveHoverOption');
-        filterNameElement.innerHTML = previousHtml;
-        previousHtml = undefined
-      }
-    });
-
-    this.cleanups.push(hoveredEntryListener);
-
-    this.addEventListener('click', (event) => {
-      if (!this.classList.contains('hasActiveOption')) {
-        return;
-      }
-      event.stopPropagation();
-      event.preventDefault();
-      this.clearFilter();
-    });
-
-    this.checkboxElement.addEventListener('change', (event) => {
-      const target = event.target as HTMLInputElement;
-      const isOpen = !!target.checked;
-      
-      if (isOpen) {
-        this.handleOpen();
       } else {
-        this.handleClose();
+        this.classList.remove('hasActiveHoverOption');
       }
     });
+
+    this.cleanups.push(activeFiltersCleanup, hoveredEntryCleanup);
   }
 
   disconnectedCallback() {
@@ -123,22 +72,76 @@ class FilterElement extends HTMLElement {
     window.removeEventListener('click', this.handleClickOutside);
   }
 
+  writeName() {
+    const nameElement = this.querySelector('.name');
+    if (!nameElement) {
+      console.warn('No name element found in filter', this.filter);
+      return;
+    }
+
+    const activeFilter = $activeFilters.get()[this.filter];
+    const hoveredEntry = $hoveredEntry.get();
+    if (activeFilter) {
+      nameElement.textContent = activeFilter;
+      return;
+    }
+
+    if (hoveredEntry && hoveredEntry[this.filter]) {
+      nameElement.textContent = hoveredEntry[this.filter];
+      return;
+    }
+
+    nameElement.textContent = getFilterLabel(this.filter);
+  }
+
+  handleClick(event: MouseEvent) {
+    event.stopPropagation();
+    const target = event.target as HTMLElement;
+    console.log(target)
+    if (target.dataset.name === 'name-click-target') {
+      this.handleClickName();
+      return;
+    }
+
+    if (target.tagName === 'LI') {
+      this.handleClickOption(event);
+      return;
+    }
+  }
+
+  handleClickName() {
+    if ($activeFilters.get()[this.filter]) {
+      this.clearFilter();
+      return;
+    }
+
+    if (this.isOpen) {
+      this.handleClose();
+      return;
+    }
+    
+    if (!this.isOpen) {
+      this.handleOpen();
+      return;
+    }
+  }
+
   handleOpen() {
     this.isOpen = true;
-    this.checkboxElement.checked = true;
+    this.classList.add('isOpen')
     $hasOpenFilters.set(true);
-
-    window.addEventListener('click', this.handleClickOutside)
   }
+
   handleClose() {
     this.isOpen = false;
-    this.checkboxElement.checked = false;
+    this.classList.remove('isOpen');
     $hasOpenFilters.set(false);
-
-    window.removeEventListener('click', this.handleClickOutside)
   }
 
   handleClickOutside = (event: MouseEvent) => {
+    if (!this.isOpen) {
+      return;
+    }
     const target = event.target as HTMLElement;
     const isClickInside = this.contains(target);
     if (!isClickInside) {
@@ -179,6 +182,8 @@ class FilterElement extends HTMLElement {
       },
     }));
 
+    this.classList.add('hasActiveOption');
+
     event.preventDefault();
     event.stopPropagation();
   }
@@ -189,9 +194,6 @@ if (!customElements.get('filter-element')) {
 }
 </script>
 <style>
-input[type="checkbox"] {
-  display: none;
-}
 filter-element {
   @mixin body;
   width: 100%;
@@ -206,23 +208,52 @@ filter-element {
   }
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-color: lab(var(--navy-tuple) / 0.3);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: -1;
+
+  .isOpen & {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
 .options {
   position: absolute;
   bottom: 100%;
   left: 0;
   right: 0;
-  max-height: 0;
-  transition: max-height 0.5s ease-in-out;
+  height: 100dvh;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   cursor: pointer;
   padding: 0;
   scrollbar-width: thin;
   --webkit-overflow-scrolling: none;
   scrollbar-color: white transparent;
+  translate: 0 calc(100% + 2em);
+  margin-bottom: 1em;
+  padding-top: 25dvh;
+  mask: linear-gradient(to bottom, transparent 0%, transparent 15%, black 25%, black 100%);
+
+  .isOpen & {
+    translate: 0 0;
+  }
+
+  .content {
+    margin-top: auto;
+    height: max-content;
+    max-height: 80dvh;
+  }
   
   li {
-    margin: 0 0 0.125em;
+    margin: 0 0 0.25em;
     padding: 0;
     list-style: none;
     opacity: 0.7;
@@ -238,58 +269,54 @@ filter-element {
   }
 }
 
-.filter-name {
-  display: inline-block;
-  padding: 20px;
+.toggle-box {
+  margin: 0 0 1.5em;
   cursor: pointer;
-  opacity: 0.5;
-  line-height: 1;
 }
 
 .cross-container {
   position: relative;
-  display: inline-block;
-  line-height: 1;
   max-width: 100%;
-
-  :global(span) {
-    white-space: nowrap;
-    overflow: hidden;
-    max-width: 100%;
-    text-overflow: ellipsis;
-    display: inline-block;
-    position: relative;
-    pointer-events: all;
-  }
+  width: max-content;
+  margin: 0 auto;
+  pointer-events: none;
+  cursor: pointer;
 
   &::after {
-    @mixin button;
+    content: '';
     position: absolute;
-    left: 100%;
-    top: calc(50% - 1px);
-    transform: translateY(-50%);
-    margin-left: 0.5em;
+    left: calc(100% + 0.5em);
+    top: 50%;
+    pointer-events: all;
+    transform: translateY(calc(-50% - 1px));
+    color: white;
+  }
+
+  .hasActiveOption & {
+    &::after {
+      content: '×';
+      cursor: pointer;
+    }
   }
 }
 
-.hasActiveHoverOption .filter-name {
-  opacity: 1;
-}
-.hasActiveOption .filter-name {
-  opacity: 1;
-}
+.name {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  opacity: 0.5;
+  white-space: nowrap;
+  pointer-events: none;
+  cursor: pointer;
 
-.hasActiveOption .cross-container {
-
-  &:after {
-    content: '×';
+  .hasActiveHoverOption & {
+    opacity: 1;
   }
-}
 
-input[type="checkbox"]:checked {
-& + .options {
-    overflow: auto;
-    max-height: 80vh;
+  .hasActiveOption & {
+    opacity: 1;
   }
 }
 
@@ -300,6 +327,14 @@ input[type="checkbox"]:checked {
 @media (max-width: 600px) {
   .filters {
     bottom: 24px;
+  }
+  .toggle-box {
+    margin: 0;
+    display: flex;
+    place-content: center;
+    place-items: center;
+    width: 100%;
+    height: 100%;
   }
   .memory {
     position: relative;
@@ -320,13 +355,12 @@ input[type="checkbox"]:checked {
     .options {
       position: fixed;
       inset: 0;
-      top: 20dvh;
-      bottom: 20dvh;
+      top: 0;
+      bottom: 0;
       text-align: left;
-      padding: 0 20px;
       max-height: initial !important;
       overflow: auto;
-      visibility: hidden;
+      padding: 20dvh 20px;
       z-index: -1;
       
       &::after {
@@ -335,6 +369,10 @@ input[type="checkbox"]:checked {
         inset: 0;
         z-index: -1;
       }
+    }
+
+    .content {
+      display: contents;
     }
 
     .cross-container {
@@ -353,34 +391,25 @@ input[type="checkbox"]:checked {
       place-items: center;
       height: 1.2em;
       width: 1.2em;
+      pointer-events: none;
 
       &.active {
         display: none;
       }
     }
- 
-  }
 
-
-  input[type="checkbox"]:checked {
-    & + .options {
-      visibility: visible;
-    }
-  }
-
-
-  .memory.hasActiveOption,
-  .memory:has(input[type="checkbox"]:checked) {
-
+    &.hasActiveOption {
       background-color: white;
-
       .mobile-filter {
         display: none;
 
         &.active {
           display: flex;
         }
+      }
     }
+ 
   }
+
 }
 </style>

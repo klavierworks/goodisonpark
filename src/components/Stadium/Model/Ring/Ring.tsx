@@ -43,7 +43,7 @@ const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
             isVisible={entries.some(entry => entry.id === tile.id)}
             rotation={tile.rotation as [number, number, number]}
             scale={1}
-            />
+          />
         </Suspense>
       ))}
     </group>

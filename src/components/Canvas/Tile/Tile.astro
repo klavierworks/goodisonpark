@@ -12,11 +12,12 @@ type Props = {
 
 ---
 <tile-element data-id={entry.id} class={`${className} ${isRear ? 'isRear' : ''} isVisible`} isRear={isRear} {...rest}>
-  <a href={`/space?memory=${entry.memory}`} data-astro-prefetch="tap">
+  <a href={`/space?memory=${entry.memory}&selectedTileId=${entry.id}`} data-astro-prefetch="tap">
     <VideoTile filename={entry.filename} name={entry.name} />
   </a>
 </tile-element>
 <script>
+import { navigate } from "astro:transitions/client";
 import { $allEntries, $entries } from "../../../store/data";
 import { $hoveredEntry } from "../../../store/ui";
 
@@ -38,6 +39,7 @@ export class TileElement extends HTMLElement {
     if (isRear) {
       return;
     }
+
     this.entriesListener = $entries.subscribe(entries => {
       const isVisible = !!entries.find(entry => entry.id === id);
       if (isVisible) {

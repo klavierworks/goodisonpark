@@ -12,6 +12,7 @@ type WorldProps = {
 }
 const World = ({ isController, isTarget}: WorldProps) => {
   useCursor(true, 'grab', 'auto');
+
   return (
     <>
       <AdaptiveEvents />

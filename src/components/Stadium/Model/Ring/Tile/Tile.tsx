@@ -129,7 +129,18 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
 
   return (
     <>
-      <sprite ref={spriteRef} {...rest} scale={[rest.scale, rest.scale, 1]} {...pointerAttributes} renderOrder={1}>
+      <sprite
+        ref={spriteRef}
+        {...rest}
+        scale={[rest.scale, rest.scale, 1]}
+        {...pointerAttributes}
+        renderOrder={1}
+        name={data.id}
+        userData={{
+          point: data.point,
+          verticalOffset: data.position[2],
+        }}
+      >
         <Suspense fallback={<spriteMaterial color="white" transparent opacity={0} side={DoubleSide} />}>
           <Thumbnail filename={filename} isHovered={isHovered} spriteRef={spriteRef} scale={rest.scale} />
         </Suspense>

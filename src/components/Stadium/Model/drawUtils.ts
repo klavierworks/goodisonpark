@@ -115,6 +115,7 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
     
     return {
       ...item,
+      point: t,
       position: [offsetPoint.x, offsetPoint.y, verticalOffset],
       rotation: [Math.PI / 2, normalAngle, Math.PI]
     }

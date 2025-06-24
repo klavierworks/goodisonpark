@@ -23,7 +23,7 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const values = data.values.slice(1);
 
   const formatted: Entry[] = values.map((value) => ({
-    id: `${Date.now() + Math.random()}`,
+    id: `key--${value[0].trim()}`,
     filename: value[0].trim(),
     ...(
       keepVideoUrls ? {

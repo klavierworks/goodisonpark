@@ -21,7 +21,7 @@ const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
     const unsubscribe = $entries.subscribe((newEntries) => {
       setEntries(newEntries as Entry[]);
     });
-
+    
     return () => {
       unsubscribe();
     };
@@ -36,7 +36,7 @@ const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
         visible={isDebug}
         />
       {points.map((tile) => (
-        <Suspense key={tile.id} fallback={() => <></>}>
+        <Suspense key={`space--${tile.id}`} fallback={() => <></>}>
           <Tile
             data={tile}
             position={[tile.position[0], tile.position[1], tile.position[2]]}

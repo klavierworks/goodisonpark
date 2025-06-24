@@ -3,12 +3,13 @@ import { Preload } from '@react-three/drei';
 import Overview from './Overview/Overview';
 
 type Props = {
-  autoRotate?: boolean;
   className?: string;
+  isAutoRotating?: boolean;
+  isSplash?: boolean;
   isShowingPoints?: boolean;
 }
-const SimpleStadium = ({ autoRotate, className, isShowingPoints } : Props) => {
-  if (window.innerWidth < 600 && !autoRotate) {
+const SimpleStadium = ({ className, isAutoRotating, isSplash, isShowingPoints } : Props) => {
+  if (window.innerWidth < 600 && !isSplash) {
     return null; // Hide the component on small screens
   }
 
@@ -19,7 +20,7 @@ const SimpleStadium = ({ autoRotate, className, isShowingPoints } : Props) => {
       <Preload all />
       <ambientLight intensity={10} />
       <directionalLight position={[0, 10, 0]} intensity={10} />
-      <Overview autoRotate={autoRotate} isShowingPoints={isShowingPoints} />
+      <Overview isAutoRotating={isAutoRotating} isShowingPoints={isShowingPoints} />
     </Canvas>
   );
 }

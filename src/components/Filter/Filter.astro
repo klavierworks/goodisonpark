@@ -210,11 +210,13 @@ filter-element {
   right: 0;
   max-height: 0;
   transition: max-height 0.5s ease-in-out;
-  overflow: hidden;
-  scrollbar-width: none;
+  overflow: auto;
   margin: 0;
   cursor: pointer;
   padding: 0;
+  scrollbar-width: thin;
+  --webkit-overflow-scrolling: none;
+  scrollbar-color: white transparent;
   
   li {
     margin: 0 0 0.125em;
@@ -243,7 +245,7 @@ filter-element {
 
 .cross-container {
   position: relative;
-  display: inline-block;
+  display: inline;
   line-height: 1;
   max-width: 100%;
 
@@ -252,7 +254,7 @@ filter-element {
     overflow: hidden;
     max-width: 100%;
     text-overflow: ellipsis;
-    display: inline-block;
+    display: inline;
     position: relative;
     pointer-events: all;
   }

@@ -8,10 +8,10 @@ import { $activeFilters, $allEntries, $entries } from "../../../store/data";
 import type { Group } from "three";
 
 type Props = {
-  autoRotate?: boolean;
+  isAutoRotating?: boolean;
   isShowingPoints?: boolean;
 }
-const Overview = ({ autoRotate, isShowingPoints }: Props) => {
+const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
   const [edges, setEdges] = useState<BufferGeometry | null>(null);
   const [node, setNode] = useState<Mesh | null>(null);
   const [blocks, setBlocks] = useState<Mesh[]>([]);
@@ -94,7 +94,7 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
 
   const introRef = useRef<Group>(null);
   useFrame(() => {
-    if (!introRef.current) {
+    if (!introRef.current || !isAutoRotating) {
       return;
     }
     introRef.current.position.y = 20
@@ -118,7 +118,7 @@ const Overview = ({ autoRotate, isShowingPoints }: Props) => {
         </group>
   
         <group rotation={[0,Math.PI ,0]}>
-          {!autoRotate && blocks.map(block => <primitive key={block.uuid} object={block} />)}
+          {isShowingPoints && blocks.map(block => <primitive key={block.uuid} object={block} />)}
         </group>
       </Controls>
     </group>

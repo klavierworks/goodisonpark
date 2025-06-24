@@ -32,7 +32,7 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
       return;
     }
     const distance = spriteRef.current.position.distanceTo(camera.position);
-    setIsForegrounded(distance < 50);
+    setIsForegrounded(distance < 100);
   });
 
   const [isHovered, setIsHovered] = useState(false);
@@ -76,7 +76,7 @@ const Tile = ({ data, isVisible, ...rest }: TileProps) => {
     onClick: handleToggleActive,
   }) : {}, [handleToggleActive, isForegrounded, isVisible, isHovered]);
 
-  useCursor(isHovered && isForegrounded, 'pointer', 'grab');
+  useCursor(isHovered && isForegrounded, 'zoom-in', 'grab');
 
   const spring = useSpring({
     opacity: isVisible ? 1 : 0,

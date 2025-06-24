@@ -21,12 +21,19 @@ import { $allEntries, $entries } from "../../../store/data";
 import { $hoveredEntry } from "../../../store/ui";
 
 export class TileElement extends HTMLElement {
-  entry = null as unknown as Entry & { count: number };
+  entry = null as unknown as Entry;
   entriesListener: (() => void) | null = null;
 
   connectedCallback() {
     const id = this.getAttribute('data-id') as string;
     const isRear = this.hasAttribute('isRear') && this.getAttribute('isRear') === 'true';
+
+    const entry = $allEntries.get().find(entry => entry.id === id);
+    if (!entry) {
+      console.error(`TileElement: No entry found for id ${id}`);
+      return;
+    }
+    this.entry = entry;
 
     if (isRear) {
       return;

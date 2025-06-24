@@ -20,10 +20,10 @@ const isSpaceView = url.pathname.includes('space');
   <div class={`view-toggle ${isSpaceView ? 'isSpaceView' : 'isCanvasView'}`}>
     <div class="map">
       {isSpaceView ? (
-        <SimpleStadium isShowingPoints={true} client:only />
+        <SimpleStadium isShowingPoints client:only />
       ) : (
         <a href="/space">
-          <SimpleStadium client:only />
+          <SimpleStadium client:only isAutoRotating isShowingPoints />
         </a>
       )}
     </div>

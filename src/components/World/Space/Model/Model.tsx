@@ -54,6 +54,7 @@ const Model = ({ entries }: ModelProps) => {
 
   const scene = useThree(state => state.scene);
   useEffect(() => {
+    return;
     if (!selectedEntry || !scene) {
       return;
     }

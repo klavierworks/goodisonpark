@@ -49,7 +49,6 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
     context.lineWidth = 10;
     context.strokeStyle = 'white';
     context.strokeRect(0, 0, canvas.width, canvas.height);
-    console.log('create new')
     const canvasTexture = new CanvasTexture(canvas);
     canvasTextureCache.set(entry.id, canvasTexture);
     return canvasTexture;

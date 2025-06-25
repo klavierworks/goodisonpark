@@ -1,39 +1,25 @@
 ---
-import { Image } from "astro:assets";
 import { getFilters } from "../../api/utils";
 import Filter from "../../components/Filter/Filter.astro";
 import SimpleStadium from "../SimpleStadium/SimpleStadium.tsx";
 
-type Props = {
-  section: "grid" | "space";
-}
-
-const {section} = Astro.props;
-
 const filters = getFilters();
-
-const url = Astro.url;
-const isSpaceView = url.pathname.includes('space');
 ---
-<div class="filters" transition:name="filters" transition:persist>
+<div class="filters isGridView" transition:name="filters" transition:persist>
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
-  <div class={`view-toggle ${isSpaceView ? 'isSpaceView' : 'isCanvasView'}`}>
+  <div class="view-toggle">
     <div class="map">
-      {isSpaceView ? (
-        <SimpleStadium isShowingPoints client:only />
-      ) : (
-        <a href="/space">
-          <SimpleStadium client:only isAutoRotating isShowingPoints />
-        </a>
-      )}
+      <a href="/space">
+        <SimpleStadium client:only isAutoRotating isShowingPoints />
+      </a>
     </div>
-    <a class={`view grid ${section == 'grid' ? 'isActive' : ''}`}  href="/">Grid</a>
-    <a class={`view space ${section == 'space' ? 'isActive' : ''}`} href="/space">Space</a>
+    <button class="view grid" data-view="grid">Grid</button>
+    <button class="view space" data-view="space">Space</button>
   </div>
 </div>
 <script>
-import { navigate } from "astro:transitions/client";
-import { $activeFilters, $focusedEntry } from "../../store/data";
+import { $activeFilters } from "../../store/data";
+import { $currentView } from "../../store/ui";
 
 const mapElement = document.querySelector('.map');
 $activeFilters.subscribe((filters) => {
@@ -48,47 +34,26 @@ $activeFilters.subscribe((filters) => {
   }
 });
 
-
-document.querySelectorAll('a.view').forEach(link => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    const href = link.getAttribute('href');
-    if (!href) {
-      return;
-    }
-    const currentUrl = new URL(window.location.href);
-    const newUrl = new URL(href, currentUrl.origin);
-    newUrl.search = currentUrl.search;
-    navigate(newUrl.toString());
-  });
+const filtersElement = document.querySelector('.filters');
+$currentView.subscribe((view) => {
+  if (!filtersElement) {
+    return;
+  }
+  if (view === 'grid') {
+    filtersElement.classList.add('isGridView');
+    filtersElement.classList.remove('isSpaceView');
+  } else {
+    filtersElement.classList.add('isSpaceView');
+    filtersElement.classList.remove('isGridView');
+  }
 });
 
-document.addEventListener("astro:after-swap", (event) => {
-  const isSpaceView = window.location.pathname.includes('space');
-  const viewElement = document.querySelector('.view-toggle');
-  if (!viewElement) {
-    return;
-  }
-  if (isSpaceView) {
-    viewElement.classList.add('isSpaceView');
-    viewElement.classList.remove('isCanvasView');
-  } else {
-    viewElement.classList.add('isCanvasView');
-    viewElement.classList.remove('isSpaceView');
-  }
-  const gridElement = document.querySelector('.grid');
-  const spaceElement = document.querySelector('.space');
-
-  if (!gridElement || !spaceElement) {
-    return;
-  }
-  if (isSpaceView) {
-    gridElement.classList.remove('isActive');
-    spaceElement.classList.add('isActive');
-  } else {
-    gridElement.classList.add('isActive');
-    spaceElement.classList.remove('isActive');
-  }
+document.querySelectorAll('.view').forEach(button => {
+  button.addEventListener('click', (e) => {
+    e.preventDefault();
+    const view = (e.target! as HTMLButtonElement).dataset.view as View;
+    $currentView.set(view);
+  });
 });
 
 </script>
@@ -159,13 +124,13 @@ document.addEventListener("astro:after-swap", (event) => {
       grid-column: 3 / 4;
     }
   }
-  
-  .isActive {
+}
+
+.isGridView .grid,
+.isSpaceView .space {
     color: var(--navy);
     background-color: white;
   }
-
-}
 
 .map {
   position: relative;
@@ -187,7 +152,7 @@ document.addEventListener("astro:after-swap", (event) => {
     cursor: pointer;
   }
 
-  .isCanvasView & {
+  .isGridView & {
     @media (max-width: 600px) {
       display: none;
     }

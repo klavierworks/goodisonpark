@@ -23,6 +23,8 @@ declare global {
   type Filter = typeof FILTERABLE_HEADERS[keyof typeof FILTERABLE_HEADERS]
 
   type ActiveFilters = Partial<Record<Filter, string | undefined>>
+
+  type View = 'grid' | 'space'
 }
 
 

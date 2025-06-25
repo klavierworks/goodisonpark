@@ -4,7 +4,7 @@ import useAtomState from "../useAtomState";
 import { $activeFilters, $entries } from "../../../store/data";
 import Tile from "../Tile/Tile";
 import { useFrame, useThree } from "@react-three/fiber";
-import { Group, Mesh, Sprite } from "three";
+import { Group, Mesh } from "three";
 import { SpringValue } from "@react-spring/core";
 import { clamp, mapLinear } from "three/src/math/MathUtils.js";
 import { $currentView, $selectedEntry } from "../../../store/ui";

@@ -1,4 +1,4 @@
-import { Curve, EllipseCurve, Vector2, Vector3, type BufferGeometry, type Line } from "three"
+import { Curve, EllipseCurve, Euler, Quaternion, Vector2, Vector3, type BufferGeometry, type Line } from "three"
 import { ELLIPSIS_X_RADIUS, ELLIPSIS_Y_RADIUS, TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
 
 export const drawStadiumShape = (scale: number = 1): Curve<Vector3> => {
@@ -132,13 +132,13 @@ const distributeInSubsection = (items: Entry[], line: Curve<Vector3>, subsection
     return {
       ...item,
       point: t,
-      position: [offsetPoint.x, 0, offsetPoint.y],
+      position: [offsetPoint.x, verticalOffset, offsetPoint.z],
       rotation: [Math.PI / 2, normalAngle, Math.PI]
     }
   })
 }
 
-export const distributeElementsOnStadium = (line: EllipseCurve, elements: Entry[], tier: Tier) => {
+export const distributeElementsOnStadium = (line: Curve<Vector3>, elements: Entry[], tier: Tier) => {
   const groups = layout[tier]
   
   return Object.entries(groups).flatMap(([sectionName, blockNames]) => {
@@ -228,4 +228,38 @@ export const getBlockAtPosition = (x: number, y: number): string | null => {
   const safeBlockIndex = Math.max(0, Math.min(blockIndex, blocks.length - 1));
   
   return blocks[safeBlockIndex];
+}
+
+export const getRotationAngleAroundAxis = (centerPoint: Vector3, pointA: Vector3, pointB: Vector3, axis: Vector3) => {
+  // Get vectors from center to each point
+  const vectorA = new Vector3().subVectors(pointA, centerPoint);
+  const vectorB = new Vector3().subVectors(pointB, centerPoint);
+  
+  // Project both vectors onto the plane perpendicular to the axis
+  const projectedA = vectorA.clone().projectOnPlane(axis).normalize();
+  const projectedB = vectorB.clone().projectOnPlane(axis).normalize();
+  
+  // Get the unsigned angle between them
+  const angle = projectedA.angleTo(projectedB);
+  
+  // Get the sign using cross product
+  const cross = new Vector3().crossVectors(projectedA, projectedB);
+  const sign = Math.sign(cross.dot(axis));
+  
+  const signedAngle = sign * angle;
+
+  if (axis.equals(new Vector3(1, 0, 0))) {
+    // X-axis rotation
+    return new Euler(signedAngle, 0, 0);
+  } else if (axis.equals(new Vector3(0, 1, 0))) {
+    // Y-axis rotation (your case - vertical axis)
+    return new Euler(0, signedAngle, 0);
+  } else if (axis.equals(new Vector3(0, 0, 1))) {
+    // Z-axis rotation
+    return new Euler(0, 0, signedAngle);
+  } else {
+    // For arbitrary axis, use quaternion then convert
+    const quaternion = new Quaternion().setFromAxisAngle(axis, signedAngle);
+    return new Euler().setFromQuaternion(quaternion);
+  }
 }

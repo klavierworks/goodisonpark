@@ -1,16 +1,16 @@
 import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
+import { CAMERA_DISTANCE, STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
 import StadiumModel from "../../../StadiumLineModel.tsx";
-import { $activeFilters, $allEntries, $entries } from "../../../../store/data.ts";
-import { FrontSide, Group, Mesh, MeshBasicMaterial, Vector3, EllipseCurve, Euler, MathUtils, DoubleSide } from "three";
-import { useFrame, useThree } from "@react-three/fiber";
-import { Line, OrbitControls, PresentationControls, Sphere, Text } from "@react-three/drei";
-import { distributeElementsOnStadium, drawStadiumShape, getBlockAtPosition } from "./drawUtils.ts";
+import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Euler } from "three";
+import { Line, PresentationControls, Sphere } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
-import { $block, $currentView, $stand } from "../../../../store/ui.ts";
+import { getRotationAngleAroundAxis, drawStadiumShape } from "./drawUtils.ts";
+import { useFrame, useThree } from "@react-three/fiber";
+import { $selectedEntry } from "../../../../store/ui.ts";
+import useAtomState from "../../useAtomState.tsx";
 
 type ModelProps = {
-  entries: Entry[]
+  entries: readonly Entry[]
 }
 
 const Model = ({ entries }: ModelProps) => {
@@ -43,12 +43,52 @@ const Model = ({ entries }: ModelProps) => {
     });
   }, []);
 
-  const cameraLine = useMemo(() => drawStadiumShape(1.1), []);
+  const cameraLine = useMemo(() => drawStadiumShape(2.3), []);
+
+  const isSpace = true;
+  const rotationTargetRef = useRef<Mesh>(null);
+  const stadiumSceneRef = useRef<Group>(null);
+
+  const [controlsKey, setControlsKey] = useState(`${Date.now()}`);
+  const [initialRotation, setInitialRotation] = useState<[number, number, number]>([0, 0, 0]);
+  const [selectedEntry] = useAtomState($selectedEntry)
+
+  const scene = useThree(state => state.scene);
+  useEffect(() => {
+    if (!selectedEntry || !scene) {
+      return;
+    }
+    const entryObject = scene.getObjectByName(selectedEntry);
+    if (!entryObject) {
+      return;
+    }
+    const euler = getRotationAngleAroundAxis(
+      new Vector3(0, 0, -CAMERA_DISTANCE),
+      new Vector3(0, 0, 0),
+      entryObject.getWorldPosition(new Vector3()),
+      new Vector3(0, 1, 0)
+    );
+    setInitialRotation([euler.x, euler.y, euler.z]);
+    setControlsKey(`${Date.now()}`);
+  }, [selectedEntry]);
+
+  useFrame(({ scene }) => {
+    if (!isSpace || !rotationTargetRef.current || !stadiumSceneRef.current || !rotationTargetRef.current.parent) {
+      return;
+    }
+    const rotation = rotationTargetRef.current.parent.rotation
+    stadiumSceneRef.current.rotation.set(rotation.x, rotation.y, rotation.z);
+  });
 
   return (
     <group>
-      <PresentationControls enabled polar={[-0.1, 0.5]} global={true} rotation={[0, 2,0]}>
-        <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={400} position={[0,STADIUM_Y_POSITION,0]} />
+      <PresentationControls enabled key={controlsKey} polar={[0, 0.45]} global={true} rotation={initialRotation}>
+        <Sphere args={[0.1, 32, 32]} position={[0, 0, 0]} visible={isDebug} ref={rotationTargetRef}>
+          <meshBasicMaterial color="red" />
+        </Sphere>
+      </PresentationControls>
+      <group ref={stadiumSceneRef}>
+        <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={800} position={[0,STADIUM_Y_POSITION,0]} />
         <Line
           points={cameraLine.getPoints(100)}
           color="white"
@@ -58,25 +98,25 @@ const Model = ({ entries }: ModelProps) => {
         <Ring
           isDebug={isDebug}
           color="green"
-          radius={1}
+          radius={2}
           tier="lower"
           y={0}
         />
         <Ring
           isDebug={isDebug}
           color="yellow"
-          radius={1.05}
+          radius={2}
           tier="middle"
           y={TILE_Y_DEPTH}
         />
         <Ring
           isDebug={isDebug}
           color="red"
-          radius={1.1}
+          radius={2}
           tier="upper"
           y={TILE_Y_DEPTH * 2}
         />
-      </PresentationControls>
+      </group>
     </group>
   )
 }

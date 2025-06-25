@@ -32,7 +32,7 @@ const Ring = ({ color, isDebug, radius, tier, y }: RingProps) => {
   }, []);
 
   return (
-    <group position={[0, 0, -y]}>
+    <group position={[0, y, 0]}>
       <Line
         points={line.getPoints(100)}
         color={color}

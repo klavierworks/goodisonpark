@@ -26,21 +26,6 @@ const SceneSwitcher = () => {
 
     const progress = spring.transitionProgress.get();
 
-    if (progress === 0) {
-      gridGroupRef.current.visible = true;
-      spaceGroupRef.current.visible = false;
-      camera.position.set(0, 0, 4000);
-      return;
-    }
-    if (progress === 1) {
-      gridGroupRef.current.visible = false;
-      spaceGroupRef.current.visible = true;
-      camera.position.set(0, 0, 0);
-      return;
-    }
-    
-    gridGroupRef.current.visible = true;
-
     camera.position.lerpVectors(
       new Vector3(0, 0, 4000),
       new Vector3(0, 0, 0),

@@ -46,7 +46,6 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
     return entries.some(e => e.id === entry.id);
   }, [entries, entry.id]);
 
-  const groupRef = useRef<Group>(null);
   const spring = useSpring({
     x: isVisible ? entry.thumbnail.width : 0,
     y: isVisible ? entry.thumbnail.height : 0,
@@ -64,6 +63,7 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
     <group {...rest} {...pointerAttributes}>
       <sprite
         ref={spriteRef}
+        name={entry.id}
         scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
         <Suspense fallback={<></>}>

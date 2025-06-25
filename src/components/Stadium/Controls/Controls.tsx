@@ -2,7 +2,7 @@ import { PresentationControls, Sphere } from "@react-three/drei"
 import { invalidate, useFrame, useThree } from "@react-three/fiber"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Euler, type Group } from "three"
-import { TILE_Y_DEPTH } from "../constants"
+import { TILE_Y_DEPTH } from "../../World/Space/constants"
 
 type ControlsProps = {
   children: ReactNode

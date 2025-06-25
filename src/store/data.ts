@@ -1,5 +1,7 @@
 import { atom } from 'nanostores'
 import { getFilters } from '../api/utils';
+import { $currentView, $selectedEntry } from './ui';
+import { select } from 'three/tsl';
 
 export const $allEntries = atom<Entry[]>([])
 export const $entries = atom<Entry[]>([])
@@ -25,6 +27,24 @@ const setUrlSearchParams = () => {
   } else {
     searchParams.delete('focus');
     console.log('Focused entry cleared');
+  }
+
+  const selectedEntry = $selectedEntry.get();
+  if (selectedEntry) {
+    searchParams.set('selectedEntry', selectedEntry);
+    console.log(`Selected entry set: ${selectedEntry}`);
+  } else {
+    searchParams.delete('selectedEntry');
+    console.log('Selected entry cleared');
+  }
+
+  const currentView = $currentView.get();
+  if (currentView) {
+    searchParams.set('view', currentView);
+    console.log(`Current view set: ${currentView}`);
+  } else {
+    searchParams.delete('view');
+    console.log('Current view cleared');
   }
 
   const filters = getFilters();
@@ -75,6 +95,18 @@ const getUrlSearchParams = () => {
       filters[key as keyof ActiveFilters] = value;
       console.log(`Filter loaded from URL: ${key} = ${value}`);
     }
+  }
+  
+  const view = searchParams.get('view');
+  if (view) {
+    $currentView.set(view as View);
+    console.log(`View loaded from URL: ${view}`);
+  }
+
+  const selectedEntry = searchParams.get('selectedEntry');
+  if (selectedEntry) {
+    $selectedEntry.set(selectedEntry);
+    console.log(`Selected entry loaded from URL: ${selectedEntry}`);
   }
   
   $activeFilters.set(filters);

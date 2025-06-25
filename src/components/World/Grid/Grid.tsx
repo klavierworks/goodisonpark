@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getMasonryLayout } from "./utils";
 import useAtomState from "../useAtomState";
-import { $entries } from "../../../store/data";
-import Tile from "./Tile/Tile";
+import { $activeFilters, $entries } from "../../../store/data";
+import Tile from "../Tile/Tile";
 import { useFrame, useThree } from "@react-three/fiber";
 import { Group, Mesh, Sprite } from "three";
 import { SpringValue } from "@react-spring/core";
 import { clamp, mapLinear } from "three/src/math/MathUtils.js";
+import { $currentView, $selectedEntry } from "../../../store/ui";
 
 const Grid = () => {
   const [entries] = useAtomState($entries);
@@ -23,7 +24,6 @@ const Grid = () => {
     const spring = new SpringValue(hasMountedRef.current ? 1 : 0);
   
     const setOpacity = async (opacity: number) => {
-      console.log("Setting opacity to", opacity);
       await spring.start({
         to: opacity,
         config: { duration: 1000 },
@@ -65,6 +65,10 @@ const Grid = () => {
 
   const [isHovering, setIsHovering] = useState(false);
   useFrame(({mouse, viewport}) => {
+    const currentView = $currentView.get();
+    if (currentView !== "grid") {
+      return;
+    }
     if (!gridRef.current) {
       return;
     }
@@ -91,7 +95,7 @@ const Grid = () => {
     if (y > 0.4) {
       offsetY = mapLinear(y, 0.4, 1, 0, 1) * SPEED_Y;
     }
-    if (y < 0.4) {
+    if (y < -0.4) {
       offsetY = mapLinear(y, -0.4, -1, -0, -1) * SPEED_Y;
     }
 
@@ -121,6 +125,21 @@ const Grid = () => {
     );
   });
 
+  const handleClickEntry = useCallback((entry: Entry) => {
+    if (isTransitioning.current) {
+      return;
+    }
+
+    const newFilters = {
+      ...$activeFilters.get(),
+      'memory': entry.memory,
+    };
+
+    $activeFilters.set(newFilters);
+    $selectedEntry.set(entry.id);
+    $currentView.set('space')
+  }, []);
+
   return (
     <group ref={gridRef} onPointerEnter={() => setIsHovering(true)} onPointerLeave={() => setIsHovering(false)}>
       {layout && (
@@ -130,11 +149,16 @@ const Grid = () => {
         </mesh>
       )}
       {layout && visibleEntries.map((entry, index) => (
-        <Tile key={entry.id} entry={entry} position={[
-          layout.positions[index].x,
-          layout.positions[index].y ,
-          layout.positions[index].z
-        ]} />
+        <Tile
+          key={entry.id}
+          entry={entry}
+          position={[
+            layout.positions[index].x,
+            layout.positions[index].y ,
+            layout.positions[index].z
+          ]}
+          onClick={handleClickEntry}
+        />
       ))}
     </group>
   );

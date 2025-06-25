@@ -8,7 +8,7 @@ import * as THREE from 'three'
 import React from 'react'
 import { useGLTF } from '@react-three/drei'
 import type { GLTF } from 'three-stdlib'
-import { STADIUM_SCALE, STADIUM_Y_POSITION } from './Stadium/constants'
+import { STADIUM_SCALE, STADIUM_Y_POSITION } from './World/Space/constants'
 
 type GLTFResult = GLTF & {
   nodes: {

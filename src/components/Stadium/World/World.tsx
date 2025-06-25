@@ -1,5 +1,5 @@
 import { AdaptiveDpr, AdaptiveEvents, Bvh, Preload, useCursor, useTrail } from '@react-three/drei'
-import Model from '../Model/Model'
+import Model from '../../World/Space/Model/Model'
 import Controls from '../Controls/Controls'
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { $entries } from '../../../store/data';

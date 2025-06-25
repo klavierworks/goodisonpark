@@ -2,7 +2,8 @@ import { Line } from "@react-three/drei";
 import { Suspense, useEffect, useState } from "react";
 import Tile from "./Tile/Tile";
 import type { EllipseCurve } from "three";
-import { $entries } from "../../../../store/data";
+import { $entries } from "../../../../../store/data";
+import useAtomState from "../../../useAtomState";
 
 type RingProps = {
   color: string;
@@ -15,17 +16,7 @@ type RingProps = {
   y: number;
 }
 const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
-  const [entries, setEntries] = useState($entries.get());
-
-  useEffect(() => {
-    const unsubscribe = $entries.subscribe((newEntries) => {
-      setEntries(newEntries as Entry[]);
-    });
-    
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const [entries] = useAtomState($entries);
 
   return (
     <group position={[0, 0, -y]}>

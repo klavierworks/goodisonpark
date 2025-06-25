@@ -88,6 +88,14 @@ const Model = ({ entries }: ModelProps) => {
     if (!rotationTargetRef.current || !stadiumSceneRef.current || !rotationTargetRef.current.parent) {
       return;
     }
+
+    const stadiumPosition = stadiumSceneRef.current.getWorldPosition(new Vector3());
+    const distanceToCamera = camera.position.distanceTo(stadiumPosition);
+
+    if (distanceToCamera > 1000) {
+      console.warn("Camera is too far from the stadium model, resetting position.");
+      return;
+    }
     const rotation = rotationTargetRef.current.parent.rotation
     let normalizedYRotation = rotation.y % Math.PI / Math.PI;
     if (normalizedYRotation < 0) {
@@ -104,8 +112,6 @@ const Model = ({ entries }: ModelProps) => {
     const point = cameraLine.getPointAt(normalizedYRotation);
     const distanceToPoint = point.distanceTo(stadiumSceneRef.current.position);
 
-    const stadiumPosition = stadiumSceneRef.current.getWorldPosition(new Vector3());
-    const distanceToCamera = camera.position.distanceTo(stadiumPosition);
     const difference = distanceToCamera - distanceToPoint;
     
     const cameraDirection = new Vector3(0, 0, -1)

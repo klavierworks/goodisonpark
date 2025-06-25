@@ -6,7 +6,7 @@ import Tile from "../Tile/Tile";
 import { useFrame } from "@react-three/fiber";
 import { Group } from "three";
 import { clamp, mapLinear } from "three/src/math/MathUtils.js";
-import { $currentView, $selectedEntry } from "../../../store/ui";
+import { $currentView, $isTransitioning, $selectedEntry } from "../../../store/ui";
 
 const Grid = () => {
   const [entries] = useAtomState($entries);
@@ -15,6 +15,17 @@ const Grid = () => {
   const [visibleEntries, setVisibleEntries] = useState<readonly Entry[]>([]);
   
   const gridRef = useRef<Group>(null);
+
+  const [isTransitioning] = useAtomState($isTransitioning);
+  useEffect(() => {
+    if (!gridRef.current) {
+      return;
+    }
+    if (!isTransitioning && $currentView.get() === 'space') {
+      gridRef.current.position.set(0, 0, 0);
+    }
+  }, [isTransitioning]);
+
 
   useEffect(() => {
     const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));

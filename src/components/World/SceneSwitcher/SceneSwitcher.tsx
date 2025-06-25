@@ -1,5 +1,5 @@
 import { config, useSpring } from "@react-spring/core";
-import { $currentView } from "../../../store/ui";
+import { $currentView, $isTransitioning } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
 import useAtomState from "../useAtomState";
@@ -26,6 +26,7 @@ const SceneSwitcher = () => {
     }
 
     const progress = spring.transitionProgress.get();
+    $isTransitioning.set(progress > 0 && progress < 1);
 
     camera.position.lerpVectors(
       new Vector3(0, 0, 4000),

@@ -20,8 +20,20 @@ const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
+  const [isHoveredWithIntention, setIsHoveredWithIntention] = useState(false);
   useEffect(() => {
-    $hoveredEntry.set(isHovered ? entry : null);
+    if (!isHovered) {
+      return;
+    }
+    $hoveredEntry.set(entry);
+    let timer = setTimeout(() => {
+      setIsHoveredWithIntention(true);
+    }, 1000);
+    return () => {
+      $hoveredEntry.set(null);
+      setIsHoveredWithIntention(false);
+      clearTimeout(timer);
+    }
   }, [isHovered, entry]);
 
   const pointerAttributes = useMemo(() => ({
@@ -72,7 +84,7 @@ const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
         scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
         <Suspense fallback={<></>}>
-          <Thumbnail filename={entry.filename} isHovered={false} />
+          <Thumbnail filename={entry.filename} isHovered={isHoveredWithIntention} />
         </Suspense>
       </sprite>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />

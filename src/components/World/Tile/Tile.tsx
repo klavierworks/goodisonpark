@@ -11,10 +11,11 @@ import { useFrame } from "@react-three/fiber";
 
 type TileProps = {
   entry: Entry
+  isActive?: boolean;
   onClick?: (entry: Entry) => void;
 } & React.ComponentPropsWithoutRef<'group'>;
 
-const Tile = ({ entry, onClick, ...rest }: TileProps) => {
+const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
@@ -47,8 +48,8 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
   }, [entries, entry.id]);
 
   const spring = useSpring({
-    x: isVisible ? entry.thumbnail.width : 0,
-    y: isVisible ? entry.thumbnail.height : 0,
+    x: isVisible && isActive ? entry.thumbnail.width : 0,
+    y: isVisible && isActive ? entry.thumbnail.height : 0,
   })
 
   useFrame(() => {
@@ -67,7 +68,7 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
         scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
         <Suspense fallback={<></>}>
-          <Thumbnail filename={entry.filename} isHovered={isHovered} />
+          <Thumbnail filename={entry.filename} isHovered={false} />
         </Suspense>
       </sprite>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />

@@ -2,6 +2,8 @@ import { useTexture } from "@react-three/drei";
 import { ASSET_URL } from "astro:env/client";
 import { Suspense } from "react";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
+import { thumbnailCache } from "../../../../store/textureCache";
+import type { Texture } from "three";
 
 type ThumbnailProps = {
   filename: string;
@@ -9,7 +11,13 @@ type ThumbnailProps = {
 }
 
 const Thumbnail = ({ filename, isHovered }: ThumbnailProps) => {
-  const texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
+  let texture: Texture;
+  if (thumbnailCache.has(filename)) {
+    texture = thumbnailCache.get(filename) as unknown as Texture;
+  } else {
+    texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
+    thumbnailCache.set(filename, texture);
+  }
 
   const imageMaterial = <spriteMaterial color="white" map={texture} transparent depthWrite={false} />;
   

@@ -16,7 +16,7 @@ const World = () => {
       {isDebug ? (
         <OrbitControls />
       ) : (
-        <PerspectiveCamera makeDefault position={[0, 0, 0]} far={10000} />
+        <PerspectiveCamera makeDefault position={[0, 0, 0]} far={4000} />
       )}
       <SceneSwitcher />
     </Canvas>

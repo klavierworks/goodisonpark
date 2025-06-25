@@ -3,23 +3,33 @@ import { getMasonryLayout } from "./utils";
 import useAtomState from "../useAtomState";
 import { $activeFilters, $entries } from "../../../store/data";
 import Tile from "../Tile/Tile";
-import { useFrame, useThree } from "@react-three/fiber";
-import { Group, Mesh } from "three";
-import { SpringValue } from "@react-spring/core";
+import { useFrame } from "@react-three/fiber";
+import { Group } from "three";
 import { clamp, mapLinear } from "three/src/math/MathUtils.js";
 import { $currentView, $selectedEntry } from "../../../store/ui";
 
 const Grid = () => {
   const [entries] = useAtomState($entries);
 
+  const [hasTransitionedIn, setHasTransitionedIn] = useState(false);
   const [visibleEntries, setVisibleEntries] = useState<readonly Entry[]>([]);
   
-  const scene = useThree(state => state.scene);
   const gridRef = useRef<Group>(null);
 
   useEffect(() => {
+    const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
     const transitionToNewEntries = async (newEntries: readonly Entry[]) => {
+      if (visibleEntries.length > 0) {
+        setHasTransitionedIn(false);
+        await pause(1000);
+      }
+      if (gridRef.current) {
+        gridRef.current.position.set(0, 0, 0);
+      }
       setVisibleEntries(newEntries);
+      console.log('transitioned to new entries', newEntries.length);
+      await pause(100);
+      setHasTransitionedIn(true);
     }
 
     transitionToNewEntries(entries);
@@ -112,6 +122,7 @@ const Grid = () => {
         <Tile
           key={entry.id}
           entry={entry}
+          isActive={hasTransitionedIn}
           position={[
             layout.positions[index].x,
             layout.positions[index].y ,

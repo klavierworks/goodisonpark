@@ -2,6 +2,7 @@ import { useSpring } from "@react-spring/core";
 import { useFrame } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
 import { CanvasTexture, DoubleSide, Sprite, SpriteMaterial } from "three";
+import { canvasTextureCache } from "../../../../store/textureCache";
 
 type OutlineProps = {
   entry: Entry;
@@ -32,6 +33,10 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
   });
 
   const canvasTexture = useMemo(() => {
+    const cachedTexture = canvasTextureCache.get(entry.id);
+    if (cachedTexture) {
+      return cachedTexture;
+    }
     const canvas = document.createElement('canvas');
     canvas.width = entry.thumbnail.width
     canvas.height = entry.thumbnail.height;
@@ -44,8 +49,10 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
     context.lineWidth = 10;
     context.strokeStyle = 'white';
     context.strokeRect(0, 0, canvas.width, canvas.height);
-    
-    return new CanvasTexture(canvas);
+    console.log('create new')
+    const canvasTexture = new CanvasTexture(canvas);
+    canvasTextureCache.set(entry.id, canvasTexture);
+    return canvasTexture;
   }, []);
 
   return (

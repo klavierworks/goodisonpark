@@ -4,9 +4,9 @@ import StadiumModel from "../../../StadiumLineModel.tsx";
 import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Euler } from "three";
 import { Line, PresentationControls, Sphere } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
-import { getRotationAngleAroundAxis, drawStadiumShape } from "./drawUtils.ts";
+import { getRotationAngleAroundAxis, drawStadiumShape, getRotationAroundPoint } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $selectedEntry } from "../../../../store/ui.ts";
+import { $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
 
 type ModelProps = {
@@ -43,9 +43,8 @@ const Model = ({ entries }: ModelProps) => {
     });
   }, []);
 
-  const cameraLine = useMemo(() => drawStadiumShape(2.3), []);
+  const cameraLine = useMemo(() => drawStadiumShape(2.5), []);
 
-  const isSpace = true;
   const rotationTargetRef = useRef<Mesh>(null);
   const stadiumSceneRef = useRef<Group>(null);
 
@@ -68,25 +67,62 @@ const Model = ({ entries }: ModelProps) => {
       entryObject.getWorldPosition(new Vector3()),
       new Vector3(0, 1, 0)
     );
-    setInitialRotation([euler.x, euler.y, euler.z]);
-    setControlsKey(`${Date.now()}`);
+    const y = entryObject.position.y / (TILE_Y_DEPTH * 3);
+    if (!stadiumSceneRef.current) {
+      return;
+    }
+    const worldPosition = entryObject.getWorldPosition(new Vector3());
+
+    stadiumSceneRef.current.position.y = -worldPosition.y;
+    //setInitialRotation([euler.x, -y, euler.z]);
+    //setControlsKey(`${Date.now()}`);
   }, [selectedEntry]);
 
-  useFrame(({ scene }) => {
-    if (!isSpace || !rotationTargetRef.current || !stadiumSceneRef.current || !rotationTargetRef.current.parent) {
+  const POLAR = [0, 0.45];
+  useFrame(({ camera, scene }) => {
+    if ($isTransitioning.get() || $currentView.get() !== "space") {
+      return;
+    }
+
+    if (!rotationTargetRef.current || !stadiumSceneRef.current || !rotationTargetRef.current.parent) {
       return;
     }
     const rotation = rotationTargetRef.current.parent.rotation
-    stadiumSceneRef.current.rotation.set(rotation.x, rotation.y, rotation.z);
+    let normalizedYRotation = rotation.y % Math.PI / Math.PI;
+    if (normalizedYRotation < 0) {
+      normalizedYRotation += 1;
+    }
+    
+    stadiumSceneRef.current.position.set(0, 0, 0);
+    stadiumSceneRef.current.rotation.set(
+      0,
+      Math.PI * 2 * normalizedYRotation,
+      0
+    )
+
+    const point = cameraLine.getPointAt(normalizedYRotation);
+    const distanceToPoint = point.distanceTo(stadiumSceneRef.current.position);
+
+    const stadiumPosition = stadiumSceneRef.current.getWorldPosition(new Vector3());
+    const distanceToCamera = camera.position.distanceTo(stadiumPosition);
+    const difference = distanceToCamera - distanceToPoint;
+    
+    const cameraDirection = new Vector3(0, 0, -1)
+    const offset = cameraDirection.multiplyScalar(difference);
+    stadiumSceneRef.current.position.sub(offset);
+    stadiumSceneRef.current.position.y = -rotation.x * (TILE_Y_DEPTH * 6);
   });
 
-  return (
+  return (  
     <group>
-      <PresentationControls enabled key={controlsKey} polar={[0, 0.45]} global={true} rotation={initialRotation}>
+      <PresentationControls enabled key={controlsKey} polar={POLAR} global={true} rotation={initialRotation}>
         <Sphere args={[0.1, 32, 32]} position={[0, 0, 0]} visible={isDebug} ref={rotationTargetRef}>
           <meshBasicMaterial color="red" />
         </Sphere>
       </PresentationControls>
+      <Sphere args={[10, 32, 32]} position={[0, 0, 0]} name="camera-sphere" visible={isDebug}>
+        <meshBasicMaterial color="blue" />
+      </Sphere>
       <group ref={stadiumSceneRef}>
         <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={800} position={[0,STADIUM_Y_POSITION,0]} />
         <Line

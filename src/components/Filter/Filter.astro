@@ -23,7 +23,7 @@ const options = getOptionsByFilter(filter)
   </ul>
   <div class="toggle-box" data-name="name-click-target">
     <div class="cross-container" data-name="name-click-target">
-      <span class="name">
+      <span class="name-span">
         {getFilterLabel(filter)}
       </span>
     </div>
@@ -33,7 +33,7 @@ const options = getOptionsByFilter(filter)
 </filter-element>
 <script>
 import { getFilterLabel } from "../../api/utils";
-import { $activeFilters, getOptionsByFilter, $entries } from "../../store/data";
+import { $activeFilters } from "../../store/data";
 import { $hasOpenFilters, $hoveredEntry } from "../../store/ui";
 
 class FilterElement extends HTMLElement {
@@ -73,7 +73,7 @@ class FilterElement extends HTMLElement {
   }
 
   writeName() {
-    const nameElement = this.querySelector('.name');
+    const nameElement = this.querySelector('.name-span');
     if (!nameElement) {
       console.warn('No name element found in filter', this.filter);
       return;
@@ -290,7 +290,7 @@ filter-element {
   }
 }
 
-.name {
+.name-span {
   position: relative;
   display: inline-block;
   overflow: hidden;

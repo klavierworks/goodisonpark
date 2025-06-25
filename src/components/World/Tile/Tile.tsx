@@ -1,13 +1,14 @@
 import { useCursor, useTexture } from "@react-three/drei";
 import { ASSET_URL } from "astro:env/client";
 import Outline from "./Outline/Outline";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group, type Sprite } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
 import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { useSpring } from "@react-spring/core";
 import { useFrame } from "@react-three/fiber";
+import { $hoveredEntry } from "../../../store/ui";
 
 type TileProps = {
   entry: Entry
@@ -19,6 +20,9 @@ const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
+  useEffect(() => {
+    $hoveredEntry.set(isHovered ? entry : null);
+  }, [isHovered, entry]);
 
   const pointerAttributes = useMemo(() => ({
     onPointerOver: (e) => {

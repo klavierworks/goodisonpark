@@ -1,4 +1,4 @@
-import { useSpring } from "@react-spring/core";
+import { config, useSpring } from "@react-spring/core";
 import { $currentView } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
@@ -16,6 +16,7 @@ const SceneSwitcher = () => {
 
   const spring = useSpring({
     transitionProgress: currentView === "space" ? 1 : 0,
+    config: config.slow,
   })
 
   useFrame(({ camera }) => {

@@ -3,7 +3,7 @@ import { ASSET_URL } from "astro:env/client";
 import { Suspense } from "react";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
 import { thumbnailCache } from "../../../../store/textureCache";
-import type { Texture } from "three";
+import { type Texture } from "three";
 
 type ThumbnailProps = {
   filename: string;

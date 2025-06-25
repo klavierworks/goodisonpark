@@ -3,11 +3,18 @@
 ---
 
 <header transition:persist>
-  <a href="/">
+  <a href="/" id="home-link">
     <h1>Goodison.Memorial</h1>
   </a>
 </header>
 
+<script>
+document.getElementById('home-link')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  window.sessionStorage.removeItem('hasViewedSplash');
+  window.location.reload()
+});
+</script>
 <style>
 header {
   position: fixed;

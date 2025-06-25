@@ -16,46 +16,10 @@ const Grid = () => {
   
   const scene = useThree(state => state.scene);
   const gridRef = useRef<Group>(null);
-  const isTransitioning = useRef(false);
-
-  const hasMountedRef = useRef(false);
 
   useEffect(() => {
-    const spring = new SpringValue(hasMountedRef.current ? 1 : 0);
-  
-    const setOpacity = async (opacity: number) => {
-      await spring.start({
-        to: opacity,
-        config: { duration: 1000 },
-        onChange: (change) => {
-          const value = change as unknown as number;
-
-          scene.traverse((child) => {
-            if (child instanceof Sprite && child.material) {
-              child.material.opacity = value;
-            }
-          });
-        }
-      })
-      scene.traverse((child) => {
-        if (child instanceof Mesh && child.material) {
-          child.material.opacity = opacity;
-        }
-      });
-    }
-
     const transitionToNewEntries = async (newEntries: readonly Entry[]) => {
-      if (hasMountedRef.current) {
-        await setOpacity(0);
-      }
-      isTransitioning.current = true;
       setVisibleEntries(newEntries);
-      if (gridRef.current) {
-        gridRef.current.position.set(0, 0, 0);
-      }
-      isTransitioning.current = false;
-      await setOpacity(1);
-      hasMountedRef.current = true;
     }
 
     transitionToNewEntries(entries);
@@ -73,7 +37,7 @@ const Grid = () => {
       return;
     }
 
-    if (isTransitioning.current || !isHovering || !layout) {
+    if (!isHovering || !layout) {
       return;
     }
 
@@ -126,10 +90,6 @@ const Grid = () => {
   });
 
   const handleClickEntry = useCallback((entry: Entry) => {
-    if (isTransitioning.current) {
-      return;
-    }
-
     const newFilters = {
       ...$activeFilters.get(),
       'memory': entry.memory,
@@ -143,7 +103,7 @@ const Grid = () => {
   return (
     <group ref={gridRef} onPointerEnter={() => setIsHovering(true)} onPointerLeave={() => setIsHovering(false)}>
       {layout && (
-        <mesh position={[0, 0, 0]} name="click-catcher" scale={[layout.containerWidth, layout.containerHeight, 1]} visible={false}>
+        <mesh position={[0, 0, -900]} name="click-catcher" scale={[layout.containerWidth, layout.containerHeight, 1]} visible={false}>
           <planeGeometry args={[layout.containerWidth, layout.containerHeight]} />
           <meshBasicMaterial color="red" />
         </mesh>

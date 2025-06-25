@@ -2,13 +2,12 @@ import { useCursor, useTexture } from "@react-three/drei";
 import { ASSET_URL } from "astro:env/client";
 import Outline from "./Outline/Outline";
 import { Suspense, useCallback, useMemo, useRef, useState } from "react";
-import type { Sprite } from "three";
+import { Group, type Sprite } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
-import Fallback from "./Fallback/Fallback";
-import { useSpring } from "@react-spring/core";
-import { useFrame } from "@react-three/fiber";
 import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
+import { useSpring } from "@react-spring/core";
+import { useFrame } from "@react-three/fiber";
 
 type TileProps = {
   entry: Entry
@@ -17,17 +16,6 @@ type TileProps = {
 
 const Tile = ({ entry, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
-  const [hasRef, setHasRef] = useState(false);
-
-  const setSpriteRef = useCallback((sprite: Sprite | null) => {
-    if (sprite) {
-      spriteRef.current = sprite;
-      setHasRef(true);
-    } else {
-      spriteRef.current = null;
-      setHasRef(false);
-    }
-  }, []);
 
   const [isHovered, setIsHovered] = useState(false);
 
@@ -53,16 +41,15 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
   useCursor(isHovered, 'pointer', 'auto');
 
   const [entries] = useAtomState($entries);
-  const isActive = useMemo(() => {
-    return entries.some((e) => e.id === entry.id);
-  }, [entry.id]);
 
-  const [hasLoadedThumbnail, setHasLoadedThumbnail] = useState(false);
-  const onLoadRef = useRef<() => void>(() => setHasLoadedThumbnail(true));
+  const isVisible = useMemo(() => {
+    return entries.some(e => e.id === entry.id);
+  }, [entries, entry.id]);
 
+  const groupRef = useRef<Group>(null);
   const spring = useSpring({
-    x: hasLoadedThumbnail && isActive ? entry.thumbnail.width : 0,
-    y: hasLoadedThumbnail && isActive ? entry.thumbnail.height : 0,
+    x: isVisible ? entry.thumbnail.width : 0,
+    y: isVisible ? entry.thumbnail.height : 0,
   })
 
   useFrame(() => {
@@ -70,24 +57,20 @@ const Tile = ({ entry, onClick, ...rest }: TileProps) => {
       return;
     }
 
-    spriteRef.current.scale.set(
-      spring.x.get(),
-      spring.y.get(),
-      1
-    );
+    spriteRef.current.scale.set(spring.x.get(), spring.y.get(), 1);
   });
 
   return (
     <group {...rest} {...pointerAttributes}>
       <sprite
-        ref={setSpriteRef}
-        scale={[0, 0, 1]}
+        ref={spriteRef}
+        scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
-        <Suspense fallback={<Fallback onLoadRef={onLoadRef} />}>
+        <Suspense fallback={<></>}>
           <Thumbnail filename={entry.filename} isHovered={isHovered} />
         </Suspense>
       </sprite>
-      {hasRef && <Outline isHovered={isHovered} spriteRef={spriteRef} />}
+      <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
     </group>
   )
 }

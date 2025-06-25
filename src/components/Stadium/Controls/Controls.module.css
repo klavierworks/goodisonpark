@@ -1,7 +1,0 @@
-.controls div {
-  position: fixed;
-  inset: 0;
-  top: 15vh;
-  bottom: 15vh;
-  background-color: rgba(255,0,0,0.2);
-}

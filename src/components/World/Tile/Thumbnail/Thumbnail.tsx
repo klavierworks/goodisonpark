@@ -20,7 +20,6 @@ const Thumbnail = ({ filename, isHovered }: ThumbnailProps) => {
       </Suspense>
     )
   }
-
   return imageMaterial;
 }
 

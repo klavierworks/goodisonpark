@@ -81,13 +81,12 @@ export class FocusedPlayerElement extends HTMLElement {
       return;
     }
 
-    const fileNameWithoutExtension = this.entry.filename.split('.').slice(0, -1).join('.');
     const videoPlayerElement = this.querySelector('video-player-element') as VideoPlayerElement | null;
     if (!videoPlayerElement) {
       console.error('FocusedPlayerElement: video-player-element not found');
       return;
     }
-    videoPlayerElement.setAttribute('filename', fileNameWithoutExtension);
+    videoPlayerElement.setAttribute('filename', this.entry.filename);
     videoPlayerElement.setAttribute('name', this.entry.name);
     videoPlayerElement.setAttribute('muted', 'false');
     videoPlayerElement.setupVideo();

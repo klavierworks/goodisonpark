@@ -38,6 +38,7 @@
     "google-auth-library": "^9.15.1",
     "google-spreadsheet": "^4.1.4",
     "postcss-mixins": "^11.0.3",
-    "postcss-preset-env": "^10.1.6"
+    "postcss-preset-env": "^10.1.6",
+    "r3f-perf": "^7.2.3"
   }
 }

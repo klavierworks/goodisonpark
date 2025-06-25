@@ -1,19 +1,36 @@
 import { Curve, EllipseCurve, Vector2, Vector3, type BufferGeometry, type Line } from "three"
 import { ELLIPSIS_X_RADIUS, ELLIPSIS_Y_RADIUS, TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
 
-export const drawStadiumShape = (scale = 1) => {
- return new EllipseCurve( 
-    0,0,
-    ELLIPSIS_X_RADIUS * scale,
-    ELLIPSIS_Y_RADIUS * scale,
-    0, Math.PI * 2,
-    false,
-    0
-  )
-}
+export const drawStadiumShape = (scale: number = 1): Curve<Vector3> => {
+  class XZEllipseCurve extends Curve<Vector3> {
+    private xRadius: number;
+    private zRadius: number;
+    rotation: number = Math.PI / 2;
 
-type Tier = 'lower' | 'middle' | 'upper'
-type Section = 'topSemicircle' | 'leftStraight' | 'bottomSemicircle' | 'rightStraight'
+    constructor(xRadius: number, zRadius: number) {
+      super();
+      this.xRadius = xRadius;
+      this.zRadius = zRadius;
+    }
+    
+    getPoint(t: number): Vector3 {
+      const angle = t * Math.PI * 2;
+      const x = Math.cos(angle) * this.xRadius;
+      const z = Math.sin(angle) * this.zRadius;
+      
+      // Apply rotation around Y-axis
+      const rotatedX = x * Math.cos(this.rotation) - z * Math.sin(this.rotation);
+      const rotatedZ = x * Math.sin(this.rotation) + z * Math.cos(this.rotation);
+      
+      return new Vector3(rotatedX, 0, rotatedZ);
+    }
+  }
+  
+  return new XZEllipseCurve(
+    ELLIPSIS_X_RADIUS * scale,
+    ELLIPSIS_Y_RADIUS * scale
+  );
+}
 
 const sections: Record<Section, {start: number, end: number}> = {
   leftStraight: {
@@ -74,7 +91,7 @@ const layout: Record<Tier, Record<Section, string[]>> = {
 }
 
 
-const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionStart: number, subsectionEnd: number) => {
+const distributeInSubsection = (items: Entry[], line: Curve<Vector3>, subsectionStart: number, subsectionEnd: number) => {
   if (items.length === 0) return []
   
   return items.map((item, index) => {
@@ -109,14 +126,13 @@ const distributeInSubsection = (items: Entry[], line: EllipseCurve, subsectionSt
 
 
     let verticalOffset = index % 3 * TILE_Y_DEPTH / 2
-    const normalAngle = Math.atan2(tangent.y, tangent.x)
-    const normal = new Vector2(-Math.sin(normalAngle), Math.cos(normalAngle))
-    const offsetPoint = point.clone().add(normal.multiplyScalar(inwardOffset))
-    
+    const normalAngle = Math.atan2(tangent.z, tangent.x)
+    const normal = new Vector3(-Math.sin(normalAngle), 0, Math.cos(normalAngle)) // 3D normal
+    const offsetPoint = point.clone().add(normal.multiplyScalar(inwardOffset))    
     return {
       ...item,
       point: t,
-      position: [offsetPoint.x, offsetPoint.y, verticalOffset],
+      position: [offsetPoint.x, 0, offsetPoint.y],
       rotation: [Math.PI / 2, normalAngle, Math.PI]
     }
   })

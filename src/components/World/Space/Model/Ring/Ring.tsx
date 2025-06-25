@@ -1,22 +1,35 @@
 import { Line } from "@react-three/drei";
-import { Suspense, useEffect, useState } from "react";
-import Tile from "./Tile/Tile";
-import type { EllipseCurve } from "three";
-import { $entries } from "../../../../../store/data";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { $allEntries, $entries, $focusedEntry } from "../../../../../store/data";
 import useAtomState from "../../../useAtomState";
+import { distributeElementsOnStadium, drawStadiumShape } from "../drawUtils";
+import Tile from "../../../Tile/Tile";
+import { useFrame } from "@react-three/fiber";
+import { useSpring } from "@react-spring/core";
 
 type RingProps = {
   color: string;
   isDebug: boolean;
-  line: EllipseCurve;
-  points: (Entry & {
-    position: number[];
-    rotation: number[];
-  })[]
+  radius: number;
+  tier: Tier;
   y: number;
 }
-const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
-  const [entries] = useAtomState($entries);
+const Ring = ({ color, isDebug, radius, tier, y }: RingProps) => {
+  const [allEntries] = useAtomState($allEntries);
+
+  const [line, points] = useMemo(() => {
+    const line = drawStadiumShape(radius);
+
+    const points = distributeElementsOnStadium(line, allEntries.filter(entry => entry.block), tier);
+    return [
+      line,
+      points
+    ]
+  }, []);
+
+  const handleClickTile = useCallback((tile: Entry) => {
+    $focusedEntry.set(tile.id);
+  }, []);
 
   return (
     <group position={[0, 0, -y]}>
@@ -25,17 +38,16 @@ const Ring = ({ color, isDebug, line, points, y }: RingProps) => {
         color={color}
         lineWidth={2}
         visible={isDebug}
-        />
+      />
       {points.map((tile) => (
-        <Suspense key={`space--${tile.id}`} fallback={() => <></>}>
-          <Tile
-            data={tile}
-            position={[tile.position[0], tile.position[1], tile.position[2]]}
-            isVisible={entries.some(entry => entry.id === tile.id)}
-            rotation={tile.rotation as [number, number, number]}
-            scale={1}
-          />
-        </Suspense>
+        <Tile
+          entry={tile}
+          key={tile.id}
+          position={[tile.position[0], tile.position[1], tile.position[2]]}
+          rotation={tile.rotation as [number, number, number]}
+          scale={0.01}
+          onClick={handleClickTile}
+        />
       ))}
     </group>
   );

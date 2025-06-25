@@ -30,6 +30,9 @@ declare global {
   type ActiveFilters = Partial<Record<Filter, string | undefined>>
 
   type View = 'grid' | 'space'
+
+  type Tier = 'lower' | 'middle' | 'upper'
+  type Section = 'topSemicircle' | 'leftStraight' | 'bottomSemicircle' | 'rightStraight'
 }
 
 

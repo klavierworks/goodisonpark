@@ -4,11 +4,12 @@ import { useMemo, useRef } from "react";
 import { CanvasTexture, DoubleSide, Sprite, SpriteMaterial } from "three";
 
 type OutlineProps = {
+  entry: Entry;
   isHovered: boolean;
   spriteRef: React.RefObject<Sprite | null>;
 } & Omit<React.ComponentPropsWithoutRef<'sprite'>, 'scale'>;
 
-const Outline = ({ isHovered, spriteRef, ...rest }: OutlineProps) => {
+const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
   const outlineRef = useRef<Sprite>(null);
 
   const outlineSpring = useSpring({
@@ -31,19 +32,16 @@ const Outline = ({ isHovered, spriteRef, ...rest }: OutlineProps) => {
   });
 
   const canvasTexture = useMemo(() => {
-    if (!spriteRef.current) {
-      return null;
-    }
     const canvas = document.createElement('canvas');
-    canvas.width = spriteRef.current.scale.x;
-    canvas.height = spriteRef.current.scale.y;
+    canvas.width = entry.thumbnail.width
+    canvas.height = entry.thumbnail.height;
     const context = canvas.getContext('2d');
     if (!context) {
       console.error('Failed to get canvas context');
       return null;
     }
     context.fillStyle = 'transparent';
-    context.lineWidth = 5;
+    context.lineWidth = 10;
     context.strokeStyle = 'white';
     context.strokeRect(0, 0, canvas.width, canvas.height);
     
@@ -51,7 +49,7 @@ const Outline = ({ isHovered, spriteRef, ...rest }: OutlineProps) => {
   }, []);
 
   return (
-    <sprite {...rest} ref={outlineRef} renderOrder={2} visible={isHovered}>
+    <sprite {...rest} ref={outlineRef}  renderOrder={2} visible={isHovered}>
       <spriteMaterial
         map={canvasTexture}
         depthWrite={false}

@@ -9,5 +9,5 @@ export const TILE_Y_DEPTH = 5;
 
 export const TILE_SCALE = 2;
 
-export const STADIUM_Y_POSITION = 10;
-export const CAMERA_DISTANCE = 54;
+export const STADIUM_Y_POSITION = -10;
+export const CAMERA_DISTANCE = 80;

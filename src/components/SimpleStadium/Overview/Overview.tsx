@@ -1,7 +1,6 @@
 import { BufferGeometry, Color, EdgesGeometry, Mesh, type MeshBasicMaterial } from "three";
 import { $hoveredEntry } from "../../../store/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Controls from "../../Stadium/Controls/Controls";
 import StadiumModel from "../../StadiumModel";
 import { useFrame, useThree } from "@react-three/fiber";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data";
@@ -122,7 +121,6 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
 
   return (
     <group position={[0,20,0]} ref={introRef}>
-      <Controls isController={false} isTarget={true}>
         <StadiumModel ref={handleRef} visible={false} />
         <group rotation={[Math.PI / 2,0,Math.PI / -1.7]} position={[0,0,0]}>
         {edges && (
@@ -135,7 +133,6 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
         <group rotation={[0,Math.PI ,0]}>
           {isShowingPoints && blocks.map(block => <primitive key={block.uuid} object={block} />)}
         </group>
-      </Controls>
     </group>
   )
 };

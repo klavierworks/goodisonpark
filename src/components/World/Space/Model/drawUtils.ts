@@ -1,4 +1,4 @@
-import { Curve, EllipseCurve, Euler, Quaternion, Vector2, Vector3, type BufferGeometry, type Line } from "three"
+import { Curve, Euler, Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3, type BufferGeometry, type Line } from "three"
 import { ELLIPSIS_X_RADIUS, ELLIPSIS_Y_RADIUS, TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
 
 export const drawStadiumShape = (scale: number = 1): Curve<Vector3> => {
@@ -263,3 +263,77 @@ export const getRotationAngleAroundAxis = (centerPoint: Vector3, pointA: Vector3
     return new Euler().setFromQuaternion(quaternion);
   }
 }
+
+export const getRotationAroundPoint = (
+  shape: Object3D,
+  pointOnEdge: Vector3,
+  cameraDirection: Vector3
+): Quaternion => {
+  // Get shape's world position (center)
+  const shapeCenter = new Vector3();
+  shape.getWorldPosition(shapeCenter);
+  
+  // Calculate current direction from center to point
+  const currentDirection = new Vector3()
+    .copy(pointOnEdge)
+    .sub(shapeCenter)
+    .normalize();
+  
+  // Target direction is opposite to camera direction
+  // (point should be between camera and center)
+  const targetDirection = new Vector3()
+    .copy(cameraDirection)
+    .negate()
+    .normalize();
+  
+  // Calculate and return rotation needed
+  return calculateRotationBetweenVectors(currentDirection, targetDirection);
+};
+
+/**
+ * Calculate quaternion rotation needed to rotate from one direction to another
+ */
+const calculateRotationBetweenVectors = (from: Vector3, to: Vector3): Quaternion => {
+  const quaternion = new Quaternion();
+  
+  // Ensure vectors are normalized
+  const fromNorm = from.clone().normalize();
+  const toNorm = to.clone().normalize();
+  
+  // Calculate dot product (cosine of angle)
+  const dot = fromNorm.dot(toNorm);
+  
+  // Vectors are already aligned
+  if (dot >= 0.999999) {
+    return quaternion.identity();
+  }
+  
+  // Vectors are opposite - need 180 degree rotation
+  if (dot <= -0.999999) {
+    // Find any perpendicular vector for rotation axis
+    let axis = new Vector3(1, 0, 0).cross(fromNorm);
+    if (axis.lengthSq() < 0.000001) {
+      axis = new Vector3(0, 1, 0).cross(fromNorm);
+    }
+    axis.normalize();
+    return quaternion.setFromAxisAngle(axis, Math.PI);
+  }
+  
+  // Calculate rotation axis using cross product
+  const axis = new Vector3().crossVectors(fromNorm, toNorm);
+  const axisLength = axis.length();
+  
+  // If axis length is too small, vectors are nearly parallel
+  if (axisLength < 0.000001) {
+    return quaternion.identity();
+  }
+  
+  // Normalize the axis
+  axis.divideScalar(axisLength);
+  
+  // Calculate angle using atan2 for full 360° range
+  // axisLength = sin(angle), dot = cos(angle)
+  const angle = Math.atan2(axisLength, dot);
+  
+  return quaternion.setFromAxisAngle(axis, angle);
+};

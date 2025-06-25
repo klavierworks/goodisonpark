@@ -97,7 +97,7 @@ class FilterElement extends HTMLElement {
   handleClick(event: MouseEvent) {
     event.stopPropagation();
     const target = event.target as HTMLElement;
-    console.log(target)
+
     if (target.dataset.name === 'name-click-target') {
       this.handleClickName();
       return;
@@ -153,11 +153,7 @@ class FilterElement extends HTMLElement {
     const newFilters = { ...$activeFilters.get() };
     delete newFilters[this.filter];
 
-    document.dispatchEvent(new CustomEvent('filtering', {
-      detail: {
-        filters: newFilters,
-      },
-    }));
+    $activeFilters.set(newFilters);
   }
 
   handleClickOption(event: MouseEvent) {
@@ -176,13 +172,7 @@ class FilterElement extends HTMLElement {
       [this.filter]: option,
     };
 
-    document.dispatchEvent(new CustomEvent('filtering', {
-      detail: {
-        filters: newFilters,
-      },
-    }));
-
-    this.classList.add('hasActiveOption');
+    $activeFilters.set(newFilters);
 
     event.preventDefault();
     event.stopPropagation();

@@ -1,3 +1,4 @@
+import { getImage, Image } from "astro:assets";
 import { EXPECTED_SHEET_HEADERS } from "../constants/constants";
 
 const validateHeaders = (keys: string[]) => {
@@ -22,22 +23,41 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
 
   const values = data.values.slice(1);
 
-  const formatted: Entry[] = values.map((value) => ({
-    id: `key--${value[0].trim()}`,
-    filename: value[0].trim(),
-    ...(
-      keepVideoUrls ? {
-        videoUrl: value[1].trim()
-      } : {}
-    ),
-    memory: value[2]?.trim(),
-    year: value[3]?.trim(),
-    category: value[4]?.trim(),
-    name: value[5]?.trim(),
-    stand: value[6]?.trim(),
-    section: value[7]?.trim(),
-    block: value[8]?.trim(),
-  }));
+  const formatted: Entry[] = (await Promise.all(values.map(async (value) => {
+    let filenameParts = value[0].trim().split('.');
+    filenameParts.pop();
+    const filename = filenameParts.join('.');
+
+    if (!filename) {
+      return null; // Skip entries without a filename
+    }
+  
+    const image = await getImage({
+      src: import(`../../public/videos/${filename}/${filename}.jpg`)
+    });
+
+    return {
+      id: `key--${value[0].trim()}`,
+      filename,
+      ...(
+        keepVideoUrls ? {
+          videoUrl: value[1].trim()
+        } : {}
+      ),
+      memory: value[2]?.trim(),
+      year: value[3]?.trim(),
+      category: value[4]?.trim(),
+      name: value[5]?.trim(),
+      stand: value[6]?.trim(),
+      section: value[7]?.trim(),
+      block: value[8]?.trim(),
+      thumbnail: {
+        src: image.src,
+        width: image.options.width,
+        height: image.options.height
+      }
+    }
+  }))).filter((entry) => entry !== null);
 
   return formatted;
 }

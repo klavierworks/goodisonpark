@@ -8,17 +8,8 @@ export const $focusedEntry = atom<string | null>(null);
 export const $activeFilters = atom<ActiveFilters>({})
 
 export const $canvasOffset = atom({ x: 0, y: 0 });
-export const $isFiltering = atom(false);
 
 export const $isLoading = atom(false);
-
-export const $images = atom<{
-  [key: string]: {
-    src: string;
-    width: number;
-    height: number;
-  };
-}>({});
 
 const setUrlSearchParams = () => {
   if (typeof window === 'undefined') {
@@ -88,10 +79,12 @@ const getUrlSearchParams = () => {
   
   $activeFilters.set(filters);
 }
+
 getUrlSearchParams();
 $focusedEntry.subscribe(() => {
   setUrlSearchParams();
 })
+
 const filterAllEntries = () => {
   const filterEntries = Object.entries($activeFilters.get())
     .filter(([_, value]) => value !== undefined);

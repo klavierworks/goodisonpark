@@ -16,6 +16,11 @@ declare global {
     stand: string
     section: string
     block: string
+    thumbnail: {
+      src: string
+      width: number
+      height: number
+    }
   }
 
   type Database = Entry[]

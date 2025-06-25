@@ -9,9 +9,7 @@ const filters = getFilters();
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <div class="map">
-      <a href="/space">
-        <SimpleStadium client:only isAutoRotating isShowingPoints />
-      </a>
+      <SimpleStadium client:only isAutoRotating isShowingPoints />
     </div>
     <button class="view grid" data-view="grid">Grid</button>
     <button class="view space" data-view="space">Space</button>
@@ -39,12 +37,12 @@ $currentView.subscribe((view) => {
   if (!filtersElement) {
     return;
   }
-  if (view === 'grid') {
-    filtersElement.classList.add('isGridView');
-    filtersElement.classList.remove('isSpaceView');
-  } else {
+  if (view === 'space') {
     filtersElement.classList.add('isSpaceView');
     filtersElement.classList.remove('isGridView');
+  } else {
+    filtersElement.classList.add('isGridView');
+    filtersElement.classList.remove('isSpaceView');
   }
 });
 
@@ -53,6 +51,9 @@ document.querySelectorAll('.view').forEach(button => {
     e.preventDefault();
     const view = (e.target! as HTMLButtonElement).dataset.view as View;
     $currentView.set(view);
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set('view', view);
+    window.history.replaceState({}, '', `${window.location.pathname}?${searchParams.toString()}`);
   });
 });
 

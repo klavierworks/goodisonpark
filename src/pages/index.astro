@@ -1,12 +1,12 @@
 ---
 import Layout from "../components/Layout.astro";
-import Canvas from "../components/Canvas/Canvas.astro";
 import Header from "../components/Header/Header.astro";
 import Navigation from "../components/Navigation/Navigation.astro";
+import World from "../components/World/World";
 ---
 
 <Layout>
   <Header />
-  <Canvas />
+  <World client:only />
   <Navigation />
 </Layout>

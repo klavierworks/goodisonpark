@@ -51,7 +51,7 @@ export class VideoPlayerElement extends HTMLElement {
 
     this.videoElement.loop = true;
     this.videoElement.playsInline = true;
-    this.videoElement.autoplay = false;
+    this.videoElement.autoplay = true;
     this.videoElement.disablePictureInPicture = true;
     this.videoElement.classList.add('video');
     this.appendChild(this.videoElement);
@@ -59,6 +59,12 @@ export class VideoPlayerElement extends HTMLElement {
     const hls = new Hls();
     hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
     hls.attachMedia(this.videoElement);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      if (this.videoElement) {
+        this.videoElement.play();
+        this.isPlaying = true;
+      }
+    });
 
     this.videoElement.addEventListener('loadeddata', () => {
       const aspectRatio = this.videoElement!.videoWidth / this.videoElement!.videoHeight;
@@ -71,6 +77,7 @@ export class VideoPlayerElement extends HTMLElement {
         this.classList.add('isPortrait');
         this.classList.remove('isLandscape');
       }
+      this.playVideo();
     });
     this.videoElement.addEventListener('play', () => {
       this.isPlaying = true;
@@ -91,14 +98,19 @@ export class VideoPlayerElement extends HTMLElement {
     this.videoElement = null;
   }
 
-  playVideo() {
+  async playVideo() {
     if (!this.videoElement) {
       this.setupVideo();
     }
     if (this.videoElement && !this.isPlaying) {
-      this.videoElement.play();
-      this.isPlaying = true;
-      this.classList.add('isPlaying');
+      try {
+        await this.videoElement.play();
+        this.isPlaying = true;
+        this.classList.add('isPlaying');
+      } catch (error) {
+        console.error('Error playing video:', error);
+        // Handle autoplay failure, e.g., show a play button or message
+        this.classList.remove('isPlaying');}
     }
   }
   

@@ -135,7 +135,7 @@ const distributeInSubsection = (items: Entry[], line: Curve<Vector3>, subsection
       ...item,
       point: t,
       position: [offsetPoint.x, verticalOffset, offsetPoint.z],
-      rotation: [Math.PI / 2, normalAngle, Math.PI]
+      rotation: [0, -normalAngle, 0]
     }
   })
 }

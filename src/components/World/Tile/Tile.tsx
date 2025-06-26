@@ -79,15 +79,16 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
 
   return (
     <group {...rest} {...pointerAttributes}>
-      <sprite
+      <mesh
         ref={spriteRef}
         name={entry.id}
         scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
+        <planeGeometry args={[1, 1]} />
         <Suspense fallback={<></>}>
           <Thumbnail filename={entry.filename} isHovered={isHoveredWithIntention} />
         </Suspense>
-      </sprite>
+      </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
     </group>
   )

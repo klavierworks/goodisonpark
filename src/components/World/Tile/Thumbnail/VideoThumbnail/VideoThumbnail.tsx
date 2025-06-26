@@ -16,7 +16,7 @@ const VideoThumbnail = ({ filename }: VideoThumbnailProps) => {
     videoTextureCache.set(filename, videoTexture);
   }
 
-  return <spriteMaterial color="white" map={videoTexture} toneMapped={false} transparent depthWrite={false} />;
+  return <meshBasicMaterial color="white" map={videoTexture} toneMapped={false} transparent depthWrite={false} />;
 }
 
 export default VideoThumbnail;

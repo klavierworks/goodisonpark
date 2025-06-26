@@ -3,7 +3,7 @@ import { ASSET_URL } from "astro:env/client";
 import { Suspense } from "react";
 import VideoThumbnail from "./VideoThumbnail/VideoThumbnail";
 import { thumbnailCache } from "../../../../store/textureCache";
-import { type Texture } from "three";
+import { DoubleSide, type Texture } from "three";
 
 type ThumbnailProps = {
   filename: string;
@@ -19,7 +19,7 @@ const Thumbnail = ({ filename, isHovered }: ThumbnailProps) => {
     thumbnailCache.set(filename, texture);
   }
 
-  const imageMaterial = <spriteMaterial color="white" map={texture} transparent depthWrite={false} />;
+  const imageMaterial = <meshBasicMaterial color="white" map={texture} transparent depthWrite={false} side={DoubleSide} />;
   
   if (isHovered) {
     return (

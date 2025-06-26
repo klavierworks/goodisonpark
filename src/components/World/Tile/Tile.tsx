@@ -66,7 +66,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
       };
 
       if (onClick && (isHovered && !isTouchDevice)) {
-       // onClick(entry);
+        onClick(entry);
       }
     },
     onPointerMove: (e) => {
@@ -74,7 +74,6 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
       pointerDownPosition.current.movementY += e.movementY;
     },
     onPointerUp: (e) => {
-      console.log('onPointerUp', e);
       const isTap = Math.abs(pointerDownPosition.current.movementX) < 5 && Math.abs(pointerDownPosition.current.movementY) < 5;
       if (onClick && isTouchDevice && isTap) {
         setIsHovered(false);

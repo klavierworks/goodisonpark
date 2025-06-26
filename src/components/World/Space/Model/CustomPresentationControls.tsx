@@ -18,7 +18,7 @@ export type CustomPresentationControlsControlProps = {
   enabled?: boolean
   children?: React.ReactNode
   domElement?: HTMLElement
-  controlsRef?: React.RefObject<THREE.Group>
+  controlsRef?: React.RefObject<Group>
 }
 
 function CustomPresentationControls({
@@ -80,6 +80,7 @@ function CustomPresentationControls({
     }
   }, [animation.scale, animation.rotation, animation.damping])
 
+  const invalidate = useThree((state) => state.invalidate)
   const regress = useThree((state) => state.performance.regress)
   const bind = useGesture(
     {
@@ -97,6 +98,7 @@ function CustomPresentationControls({
         animation.damping = snap && !down && typeof snap !== 'boolean' ? (snap as number) : damping
         if (down) {
           regress()
+          invalidate()
         }
         return [y, x]
       },

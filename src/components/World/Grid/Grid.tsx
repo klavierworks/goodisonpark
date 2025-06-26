@@ -7,6 +7,7 @@ import { useFrame } from "@react-three/fiber";
 import { Group } from "three";
 import { clamp, mapLinear } from "three/src/math/MathUtils.js";
 import { $currentView, $isTransitioning, $selectedEntry } from "../../../store/ui";
+import { useDrag } from "@use-gesture/react"
 
 const Grid = () => {
   const [entries] = useAtomState($entries);
@@ -63,16 +64,35 @@ const Grid = () => {
 
   const [isHovering, setIsHovering] = useState(false);
 
-  const DEAD_ZONE = 0.2;
   const NO_HOVER_ZONE = 0.7;
-  const SPEED_X = 20;
-  const SPEED_Y = 20;
-  const EXPONENTIAL_POWER = 2;
-  const TOUCH_SPEED_MULTIPLIER = 2;
 
   const isTouchDevice = useMemo(() => window.matchMedia('(pointer: coarse)').matches, []);
-  useFrame(({mouse, viewport, performance}) => {
-    const speedMultiplier = isTouchDevice ? TOUCH_SPEED_MULTIPLIER : 1;
+
+  const touchMovementRef = useRef<{x: number, y: number}>({
+    x: 0,
+    y: 0,
+  });
+
+  const bind = useDrag(({ movement: [x, y], down }) => {
+    if (!down) {
+      touchMovementRef.current = {x: 0, y: 0};
+      return;
+    }
+    
+    const normalizedX = (x / window.innerWidth) * 2;
+    const normalizedY = -(y / window.innerHeight) * 2; 
+    touchMovementRef.current = {
+      x: normalizedX,
+      y: normalizedY,
+    }
+  });
+
+  useFrame(({mouse, invalidate, viewport, performance}) => {
+    const DEAD_ZONE = isTouchDevice ? 0.05 : 0.2
+    const EXPONENTIAL_POWER = isTouchDevice ? 1 : 2
+    const SPEED_X = isTouchDevice ? 40 : 20;
+    const SPEED_Y = isTouchDevice ? 40 : 20;
+    const DIRECTION = isTouchDevice ? 1 : -1;
 
     const currentView = $currentView.get();
     if (currentView !== "grid") {
@@ -85,30 +105,35 @@ const Grid = () => {
       return;
     }
 
-    const { x, y } = mouse;
+    const { x, y } = isTouchDevice ? touchMovementRef.current : mouse;
+
+    if (x === 0 && y === 0) {
+      return;
+    }
+
     let offsetX = 0;
     let offsetY = 0;
 
     if (x > DEAD_ZONE) {
       const normalizedDistance = mapLinear(x, DEAD_ZONE, 1, 0, 1);
       const exponentialDistance = Math.pow(normalizedDistance, EXPONENTIAL_POWER);
-      offsetX = exponentialDistance * SPEED_X * speedMultiplier;
+      offsetX = exponentialDistance * SPEED_X;
     }
     if (x < -DEAD_ZONE) {
       const normalizedDistance = mapLinear(x, -DEAD_ZONE, -1, 0, 1);
       const exponentialDistance = Math.pow(normalizedDistance, EXPONENTIAL_POWER);
-      offsetX = -exponentialDistance * SPEED_X * speedMultiplier;
+      offsetX = -exponentialDistance * SPEED_X;
     }
 
     if (y > DEAD_ZONE) {
       const normalizedDistance = mapLinear(y, DEAD_ZONE, 1, 0, 1);
       const exponentialDistance = Math.pow(normalizedDistance, EXPONENTIAL_POWER);
-      offsetY = exponentialDistance * SPEED_Y * speedMultiplier;
+      offsetY = exponentialDistance * SPEED_Y;
     }
     if (y < -DEAD_ZONE) {
       const normalizedDistance = mapLinear(y, -DEAD_ZONE, -1, 0, 1);
       const exponentialDistance = Math.pow(normalizedDistance, EXPONENTIAL_POWER);
-      offsetY = -exponentialDistance * SPEED_Y * speedMultiplier;
+      offsetY = -exponentialDistance * SPEED_Y;
     }
 
     if (Math.abs(x) > NO_HOVER_ZONE || Math.abs(y) > NO_HOVER_ZONE) {
@@ -123,12 +148,12 @@ const Grid = () => {
     }
 
     const xPos = clamp(
-      gridRef.current.position.x + (offsetX * -1),
+      gridRef.current.position.x + (offsetX * DIRECTION),
       -layout.containerWidth / 2,
       layout.containerWidth / 2,
     )
     const yPos = clamp(
-      gridRef.current.position.y + (offsetY * -1),
+      gridRef.current.position.y + (offsetY * DIRECTION),
       -layout.containerHeight / 2,
       layout.containerHeight / 2
     )
@@ -138,6 +163,7 @@ const Grid = () => {
       yPos,
       gridRef.current.position.z
     );
+    invalidate();
   });
 
   const handleClickEntry = useCallback((entry: Entry) => {
@@ -152,7 +178,7 @@ const Grid = () => {
   }, []);
 
   return (
-    <group ref={gridRef} onPointerEnter={() => setIsHovering(true)} onPointerLeave={() => setIsHovering(false)}>
+    <group ref={gridRef} {...bind()} onPointerEnter={() => setIsHovering(true)} onPointerLeave={() => setIsHovering(false)}>
       {layout && (
         <mesh position={[0, 0, -900]} name="click-catcher" scale={[layout.containerWidth, layout.containerHeight, 1]} visible={false}>
           <planeGeometry args={[layout.containerWidth, layout.containerHeight]} />

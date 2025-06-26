@@ -55,7 +55,8 @@ const Model = ({ entries }: ModelProps) => {
 
   const controlsRef = useRef<Group>(null);
 
-  useFrame(({ camera, scene }) => {
+  const currentNormalizedYRotation = useRef(0);
+  useFrame(({ camera, invalidate }) => {
     if ($currentView.get() !== 'space') {
       return;
     }
@@ -69,10 +70,15 @@ const Model = ({ entries }: ModelProps) => {
     if (distanceToCamera > 1000) {
       return;
     }
+
     const rotation = rotationTargetRef.current.parent.rotation
     let normalizedYRotation = (rotation.y % (2 * Math.PI)) / (2 * Math.PI);
     if (normalizedYRotation < 0) {
       normalizedYRotation += 1;
+    }
+
+    if (currentNormalizedYRotation.current === normalizedYRotation) {
+      return;
     }
     
     stadiumSceneRef.current.position.set(0, 0, 0);
@@ -81,6 +87,10 @@ const Model = ({ entries }: ModelProps) => {
       Math.PI * 2 * normalizedYRotation,
       0
     )
+
+    invalidate()
+
+    currentNormalizedYRotation.current = normalizedYRotation;
 
     const point = cameraLine.getPointAt(normalizedYRotation);
     const distanceToPoint = point.distanceTo(stadiumSceneRef.current.position);
@@ -99,9 +109,19 @@ const Model = ({ entries }: ModelProps) => {
     }
   });
 
+  const [currentView] = useAtomState($currentView);
+  const isTouchDevice = useMemo(() => window.matchMedia('(pointer: coarse)').matches, []);
+
   return (  
     <group>
-      <CustomPresentationControls enabled controlsRef={controlsRef} polar={POLAR} global={true} rotation={[0,0,0]}>
+      <CustomPresentationControls
+        enabled={currentView === 'space'}
+        controlsRef={controlsRef}
+        polar={POLAR}
+        global={true}
+        speed={isTouchDevice ? 0.5 : 1}
+        rotation={[0,0,0]}
+      >
         <Sphere args={[0.1, 32, 32]} position={[0, 0, 0]} visible={isDebug} ref={rotationTargetRef}>
           <meshBasicMaterial color="red" />
         </Sphere>

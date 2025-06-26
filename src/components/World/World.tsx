@@ -11,7 +11,7 @@ const World = () => {
   const [isDebug] = useAtomState($isDebug);
 
   return (
-    <Canvas gl={{
+    <Canvas frameloop="demand" gl={{
       outputColorSpace: SRGBColorSpace,
       toneMapping: NoToneMapping,
       logarithmicDepthBuffer: false,

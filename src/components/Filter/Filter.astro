@@ -351,11 +351,13 @@ filter-element {
       inset: 0;
       top: 0;
       bottom: 0;
+      height: 100dvh;
       text-align: left;
       max-height: initial !important;
       overflow: auto;
-      padding: 20dvh 20px;
+      padding: 15em 20px;
       z-index: -1;
+      mask: linear-gradient(to bottom, transparent 0%, transparent 15%, black 25%, black 75%, transparent 85%, transparent 100%);
       
       &::after {
         content: '';

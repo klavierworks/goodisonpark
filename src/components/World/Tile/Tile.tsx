@@ -37,6 +37,12 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     }
   }, [isHovered, entry]);
 
+  const isTouchDevice = useMemo(() => window.matchMedia('(pointer: coarse)').matches, []);
+  const pointerDownPosition = useRef<{ movementX: number, movementY: number }>({
+    movementX: 0,
+    movementY: 0,
+  });
+
   const pointerAttributes = useMemo(() => canInteract ? ({
     onPointerOver: (e) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
@@ -49,9 +55,34 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     onPointerOut: () => {
       setIsHovered(false);
     },
-    onClick: () => {
-      if (onClick && isHovered) {
-        onClick(entry);
+    onPointerDown: (e) => {
+      if (isTouchDevice) {
+        setIsHovered(true);
+      }
+
+      pointerDownPosition.current = {
+        movementX: 0,
+        movementY: 0,
+      };
+
+      if (onClick && (isHovered && !isTouchDevice)) {
+       // onClick(entry);
+      }
+    },
+    onPointerMove: (e) => {
+      pointerDownPosition.current.movementX += e.movementX;
+      pointerDownPosition.current.movementY += e.movementY;
+    },
+    onPointerUp: (e) => {
+      console.log('onPointerUp', e);
+      const isTap = Math.abs(pointerDownPosition.current.movementX) < 5 && Math.abs(pointerDownPosition.current.movementY) < 5;
+      if (onClick && isTouchDevice && isTap) {
+        setIsHovered(false);
+
+        // Hack: we're getting double pointerUp events on mobile, so we need to debounce the click
+        window.setTimeout(() => {
+          onClick(entry);
+        }, 150);
       }
     }
   }) : null, [isHovered]);
@@ -64,9 +95,13 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     return entries.some(e => e.id === entry.id);
   }, [entries, entry.id]);
 
+  const invalidate = useThree((state) => state.invalidate);
   const spring = useSpring({
     x: isVisible && isActive ? entry.thumbnail.width : 0,
     y: isVisible && isActive ? entry.thumbnail.height : 0,
+    onChange: () => {
+      invalidate()
+    }
   })
 
   useFrame(() => {

@@ -3,7 +3,7 @@ import { $currentView, $isTransitioning } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
 import useAtomState from "../useAtomState";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { Group, Vector3 } from "three";
 import { CAMERA_DISTANCE } from "../Space/constants";
@@ -18,12 +18,16 @@ const SceneSwitcher = () => {
 
   const [currentView, setCurrentView] = useAtomState($currentView);
 
+  const invalidate = useThree((state) => state.invalidate);
   const spring = useSpring({
     transitionProgress: currentView === "space" ? 1 : 0,
-    config: config.slow,
+    config: config.molasses,
+    onChange: () => {
+      invalidate();
+    }
   })
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, invalidate, performance }) => {
     const isDebug = new URL(window.location.href).searchParams.get('isDebug') === 'true';
     if (!gridGroupRef.current || !spaceGroupRef.current || isDebug) {
       return;
@@ -40,6 +44,9 @@ const SceneSwitcher = () => {
       SPACE_CAMERA_POSITION,
       progress
     );
+    spaceGroupRef.current.visible = progress > 0.5;
+    gridGroupRef.current.visible = progress < 0.5;
+    performance.regress()
   });
 
   return (
@@ -47,9 +54,6 @@ const SceneSwitcher = () => {
       <group ref={gridGroupRef} position={[0, 0, 2000]}>
         <Grid />
       </group>
-      <Plane args={[5000, 50000]} position={[0, 0, 200]} rotation={[0, 0, 0]}>
-        <meshBasicMaterial color="rgb(3, 14, 40)" transparent opacity={0.8} />
-      </Plane>
       <group ref={spaceGroupRef} position={[0, 0, -CAMERA_DISTANCE]}>
         <Space />
       </group>

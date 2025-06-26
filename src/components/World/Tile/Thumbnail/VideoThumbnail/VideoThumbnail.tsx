@@ -1,7 +1,7 @@
 import { useVideoTexture } from "@react-three/drei";
 import { ASSET_URL } from "astro:env/client";
 import { videoTextureCache } from "../../../../../store/textureCache";
-import type { VideoTexture } from "three";
+import { DoubleSide, type VideoTexture } from "three";
 
 type VideoThumbnailProps = {
   filename: string;
@@ -16,7 +16,7 @@ const VideoThumbnail = ({ filename }: VideoThumbnailProps) => {
     videoTextureCache.set(filename, videoTexture);
   }
 
-  return <meshBasicMaterial color="white" map={videoTexture} toneMapped={false} transparent depthWrite={false} />;
+  return <meshBasicMaterial color="white" map={videoTexture} toneMapped={false} transparent depthWrite={false} side={DoubleSide} />;
 }
 
 export default VideoThumbnail;

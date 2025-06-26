@@ -8,7 +8,7 @@ import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $hoveredEntry, $selectedEntry } from "../../../store/ui";
+import { $hoveredEntry, $hoveredWithIntentionEntryId, $selectedEntry } from "../../../store/ui";
 
 type TileProps = {
   canInteract?: boolean;
@@ -17,22 +17,31 @@ type TileProps = {
   onClick?: (entry: Entry) => void;
 } & React.ComponentPropsWithoutRef<'group'>;
 
+const INTENTION_PAUSE = 1000; // ms
 const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
-  const [isHoveredWithIntention, setIsHoveredWithIntention] = useState(false);
+  const [hoveredWithIntentionEntryId] = useAtomState($hoveredWithIntentionEntryId);
+  const isHoveredWithIntention = hoveredWithIntentionEntryId === entry.id;
+
+  useFrame(({ invalidate }) => {
+    if (isHoveredWithIntention) {
+      invalidate();
+    }
+  });
+
   useEffect(() => {
     if (!isHovered || !canInteract) {
       return;
     }
     $hoveredEntry.set(entry);
     let timer = setTimeout(() => {
-      setIsHoveredWithIntention(true);
-    }, 1000);
+      $hoveredWithIntentionEntryId.set(entry.id);
+    }, INTENTION_PAUSE);
     return () => {
       $hoveredEntry.set(null);
-      setIsHoveredWithIntention(false);
+      $hoveredWithIntentionEntryId.set(null);
       clearTimeout(timer);
     }
   }, [isHovered, entry]);
@@ -43,6 +52,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     movementY: 0,
   });
 
+  const pointerDownTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pointerAttributes = useMemo(() => canInteract ? ({
     onPointerOver: (e) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
@@ -54,6 +64,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     },
     onPointerOut: () => {
       setIsHovered(false);
+      $hoveredWithIntentionEntryId.set(null);
     },
     onPointerDown: (e) => {
       if (isTouchDevice) {
@@ -68,6 +79,12 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
       if (onClick && (isHovered && !isTouchDevice)) {
         onClick(entry);
       }
+      pointerDownTimerRef.current = setTimeout(() => {
+        if (pointerDownPosition.current.movementX > 5 || pointerDownPosition.current.movementY > 5) {
+          return;
+        }
+        $hoveredWithIntentionEntryId.set(entry.id);
+      }, INTENTION_PAUSE);
     },
     onPointerMove: (e) => {
       pointerDownPosition.current.movementX += e.movementX;
@@ -75,6 +92,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     },
     onPointerUp: (e) => {
       const isTap = Math.abs(pointerDownPosition.current.movementX) < 5 && Math.abs(pointerDownPosition.current.movementY) < 5;
+      clearTimeout(pointerDownTimerRef.current as NodeJS.Timeout);
       if (onClick && isTouchDevice && isTap) {
         setIsHovered(false);
 
@@ -98,6 +116,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
   const spring = useSpring({
     x: isVisible && isActive ? entry.thumbnail.width : 0,
     y: isVisible && isActive ? entry.thumbnail.height : 0,
+    opacity: !isHoveredWithIntention && hoveredWithIntentionEntryId ? 0 : 1,
     onChange: () => {
       invalidate()
     }
@@ -109,6 +128,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     }
 
     spriteRef.current.scale.set(spring.x.get(), spring.y.get(), 1);
+    //spriteRef.current.material.opacity = spring.opacity.get();
   });
 
   return (

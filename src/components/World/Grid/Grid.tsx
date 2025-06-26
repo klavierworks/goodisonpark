@@ -15,8 +15,6 @@ const Grid = () => {
     const array = [
       ...allEntries,
       ...allEntries,
-      ...allEntries,
-      ...allEntries,
     ]
 
     return array.map((entry, index) => ({
@@ -174,8 +172,6 @@ const Grid = () => {
           onClick={handleClickEntry}
         />
       ))}
-      {
-        /*
       <group position={[0, 0, -1500]}>
         <mesh position={[0, 0, 350]}>
           <planeGeometry args={[15000,15000]} />
@@ -198,7 +194,6 @@ const Grid = () => {
           ))}
         </group>
       </group>
-      */}
     </group>
   );
 }

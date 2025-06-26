@@ -61,7 +61,6 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
   const [activeFilters] = useAtomState($activeFilters);
 
   useEffect(() => {
-    console.log('Updating active memory based on hovered entry or active filters');
     if (hoveredEntry) {
       updateActiveMemory(hoveredEntry?.memory);
     }
@@ -124,6 +123,7 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
     const ADJUSTMENT_Y = Math.PI / -2;
     const handleFrame = () => {
       if (!introRef.current || !window.modelRotation) {
+        raf = window.requestAnimationFrame(handleFrame);
         return;
       }
 

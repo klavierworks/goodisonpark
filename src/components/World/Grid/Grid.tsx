@@ -66,13 +66,14 @@ const Grid = () => {
   const [isHovering, setIsHovering] = useState(false);
 
   const DEAD_ZONE = 0.2;
+  const NO_HOVER_ZONE = 0.7;
   const SPEED_X = 20;
   const SPEED_Y = 20;
   const EXPONENTIAL_POWER = 2;
   const TOUCH_SPEED_MULTIPLIER = 2;
-  
+
   const isTouchDevice = useMemo(() => window.matchMedia('(pointer: coarse)').matches, []);
-  useFrame(({mouse, viewport}) => {
+  useFrame(({mouse, viewport, performance}) => {
     const speedMultiplier = isTouchDevice ? TOUCH_SPEED_MULTIPLIER : 1;
 
     const currentView = $currentView.get();
@@ -110,6 +111,10 @@ const Grid = () => {
       const normalizedDistance = mapLinear(y, -DEAD_ZONE, -1, 0, 1);
       const exponentialDistance = Math.pow(normalizedDistance, EXPONENTIAL_POWER);
       offsetY = -exponentialDistance * SPEED_Y * speedMultiplier;
+    }
+
+    if (Math.abs(x) > NO_HOVER_ZONE || Math.abs(y) > NO_HOVER_ZONE) {
+      performance.regress()
     }
 
     if (layout.containerWidth < viewport.width) {
@@ -169,6 +174,8 @@ const Grid = () => {
           onClick={handleClickEntry}
         />
       ))}
+      {
+        /*
       <group position={[0, 0, -1500]}>
         <mesh position={[0, 0, 350]}>
           <planeGeometry args={[15000,15000]} />
@@ -191,6 +198,7 @@ const Grid = () => {
           ))}
         </group>
       </group>
+      */}
     </group>
   );
 }

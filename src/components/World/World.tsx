@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import SceneSwitcher, { GRID_CAMERA_POSITION, SPACE_CAMERA_POSITION } from "./SceneSwitcher/SceneSwitcher";
-import { OrbitControls, PerspectiveCamera, Preload } from "@react-three/drei";;
+import { AdaptiveDpr, Bvh, OrbitControls, PerspectiveCamera, Preload } from "@react-three/drei";;
 import { Perf } from "r3f-perf";
 import { NoToneMapping, SRGBColorSpace } from "three";
 import useAtomState from "./useAtomState";
@@ -20,6 +20,8 @@ const World = () => {
       touchAction: "none",
     }}>
       <Perf />
+      <Preload all />
+      <AdaptiveDpr pixelated />
       {isDebug ? (
         <OrbitControls />
       ) : (
@@ -29,7 +31,9 @@ const World = () => {
           : SPACE_CAMERA_POSITION
         } far={5000} />
       )}
-      <SceneSwitcher />
+      <Bvh firstHitOnly>
+        <SceneSwitcher />
+      </Bvh>
     </Canvas>
   )
 }

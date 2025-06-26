@@ -7,7 +7,7 @@ import Thumbnail from "./Thumbnail/Thumbnail";
 import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { useSpring } from "@react-spring/core";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { $hoveredEntry, $selectedEntry } from "../../../store/ui";
 
 type TileProps = {

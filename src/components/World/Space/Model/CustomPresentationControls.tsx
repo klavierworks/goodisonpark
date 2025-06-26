@@ -80,6 +80,7 @@ function CustomPresentationControls({
     }
   }, [animation.scale, animation.rotation, animation.damping])
 
+  const regress = useThree((state) => state.performance.regress)
   const bind = useGesture(
     {
       onHover: ({ last }) => {
@@ -94,6 +95,9 @@ function CustomPresentationControls({
         animation.scale = down && y > rPolar[1] / 2 ? zoom : 1
         animation.rotation = snap && !down ? rInitial : [y, x, 0]
         animation.damping = snap && !down && typeof snap !== 'boolean' ? (snap as number) : damping
+        if (down) {
+          regress()
+        }
         return [y, x]
       },
     },

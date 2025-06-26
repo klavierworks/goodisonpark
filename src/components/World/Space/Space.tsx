@@ -1,4 +1,4 @@
-import { $allEntries, $entries } from "../../../store/data";
+import { $allEntries } from "../../../store/data";
 import useAtomState from "../useAtomState";
 import Model from "./Model/Model";
 

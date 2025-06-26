@@ -9,7 +9,7 @@ const filters = getFilters();
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <div class="map">
-      <SimpleStadium client:only isAutoRotating isShowingPoints />
+      <SimpleStadium client:only />
     </div>
     <button class="view grid" data-view="grid">Grid</button>
     <button class="view space" data-view="space">Space</button>
@@ -95,6 +95,7 @@ document.querySelectorAll('.view').forEach(button => {
   grid-template-rows: max-content max-content;
   order: 2;
   place-self: center;
+  cursor: pointer;
   position: relative;
   overflow: hidden;
   grid-row: 1 / 3;

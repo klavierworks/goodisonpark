@@ -80,7 +80,7 @@ type GLTFResult = GLTF & {
 export default function Model(props: JSX.IntrinsicElements['group']) {
   const { nodes, materials } = useGLTF('/stadium-transformed.glb') as GLTFResult
   return (
-    <group {...props} dispose={null} scale={STADIUM_SCALE}>
+    <group {...props} scale={STADIUM_SCALE}>
       <mesh name="GoodisonFull" geometry={nodes.GoodisonFull.geometry} material={nodes.GoodisonFull.material} rotation={[1.571, 0, 1.278]} />
       <mesh name="TB5" geometry={nodes.TB5.geometry} material={nodes.TB5.material} position={[-55.311, 24.701, -58.212]} />
       <mesh name="TB4" geometry={nodes.TB4.geometry} material={nodes.TB4.material} position={[-31.047, 28.893, -62.791]} />

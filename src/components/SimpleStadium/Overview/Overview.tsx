@@ -1,10 +1,11 @@
-import { BufferGeometry, Color, EdgesGeometry, Mesh, type MeshBasicMaterial } from "three";
+import { BufferGeometry, Color, EdgesGeometry, Mesh, MeshBasicMaterial } from "three";
 import { $hoveredEntry } from "../../../store/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import StadiumModel from "../../StadiumModel";
 import { useFrame, useThree } from "@react-three/fiber";
 import { $activeFilters, $allEntries, $entries } from "../../../store/data";
 import type { Group } from "three";
+import useAtomState from "../../World/useAtomState";
 
 type Props = {
   isAutoRotating?: boolean;
@@ -20,21 +21,24 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
       return;
     }
     const stadium = node.getObjectByName('GoodisonFull')! as Mesh;
-    setEdges(
-      new EdgesGeometry(stadium.geometry.clone(), 15)
-    );
-    setNode(node);
 
     const blockMeshes: Mesh[] = [];
     node.traverse((child) => {
+      if (child instanceof Mesh) {
+        child.material = new MeshBasicMaterial({
+          color: new Color(0xffffff),
+        })
+      }
       if (child instanceof Mesh && child.name !== 'GoodisonFull') {
-        const block = child.clone();
-        const material = block.material.clone();
-        block.material = material;
+        const block = child.clone(); 
         block.scale.set(4,4,4);
         blockMeshes.push(block);
       }
     });
+    setEdges(
+      new EdgesGeometry(stadium.geometry.clone(), 15)
+    );
+    setNode(node);
     setBlocks(blockMeshes);
   }, []);
 
@@ -53,24 +57,16 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
     invalidate();
   }, [blocks, invalidate]);
 
-  useEffect(() => {
-    if (!node && isShowingPoints) {
-      return;
-    }
-    const unsubscribe1 = $hoveredEntry.subscribe((hoveredEntry) => {
-      const memory = hoveredEntry?.memory;
-      updateActiveMemory(memory);
-    });
-    const unsubscribe2 = $activeFilters.subscribe((activeFilters) => {
-      const memory = activeFilters.memory;
-      updateActiveMemory(memory);
-    });
+  const [hoveredEntry] = useAtomState($hoveredEntry);
+  const [activeFilters] = useAtomState($activeFilters);
 
-    return () => {
-      unsubscribe1();
-      unsubscribe2();
-    };
-  }, [node]);
+  useEffect(() => {
+    console.log('Updating active memory based on hovered entry or active filters');
+    if (hoveredEntry) {
+      updateActiveMemory(hoveredEntry?.memory);
+    }
+    updateActiveMemory(activeFilters.memory);
+  }, [hoveredEntry, activeFilters]);
 
   useEffect(() => {
     if (!isShowingPoints) {
@@ -118,6 +114,37 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
     introRef.current.rotation.y -= 0.001;
     invalidate();
   });
+
+  useEffect(() => {
+    if (isAutoRotating) {
+      return;
+    }
+
+    let raf: number;
+    const ADJUSTMENT_Y = Math.PI / -2;
+    const handleFrame = () => {
+      if (!introRef.current || !window.modelRotation) {
+        return;
+      }
+
+
+      if ((window.modelRotation.y + ADJUSTMENT_Y) !== introRef.current.rotation.y) {
+        introRef.current.rotation.set(
+          0,
+          window.modelRotation.y + ADJUSTMENT_Y,
+          0
+        )
+        invalidate();
+      }
+
+      raf = window.requestAnimationFrame(handleFrame);
+    }
+
+    raf = window.requestAnimationFrame(handleFrame);
+    return () => {
+      window.cancelAnimationFrame(raf);
+    }
+  }, [isAutoRotating, invalidate]);
 
   return (
     <group position={[0,20,0]} ref={introRef}>

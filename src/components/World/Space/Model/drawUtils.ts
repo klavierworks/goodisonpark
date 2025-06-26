@@ -1,5 +1,7 @@
-import { Curve, Euler, Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3, type BufferGeometry, type Line } from "three"
+import { Curve, CurvePath, Euler, Matrix4, Object3D, PerspectiveCamera, Quaternion, Vector2, Vector3, type BufferGeometry, type Line } from "three"
 import { ELLIPSIS_X_RADIUS, ELLIPSIS_Y_RADIUS, TILE_DEPTH, TILE_Y_DEPTH } from "../constants"
+import type { MutableRefObject, RefObject } from "react";
+import type { Group } from "three";
 
 export const drawStadiumShape = (scale: number = 1): Curve<Vector3> => {
   class XZEllipseCurve extends Curve<Vector3> {
@@ -336,4 +338,45 @@ const calculateRotationBetweenVectors = (from: Vector3, to: Vector3): Quaternion
   const angle = Math.atan2(axisLength, dot);
   
   return quaternion.setFromAxisAngle(axis, angle);
+};
+
+export const calculateControllerRotationToCenter = (
+  entryObject: Object3D,
+  stadiumSceneRef: RefObject<Group>,
+  TILE_Y_DEPTH: number
+): { x: number; y: number } | null => {
+  // Get positions in world space
+  const targetWorldPosition = entryObject.getWorldPosition(new Vector3());
+  
+  // Transform target position to stadium's local space
+  // This accounts for any existing stadium transformations
+  const stadiumWorldToLocal = stadiumSceneRef.current.worldToLocal.bind(stadiumSceneRef.current);
+  const targetLocalPosition = stadiumWorldToLocal(targetWorldPosition.clone());
+  
+  // Calculate angle from stadium center to target in XZ plane
+  // Note: atan2(x, z) gives rotation around Y axis
+  let targetAngle = Math.atan2(targetLocalPosition.x, targetLocalPosition.z);
+  
+  // Normalize to 0-2π range
+  if (targetAngle < 0) targetAngle += Math.PI * 2;
+  
+  // Convert to your controller's normalized format
+  // Your logic: normalizedYRotation = rotation.y % Math.PI / Math.PI
+  // Stadium rotation: Math.PI * 2 * normalizedYRotation
+  // So: targetAngle = Math.PI * 2 * (rotation.y % Math.PI / Math.PI)
+  // Therefore: rotation.y % Math.PI = (targetAngle / (Math.PI * 2)) * Math.PI
+  // Since we want rotation.y in [0, π]: rotation.y = (targetAngle / (Math.PI * 2)) * Math.PI
+  const targetControllerYRotation = (targetAngle / (Math.PI * 2)) * Math.PI;
+  
+  // For X rotation (vertical)
+  // Your logic: stadiumPosition.y = -rotation.x * (TILE_Y_DEPTH * 6)
+  // We want to position vertically to center the target
+  // So: rotation.x = -targetLocalPosition.y / (TILE_Y_DEPTH * 6)
+  // But since we want to center it, we might need to invert this
+  const targetControllerXRotation = targetLocalPosition.y / (TILE_Y_DEPTH * 6);
+  
+  return {
+    x: targetControllerXRotation,
+    y: targetControllerYRotation
+  };
 };

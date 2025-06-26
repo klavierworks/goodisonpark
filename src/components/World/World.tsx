@@ -1,15 +1,14 @@
 import { Canvas } from "@react-three/fiber";
-import SceneSwitcher from "./SceneSwitcher/SceneSwitcher";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
-import { useState } from "react";
+import SceneSwitcher, { GRID_CAMERA_POSITION, SPACE_CAMERA_POSITION } from "./SceneSwitcher/SceneSwitcher";
+import { OrbitControls, PerspectiveCamera, Preload } from "@react-three/drei";;
 import { Perf } from "r3f-perf";
-import { ACESFilmicToneMapping, NoToneMapping, SRGBColorSpace } from "three";
+import { NoToneMapping, SRGBColorSpace } from "three";
+import useAtomState from "./useAtomState";
+import { $currentView, $isDebug } from "../../store/ui";
 
+const initialView = $currentView.get();
 const World = () => {
-  const [isDebug] = useState(() => {
-    const url = new URL(window.location.href);
-    return url.searchParams.get('isDebug') === 'true';
-  });
+  const [isDebug] = useAtomState($isDebug);
 
   return (
     <Canvas gl={{
@@ -24,7 +23,11 @@ const World = () => {
       {isDebug ? (
         <OrbitControls />
       ) : (
-        <PerspectiveCamera makeDefault position={[0, 0, 0]} far={3000} />
+        <PerspectiveCamera makeDefault position={
+          initialView === 'grid' ? 
+          GRID_CAMERA_POSITION
+          : SPACE_CAMERA_POSITION
+        } far={5000} />
       )}
       <SceneSwitcher />
     </Canvas>

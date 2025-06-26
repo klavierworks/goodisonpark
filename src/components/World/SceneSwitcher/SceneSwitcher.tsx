@@ -7,6 +7,10 @@ import { useFrame } from "@react-three/fiber";
 import { useRef } from "react";
 import { Group, Vector3 } from "three";
 import { CAMERA_DISTANCE } from "../Space/constants";
+import { Plane } from "@react-three/drei";
+
+export const GRID_CAMERA_POSITION = new Vector3(0, 0, 4000);
+export const SPACE_CAMERA_POSITION = new Vector3(0, 0, 0);
 
 const SceneSwitcher = () => {
   const gridGroupRef = useRef<Group>(null);
@@ -28,9 +32,12 @@ const SceneSwitcher = () => {
     const progress = spring.transitionProgress.get();
     $isTransitioning.set(progress > 0 && progress < 1);
 
+    if (!$isTransitioning.get()) {
+      return;
+    }
     camera.position.lerpVectors(
-      new Vector3(0, 0, 4000),
-      new Vector3(0, 0, 0),
+      GRID_CAMERA_POSITION,
+      SPACE_CAMERA_POSITION,
       progress
     );
   });
@@ -40,6 +47,9 @@ const SceneSwitcher = () => {
       <group ref={gridGroupRef} position={[0, 0, 2000]}>
         <Grid />
       </group>
+      <Plane args={[5000, 50000]} position={[0, 0, 200]} rotation={[0, 0, 0]}>
+        <meshBasicMaterial color="rgb(3, 14, 40)" transparent opacity={0.8} />
+      </Plane>
       <group ref={spaceGroupRef} position={[0, 0, -CAMERA_DISTANCE]}>
         <Space />
       </group>

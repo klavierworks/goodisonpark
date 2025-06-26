@@ -13,3 +13,8 @@ export const $currentView = atom<View>('grid');
 export const $selectedEntry = atom<string | null>(null);
 
 export const $isTransitioning = atom(false);
+
+export const $isDebug = atom(() => {
+  const url = new URL(window.location.href);
+  return url.searchParams.get('isDebug') === 'true';
+});

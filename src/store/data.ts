@@ -137,6 +137,7 @@ $activeFilters.subscribe(() => {
 
 export const setEntries = (parsedEntries: Entry[]) => {
   $allEntries.set(parsedEntries)
+  console.log('set')
   filterAllEntries();
 }
 

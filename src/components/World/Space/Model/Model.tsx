@@ -1,13 +1,14 @@
-import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CAMERA_DISTANCE, STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
+import {  useCallback, useMemo, useRef, useState } from "react";
+import { STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
 import StadiumModel from "../../../StadiumLineModel.tsx";
-import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Euler } from "three";
-import { Line, PresentationControls, Sphere } from "@react-three/drei";
+import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide } from "three";
+import { Line, Sphere } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
-import { getRotationAngleAroundAxis, drawStadiumShape, getRotationAroundPoint } from "./drawUtils.ts";
+import { drawStadiumShape } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
+import { $currentView, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
+import CustomPresentationControls from "./CustomPresentationControls.tsx";
 
 type ModelProps = {
   entries: readonly Entry[]
@@ -48,40 +49,14 @@ const Model = ({ entries }: ModelProps) => {
   const rotationTargetRef = useRef<Mesh>(null);
   const stadiumSceneRef = useRef<Group>(null);
 
-  const [controlsKey, setControlsKey] = useState(`${Date.now()}`);
-  const [initialRotation, setInitialRotation] = useState<[number, number, number]>([0, 0, 0]);
   const [selectedEntry] = useAtomState($selectedEntry)
 
-  const scene = useThree(state => state.scene);
-  useEffect(() => {
-    return;
-    if (!selectedEntry || !scene) {
-      return;
-    }
-    const entryObject = scene.getObjectByName(selectedEntry);
-    if (!entryObject) {
-      return;
-    }
-    const euler = getRotationAngleAroundAxis(
-      new Vector3(0, 0, -CAMERA_DISTANCE),
-      new Vector3(0, 0, 0),
-      entryObject.getWorldPosition(new Vector3()),
-      new Vector3(0, 1, 0)
-    );
-    const y = entryObject.position.y / (TILE_Y_DEPTH * 3);
-    if (!stadiumSceneRef.current) {
-      return;
-    }
-    const worldPosition = entryObject.getWorldPosition(new Vector3());
-
-    stadiumSceneRef.current.position.y = -worldPosition.y;
-    //setInitialRotation([euler.x, -y, euler.z]);
-    //setControlsKey(`${Date.now()}`);
-  }, [selectedEntry]);
-
   const POLAR = [0, 0.45];
+
+  const controlsRef = useRef<Group>(null);
+
   useFrame(({ camera, scene }) => {
-    if ($isTransitioning.get() || $currentView.get() !== "space") {
+    if ($currentView.get() !== 'space') {
       return;
     }
 
@@ -91,13 +66,11 @@ const Model = ({ entries }: ModelProps) => {
 
     const stadiumPosition = stadiumSceneRef.current.getWorldPosition(new Vector3());
     const distanceToCamera = camera.position.distanceTo(stadiumPosition);
-
     if (distanceToCamera > 1000) {
-      console.warn("Camera is too far from the stadium model, resetting position.");
       return;
     }
     const rotation = rotationTargetRef.current.parent.rotation
-    let normalizedYRotation = rotation.y % Math.PI / Math.PI;
+    let normalizedYRotation = (rotation.y % (2 * Math.PI)) / (2 * Math.PI);
     if (normalizedYRotation < 0) {
       normalizedYRotation += 1;
     }
@@ -113,20 +86,26 @@ const Model = ({ entries }: ModelProps) => {
     const distanceToPoint = point.distanceTo(stadiumSceneRef.current.position);
 
     const difference = distanceToCamera - distanceToPoint;
-    
+
     const cameraDirection = new Vector3(0, 0, -1)
     const offset = cameraDirection.multiplyScalar(difference);
-    stadiumSceneRef.current.position.sub(offset);
+    //stadiumSceneRef.current.position.sub(offset);
     stadiumSceneRef.current.position.y = -rotation.x * (TILE_Y_DEPTH * 6);
+
+    window.modelRotation = {
+      x: rotation.x,
+      y: rotation.y,
+      z: rotation.z
+    }
   });
 
   return (  
     <group>
-      <PresentationControls enabled key={controlsKey} polar={POLAR} global={true} rotation={initialRotation}>
+      <CustomPresentationControls enabled controlsRef={controlsRef} polar={POLAR} global={true} rotation={[0,0,0]}>
         <Sphere args={[0.1, 32, 32]} position={[0, 0, 0]} visible={isDebug} ref={rotationTargetRef}>
           <meshBasicMaterial color="red" />
         </Sphere>
-      </PresentationControls>
+      </CustomPresentationControls>
       <Sphere args={[10, 32, 32]} position={[0, 0, 0]} name="camera-sphere" visible={isDebug}>
         <meshBasicMaterial color="blue" />
       </Sphere>

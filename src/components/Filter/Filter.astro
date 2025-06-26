@@ -95,7 +95,6 @@ class FilterElement extends HTMLElement {
   }
 
   handleClick(event: MouseEvent) {
-    event.stopPropagation();
     const target = event.target as HTMLElement;
 
     if (target.dataset.name === 'name-click-target') {
@@ -105,6 +104,11 @@ class FilterElement extends HTMLElement {
 
     if (target.tagName === 'LI') {
       this.handleClickOption(event);
+      return;
+    }
+
+    if (target.classList.contains('backdrop')) {
+      this.handleClose();
       return;
     }
   }
@@ -202,7 +206,7 @@ filter-element {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-color: lab(var(--navy-tuple) / 0.3);
+  background-color: lab(var(--navy-tuple) / 0.7);
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
   z-index: -1;

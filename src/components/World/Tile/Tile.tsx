@@ -8,21 +8,22 @@ import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { useSpring } from "@react-spring/core";
 import { useFrame } from "@react-three/fiber";
-import { $hoveredEntry } from "../../../store/ui";
+import { $hoveredEntry, $selectedEntry } from "../../../store/ui";
 
 type TileProps = {
+  canInteract?: boolean;
   entry: Entry
   isActive?: boolean;
   onClick?: (entry: Entry) => void;
 } & React.ComponentPropsWithoutRef<'group'>;
 
-const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
+const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
   const [isHoveredWithIntention, setIsHoveredWithIntention] = useState(false);
   useEffect(() => {
-    if (!isHovered) {
+    if (!isHovered || !canInteract) {
       return;
     }
     $hoveredEntry.set(entry);
@@ -36,10 +37,10 @@ const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
     }
   }, [isHovered, entry]);
 
-  const pointerAttributes = useMemo(() => ({
+  const pointerAttributes = useMemo(() => canInteract ? ({
     onPointerOver: (e) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
-
+      
       if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid) {
         return;
       }
@@ -53,7 +54,7 @@ const Tile = ({ entry, isActive = true, onClick, ...rest }: TileProps) => {
         onClick(entry);
       }
     }
-  }), [isHovered]);
+  }) : null, [isHovered]);
 
   useCursor(isHovered, 'pointer', 'auto');
 

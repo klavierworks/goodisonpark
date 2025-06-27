@@ -96,7 +96,6 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     onPointerMove: (e) => {
       pointerDownPosition.current.movementX += e.movementX;
       pointerDownPosition.current.movementY += e.movementY;
-      console.log(e.uv.x, e.uv.y);
       pointerHoverSpring.x.start(e.uv.x);
       pointerHoverSpring.y.start(e.uv.y);
     },

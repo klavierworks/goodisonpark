@@ -1,5 +1,5 @@
 import { config, useSpring } from "@react-spring/core";
-import { $currentlyViewingSpace, $currentView, $isDebug, $isTransitioning } from "../../../store/ui";
+import { $currentlyViewingSpace, $currentView, $hoveredWithIntentionEntryId, $isDebug, $isTransitioning } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
 import useAtomState from "../useAtomState";
@@ -23,6 +23,7 @@ const SceneSwitcher = () => {
     transitionProgress: currentView === "space" ? 1 : 0,
     config: config.molasses,
     onStart: () => {
+      $hoveredWithIntentionEntryId.set(null);
       invalidate();
     },
     onChange: () => {

@@ -17,7 +17,7 @@ type ModelProps = {
   entries: readonly Entry[]
 }
 
-const HEIGHT_RANGE = TILE_Y_DEPTH * 3;
+const HEIGHT_RANGE = TILE_Y_DEPTH * 2;
 
 const Model = ({ entries }: ModelProps) => {
   const [isDebug] = useState(() => {
@@ -50,40 +50,15 @@ const Model = ({ entries }: ModelProps) => {
 
   const [selectedEntry] = useAtomState($selectedEntry)
 
-  const [initialRotation] = useState({
-    hasApplied: false,
-    position: new Vector3(0, 0, 0),
-    x: 0,
-    y: 0,
-    tierY: 0,
-    line: null as Curve<Vector3> | null,
-  })
-
   const controlsRef =  useRef<SimpleRotationControlsRef>(null);
 
   const [currentView] = useAtomState($currentView);
-  const [currentlyViewingSpace] = useAtomState($currentlyViewingSpace);
   const [isTransitioning] = useAtomState($isTransitioning);
-
-  useEffect(() => {
-    if (currentlyViewingSpace === 'grid') {
-      return;
-    }
-    return () => {
-      controlsRef.current = null;
-      initialRotation.hasApplied = false;
-      initialRotation.position.set(0, 0, 0);
-      initialRotation.x = 0;
-      initialRotation.y = 0;
-      initialRotation.tierY = 0;
-      initialRotation.line = null;
-    }
-  }, [currentView]);
+  const [currentlyViewingSpace] = useAtomState($currentlyViewingSpace);
 
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
   const scene = useThree((state) => state.scene);
-
 
   const updatePosition = useCallback(() => {
     if (!stadiumSceneRef.current || !controlsRef.current) {
@@ -91,29 +66,27 @@ const Model = ({ entries }: ModelProps) => {
       return;
     }
 
-    const {
-      line,
-      tierY,
-      x,
-    } = initialRotation;
-
     const pivot = scene.getObjectByName('pivot-group');
-    if (!pivot) {
-      console.warn('Model initialRotation: pivot-group not found');
+    const line = scene.getObjectByName(`space--line--lower`)?.userData.line as Curve<Vector3>;
+    if (!pivot || !line) {
       return;
     }
 
-    const point = x + controlsRef.current.x
-    window.modelRotation = point;
-    const initialOffset = line!.getPoint(point).negate();
+    const {
+      x,
+      y
+    } = controlsRef.current;
+
+    window.modelRotation = x;
+  
+    const initialOffset = line!.getPoint(x).negate();
 
     const cameraDirection = camera.getWorldDirection(new Vector3());
     const angle = cameraDirection.angleTo(initialOffset);
 
     const newAngle = angle * (initialOffset.x < 0 ? -1 : 1);
 
-    initialOffset.y = initialOffset.y - (HEIGHT_RANGE * controlsRef.current.y);
-
+    initialOffset.y = HEIGHT_RANGE * -y;
     if (newAngle === pivot.rotation.y && initialOffset.equals(stadiumSceneRef.current.position)) {
       return;
     }
@@ -129,65 +102,30 @@ const Model = ({ entries }: ModelProps) => {
 
   useEffect(() => {
     if (!selectedEntry) {
-      console.log('Model initialRotation: ignoring because no selectedEntry');
-      return;
-    }
-
-    if (currentView !== 'space') {
-      console.log('Model initialRotation: ignoring because currentView is not space');
       return;
     }
 
     const tile = scene.getObjectByName(`space--${selectedEntry}`);
-    if (!tile || !stadiumSceneRef.current) {
-      console.log('Model initialRotation: ignoring because no tile or stadiumSceneRef');
+    if (!tile || !controlsRef.current) {
       return;
     }
-
-    initialRotation.x = tile.userData.point;
-    initialRotation.line = tile.userData.line;
-    initialRotation.tierY = tile.userData.tierY + tile.userData.position[1]
-
-    controlsRef.current?.setRotation(
-      0,
-      initialRotation.tierY / HEIGHT_RANGE
+    
+    controlsRef.current.setRotation(
+      tile.userData.point,
+      (tile.position.y + tile.userData.tierY) / HEIGHT_RANGE
     )
-
     updatePosition();
+  }, [currentlyViewingSpace === 'space' || isTransitioning, selectedEntry])
 
-    return () => {
-      console.log('Model initialRotation: resetting');
-      initialRotation.hasApplied = false;
-      controlsRef.current!.setRotation(0, 0);
-    }
-  }, [currentView, selectedEntry]);
-
-  useFrame(({ camera, invalidate }) => {
-    if (currentView !== 'space' || isTransitioning) {
+  useFrame(() => {
+    if (currentlyViewingSpace !== 'space' || isTransitioning) {
       return;
     }
-
-    if (!stadiumSceneRef.current || !controlsRef.current) {
-      return;
-    }
-
-    const stadiumPosition = stadiumSceneRef.current.getWorldPosition(new Vector3());
-    const distanceToCamera = camera.position.distanceTo(stadiumPosition);
-
-    if (distanceToCamera > 1000) {
-      return;
-    } 
-
-    if (!initialRotation.line) {
-      initialRotation.line = scene.getObjectByName('space--line--lower')?.userData.line as Curve<Vector3>;
-    }
-
     updatePosition();
   });
-
   return ( 
     <group>
-      <SimpleRotationControls controlsRef={controlsRef} speedX={0.5} speedY={2} yLimits={[0,1]} />
+      <SimpleRotationControls controlsRef={controlsRef} enabled={currentlyViewingSpace === 'space' && !isTransitioning} speedX={0.5} speedY={2} yLimits={[0,1]} />
       <group name="pivot-group">
         <group ref={stadiumSceneRef}>
           <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={800} position={[0,STADIUM_Y_POSITION,0]} />

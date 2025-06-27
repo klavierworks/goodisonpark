@@ -24,7 +24,8 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
 
   const [isHovered, setIsHovered] = useState(false);
   const [hoveredWithIntentionEntryId] = useAtomState($hoveredWithIntentionEntryId);
-  const isHoveredWithIntention = hoveredWithIntentionEntryId === entry.id;
+  const [isTransitioning] = useAtomState($isTransitioning);
+  const isHoveredWithIntention = hoveredWithIntentionEntryId === entry.id && !isTransitioning;
 
   useFrame(({ invalidate }) => {
     if (isHoveredWithIntention) {
@@ -132,7 +133,6 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
     }
   })
 
-  const [isTransitioning] = useAtomState($isTransitioning);
   useEffect(() => {
     setIsHovered(false);
     $hoveredWithIntentionEntryId.set(null);

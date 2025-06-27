@@ -4,8 +4,8 @@ export const ELLIPSIS_X_RADIUS = 70;
 export const ELLIPSIS_Y_RADIUS = 50;
 export const SPHERE_SCALE = 96;
 
-export const TILE_DEPTH = 1;
-export const TILE_Y_DEPTH = 10;
+export const TILE_DEPTH = 4;
+export const TILE_Y_DEPTH = 20;
 
 export const TILE_SCALE = 2;
 

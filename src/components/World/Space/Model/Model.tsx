@@ -87,8 +87,8 @@ const Model = ({ entries }: ModelProps) => {
     stadiumSceneRef.current.position.set(0,0,0)
     stadiumSceneRef.current.rotation.set(0, 0, 0);
 
-    const initialOffset = line!.getPoint(x + controlsRef.current.x).negate();
-
+    const point = x + controlsRef.current.x
+    const initialOffset = line!.getPoint(point).negate();
     const HEIGHT_RANGE = TILE_Y_DEPTH * 3;
 
     const cameraDirection = camera.getWorldDirection(new Vector3());

@@ -1,7 +1,7 @@
 import { useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useMemo, useRef } from "react";
-import { CanvasTexture, DoubleSide, Sprite, SpriteMaterial } from "three";
+import { CanvasTexture, DoubleSide, MeshBasicMaterial, Sprite, SpriteMaterial } from "three";
 import { canvasTextureCache } from "../../../../store/textureCache";
 
 type OutlineProps = {
@@ -43,19 +43,20 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
     outlineRef.current.scale.copy(
       spriteRef.current.scale
     );
-    (outlineRef.current.material as SpriteMaterial).opacity = outlineSpring.opacity.get();
+    (outlineRef.current.material as MeshBasicMaterial).opacity = outlineSpring.opacity.get();
   });
 
   return (
-    <sprite {...rest} ref={outlineRef}  renderOrder={2} visible={isHovered}>
-      <spriteMaterial
+    <mesh {...rest} ref={outlineRef}  renderOrder={2} visible={isHovered}>
+      <planeGeometry args={[1, 1]} />
+      <meshBasicMaterial
         map={canvasTexture}
         depthWrite={false}
         color="white"
         transparent
         side={DoubleSide}
       />
-    </sprite>
+    </mesh>
   )
 }
 

@@ -60,6 +60,11 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
       if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid) {
         return;
       }
+
+      if (e.distance > 120) {
+        return;
+      }
+
       setIsHovered(true);
     },
     onPointerOut: () => {

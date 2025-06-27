@@ -157,7 +157,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
 
   const groupRef = useRef<Group>(null);
   useFrame(({ scene }) => {
-    if (!isHoveredWithIntention) {
+    if (!isHoveredWithIntention || isTouchDevice) {
       groupRef.current?.rotation.set(0, 0, 0);
       return;
     }

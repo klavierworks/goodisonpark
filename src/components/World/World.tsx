@@ -19,7 +19,6 @@ const World = () => {
     }} style={{
       touchAction: "none",
     }}>
-      <Perf />
       <Preload all />
       <AdaptiveDpr pixelated />
       {isDebug ? (

@@ -141,7 +141,6 @@ export const setEntries = (parsedEntries: Entry[]) => {
 }
 
 
-
 export const getOptionsByFilter = (filter: Filter): string[] => {
   const entries = $entries.get();
 

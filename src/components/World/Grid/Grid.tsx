@@ -190,6 +190,7 @@ const Grid = () => {
           key={entry.id}
           entry={entry}
           isActive={hasTransitionedIn}
+          hasHoverAnimation
           position={[
             layout.positions[index].x,
             layout.positions[index].y,

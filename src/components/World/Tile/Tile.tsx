@@ -13,12 +13,13 @@ import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning, $selecte
 type TileProps = {
   canInteract?: boolean;
   entry: Entry
+  hasHoverAnimation?: boolean;
   isActive?: boolean;
   onClick?: (entry: Entry) => void;
 } & React.ComponentPropsWithoutRef<'group'>;
 
 const INTENTION_PAUSE = 1000; // ms
-const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: TileProps) => {
+const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
@@ -125,7 +126,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
   const spring = useSpring({
     x: isVisible && isActive ? entry.thumbnail.width : 0,
     y: isVisible && isActive ? entry.thumbnail.height : 0,
-    opacity: !isHoveredWithIntention && hoveredWithIntentionEntryId ? 0 : 1,
+    opacity: !isHoveredWithIntention && hoveredWithIntentionEntryId && hasHoverAnimation ? 0 : 1,
     onChange: () => {
       invalidate()
     }
@@ -157,7 +158,11 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
 
   const groupRef = useRef<Group>(null);
   useFrame(({ scene }) => {
-    if (!isHoveredWithIntention || isTouchDevice) {
+    if (!hasHoverAnimation || !isTouchDevice) {
+      return;
+    }
+
+    if (!isHoveredWithIntention) {
       groupRef.current?.rotation.set(0, 0, 0);
       return;
     }

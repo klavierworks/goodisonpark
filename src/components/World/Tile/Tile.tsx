@@ -57,7 +57,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
   const [pointerHoverSpring] = useSpring(() => ({
     x: 0,
     y: 0,
-    config: config.stiff,
+    config: config.slow,
   }), []);
 
   const pointerAttributes = useMemo(() => canInteract ? ({
@@ -158,7 +158,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
 
   const groupRef = useRef<Group>(null);
   useFrame(({ scene }) => {
-    if (!hasHoverAnimation || !isTouchDevice) {
+    if (!hasHoverAnimation || isTouchDevice) {
       return;
     }
 
@@ -195,12 +195,12 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
       </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
       <group name={`${entry.id}--related`}>
-        {isHoveredWithIntention && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
+        {isHoveredWithIntention && !isTouchDevice && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
           <mesh
             key={relatedEntry.id}
             name={`${entry.id}--related-${relatedEntry.id}`}
             scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
-            position={[0,0,-150 * (index + 1)]}
+            position={[0,0,-100 * (index + 1)]}
             >
             <planeGeometry args={[1, 1]} />
             <Suspense fallback={<></>}>

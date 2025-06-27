@@ -1,5 +1,5 @@
 import { config, useSpring } from "@react-spring/core";
-import { $currentView, $isTransitioning } from "../../../store/ui";
+import { $currentView, $isDebug, $isTransitioning } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
 import useAtomState from "../useAtomState";
@@ -7,10 +7,10 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { useRef } from "react";
 import { Group, Vector3 } from "three";
 import { CAMERA_DISTANCE } from "../Space/constants";
-import { Plane } from "@react-three/drei";
+import { Plane, Sphere } from "@react-three/drei";
 
 export const GRID_CAMERA_POSITION = new Vector3(0, 0, 4000);
-export const SPACE_CAMERA_POSITION = new Vector3(0, 0, 0);
+export const SPACE_CAMERA_POSITION = new Vector3(0, 0, CAMERA_DISTANCE);
 
 const SceneSwitcher = () => {
   const gridGroupRef = useRef<Group>(null);
@@ -22,6 +22,9 @@ const SceneSwitcher = () => {
   const spring = useSpring({
     transitionProgress: currentView === "space" ? 1 : 0,
     config: config.molasses,
+    onStart: () => {
+      invalidate();
+    },
     onChange: () => {
       invalidate();
     }
@@ -49,12 +52,13 @@ const SceneSwitcher = () => {
     performance.regress()
   });
 
+
   return (
     <>
       <group ref={gridGroupRef} position={[0, 0, 2000]}>
         <Grid />
       </group>
-      <group ref={spaceGroupRef} position={[0, 0, -CAMERA_DISTANCE]}>
+      <group ref={spaceGroupRef} position={[0, 0, 0]}>
         <Space />
       </group>
     </>

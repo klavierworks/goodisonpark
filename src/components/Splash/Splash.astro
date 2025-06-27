@@ -5,7 +5,7 @@ import Stage2 from "./Stage2/Stage2.astro";
 ---
 <div class="stages isActive isLoading" transition:persist transition:persist-props>
   <div class="box">
-    <SimpleStadium className="stadium" client:only isAutoRotating isSplash />
+    <SimpleStadium className="stadium" client:only isSplash />
     <div class="stage stage1 isActive">
       <Stage1 />
     </div>

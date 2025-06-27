@@ -1,7 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import Overview from './Overview/Overview';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { $currentView } from '../../store/ui';
 import { $activeFilters } from '../../store/data';
 import useAtomState from '../World/useAtomState';
@@ -23,6 +23,21 @@ const SimpleStadium = ({ className, isSplash } : Props) => {
     return currentView !== 'space' || isSplash;
   }, [currentView, isSplash]);
 
+  const [hasClosed, setHasClosed] = useState(false);
+
+  useEffect(() => {
+    const closeSplash = () => {
+      setHasClosed(true);
+    };
+    if (!isSplash) {
+      return;
+    }
+    document.addEventListener('splashcomplete', closeSplash);
+    return () => {
+      document.removeEventListener('splashcomplete', closeSplash);
+    };
+  }, []);
+
   if (window.innerWidth < 600 && !isSplash) {
     return null; // Hide the component on small screens
   }
@@ -31,8 +46,12 @@ const SimpleStadium = ({ className, isSplash } : Props) => {
     <Canvas flat frameloop='demand' className={className} camera={{
       position: [0, 180, -100],
     }}>
-      <Preload all />
-      <Overview isAutoRotating={isAutoRotating} isShowingPoints={isShowingPoints} />
+      {!hasClosed && (
+        <>
+          <Preload all />
+          <Overview isAutoRotating={isAutoRotating} isShowingPoints={isShowingPoints} />
+        </>
+      )}
     </Canvas>
   );
 }

@@ -37,16 +37,31 @@ const Ring = ({ color, isDebug, radius, tier, y }: RingProps) => {
         points={line.getPoints(100)}
         color={color}
         lineWidth={2}
+        name={`space--line--${tier}`}
+        userData={{
+          line,
+          tier,
+          radius,
+          y,
+        }}
         visible={isDebug}
       />
       {points.map((tile) => (
         <Tile
           entry={tile}
+          name={`space--${tile.id}`}
           key={tile.id}
           position={[tile.position[0], tile.position[1], tile.position[2]]}
           rotation={tile.rotation as [number, number, number]}
           scale={0.01}
           onClick={handleClickTile}
+          userData={{
+            point: tile.point,
+            tier,
+            line,
+            tierY: y,
+            position: tile.position,
+          }}
         />
       ))}
     </group>

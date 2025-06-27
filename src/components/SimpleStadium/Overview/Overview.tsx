@@ -127,13 +127,10 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
         return;
       }
 
-
-      if ((window.modelRotation.y + ADJUSTMENT_Y) !== introRef.current.rotation.y) {
-        introRef.current.rotation.set(
-          0,
-          window.modelRotation.y + ADJUSTMENT_Y,
-          0
-        )
+      const yRotation = window.modelRotation * (Math.PI * 2);
+      const y = yRotation + ADJUSTMENT_Y;
+      if (y !== introRef.current.rotation.y) {
+        introRef.current.rotation.set(0, y, 0);
         invalidate();
       }
 

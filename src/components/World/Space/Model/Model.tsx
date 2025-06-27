@@ -17,6 +17,8 @@ type ModelProps = {
   entries: readonly Entry[]
 }
 
+const HEIGHT_RANGE = TILE_Y_DEPTH * 3;
+
 const Model = ({ entries }: ModelProps) => {
   const [isDebug] = useState(() => {
     const url = new URL(window.location.href);
@@ -68,6 +70,7 @@ const Model = ({ entries }: ModelProps) => {
 
   const updatePosition = useCallback(() => {
     if (!stadiumSceneRef.current || !controlsRef.current) {
+      console.warn('Model initialRotation: stadiumSceneRef or controlsRef not set');
       return;
     }
 
@@ -79,30 +82,27 @@ const Model = ({ entries }: ModelProps) => {
 
     const pivot = scene.getObjectByName('pivot-group');
     if (!pivot) {
+      console.warn('Model initialRotation: pivot-group not found');
       return;
     }
 
-    pivot.position.copy(SPACE_CAMERA_POSITION);
-    pivot.rotation.set(0, 0, 0);
-    stadiumSceneRef.current.position.set(0,0,0)
-    stadiumSceneRef.current.rotation.set(0, 0, 0);
-
     const point = x + controlsRef.current.x
+    window.modelRotation = point;
     const initialOffset = line!.getPoint(point).negate();
-    const HEIGHT_RANGE = TILE_Y_DEPTH * 3;
 
     const cameraDirection = camera.getWorldDirection(new Vector3());
     const angle = cameraDirection.angleTo(initialOffset);
 
     const newAngle = angle * (initialOffset.x < 0 ? -1 : 1);
 
-    initialOffset.y = initialOffset.y - tierY - (HEIGHT_RANGE * controlsRef.current.y);
+    initialOffset.y = initialOffset.y - (HEIGHT_RANGE * controlsRef.current.y);
 
     if (newAngle === pivot.rotation.y && initialOffset.equals(stadiumSceneRef.current.position)) {
       return;
     }
 
     pivot.rotation.y = newAngle;
+    pivot.position.copy(SPACE_CAMERA_POSITION);
     pivot.position.z -= 50;
 
     stadiumSceneRef.current.position.copy(initialOffset);
@@ -112,25 +112,34 @@ const Model = ({ entries }: ModelProps) => {
 
   useEffect(() => {
     if (!selectedEntry) {
+      console.log('Model initialRotation: ignoring because no selectedEntry');
       return;
     }
 
     if (currentView !== 'space') {
+      console.log('Model initialRotation: ignoring because currentView is not space');
       return;
     }
 
     const tile = scene.getObjectByName(`space--${selectedEntry}`);
     if (!tile || !stadiumSceneRef.current) {
+      console.log('Model initialRotation: ignoring because no tile or stadiumSceneRef');
       return;
     }
 
     initialRotation.x = tile.userData.point;
     initialRotation.line = tile.userData.line;
-    initialRotation.tierY = tile.userData.tierY
+    initialRotation.tierY = tile.userData.tierY + tile.userData.position[1]
+
+    controlsRef.current?.setRotation(
+      0,
+      initialRotation.tierY / HEIGHT_RANGE
+    )
 
     updatePosition();
 
     return () => {
+      console.log('Model initialRotation: resetting');
       initialRotation.hasApplied = false;
       controlsRef.current!.setRotation(0, 0);
     }

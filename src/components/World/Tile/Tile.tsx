@@ -2,11 +2,11 @@ import { useCursor, useTexture } from "@react-three/drei";
 import { ASSET_URL } from "astro:env/client";
 import Outline from "./Outline/Outline";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Group, type Sprite } from "three";
+import { Group, MeshBasicMaterial, type Sprite } from "three";
 import Thumbnail from "./Thumbnail/Thumbnail";
 import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
-import { useSpring } from "@react-spring/core";
+import { config, useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
 import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning, $selectedEntry } from "../../../store/ui";
 
@@ -53,6 +53,12 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
   });
 
   const pointerDownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [pointerHoverSpring] = useSpring(() => ({
+    x: 0,
+    y: 0,
+    config: config.stiff,
+  }), []);
+
   const pointerAttributes = useMemo(() => canInteract ? ({
     onPointerOver: (e) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
@@ -90,6 +96,9 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     onPointerMove: (e) => {
       pointerDownPosition.current.movementX += e.movementX;
       pointerDownPosition.current.movementY += e.movementY;
+      console.log(e.uv.x, e.uv.y);
+      pointerHoverSpring.x.start(e.uv.x);
+      pointerHoverSpring.y.start(e.uv.y);
     },
     onPointerUp: (e) => {
       const isTap = Math.abs(pointerDownPosition.current.movementX) < 5 && Math.abs(pointerDownPosition.current.movementY) < 5;
@@ -138,16 +147,38 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     const y = spring.y.get();
 
     const currentScale = spriteRef.current.scale;
-    if (currentScale.x === x && currentScale.y === y) {
+    const opacity = spring.opacity.get();
+    if (currentScale.x === x && currentScale.y === y && spriteRef.current.material.opacity === opacity) {
       return;
     }
+    spriteRef.current.material.opacity = opacity;
     spriteRef.current.scale.set(spring.x.get(), spring.y.get(), 1);
     invalidate();
-    //spriteRef.current.material.opacity = spring.opacity.get();
+  });
+
+  const groupRef = useRef<Group>(null);
+  useFrame(({ scene }) => {
+    if (!isHoveredWithIntention) {
+      groupRef.current?.rotation.set(0, 0, 0);
+      return;
+    }
+
+    if (!groupRef.current) {
+      return;
+    }
+
+    const x = pointerHoverSpring.y.get() * 2 - 1;
+    const y = pointerHoverSpring.x.get() * 2 - 1;
+
+    groupRef.current.rotation.set(
+      -0.25 * x,
+      0.25 * y,
+      0
+    );
   });
 
   return (
-    <group {...rest} {...pointerAttributes}>
+    <group ref={groupRef} {...rest} {...pointerAttributes}>
       <mesh
         ref={spriteRef}
         name={entry.id}
@@ -159,6 +190,21 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
         </Suspense>
       </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
+      <group name={`${entry.id}--related`}>
+        {isHoveredWithIntention && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
+          <mesh
+            key={relatedEntry.id}
+            name={`${entry.id}--related-${relatedEntry.id}`}
+            scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
+            position={[0,0,-150 * (index + 1)]}
+            >
+            <planeGeometry args={[1, 1]} />
+            <Suspense fallback={<></>}>
+              <Thumbnail filename={relatedEntry.filename} isHovered={false} opacity={0.7} />
+            </Suspense>
+          </mesh>
+        ))}
+      </group>
     </group>
   )
 }

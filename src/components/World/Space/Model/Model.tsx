@@ -6,7 +6,7 @@ import { Line, Plane, Sphere } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
 import { drawStadiumShape, getRotationAroundPoint } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
+import { $currentlyViewingSpace, $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
 import { useDrag } from "@use-gesture/react";
 import type { SimpleRotationControlsRef } from "./SimpleRotationControls.tsx";
@@ -61,12 +61,29 @@ const Model = ({ entries }: ModelProps) => {
 
   const controlsRef =  useRef<SimpleRotationControlsRef>(null);
 
+  const [currentView] = useAtomState($currentView);
+  const [currentlyViewingSpace] = useAtomState($currentlyViewingSpace);
+  const [isTransitioning] = useAtomState($isTransitioning);
+
+  useEffect(() => {
+    if (currentlyViewingSpace === 'grid') {
+      return;
+    }
+    return () => {
+      controlsRef.current = null;
+      initialRotation.hasApplied = false;
+      initialRotation.position.set(0, 0, 0);
+      initialRotation.x = 0;
+      initialRotation.y = 0;
+      initialRotation.tierY = 0;
+      initialRotation.line = null;
+    }
+  }, [currentView]);
+
   const camera = useThree((state) => state.camera);
   const invalidate = useThree((state) => state.invalidate);
   const scene = useThree((state) => state.scene);
 
-  const [currentView] = useAtomState($currentView);
-  const [isTransitioning] = useAtomState($isTransitioning);
 
   const updatePosition = useCallback(() => {
     if (!stadiumSceneRef.current || !controlsRef.current) {

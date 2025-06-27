@@ -8,9 +8,9 @@ import { DoubleSide, type Texture } from "three";
 type ThumbnailProps = {
   filename: string;
   isHovered: boolean;
-}
+} & React.ComponentPropsWithoutRef<'meshBasicMaterial'>;
 
-const Thumbnail = ({ filename, isHovered }: ThumbnailProps) => {
+const Thumbnail = ({ filename, isHovered, ...rest }: ThumbnailProps) => {
   let texture: Texture;
   if (thumbnailCache.has(filename)) {
     texture = thumbnailCache.get(filename) as unknown as Texture;
@@ -19,7 +19,7 @@ const Thumbnail = ({ filename, isHovered }: ThumbnailProps) => {
     thumbnailCache.set(filename, texture);
   }
 
-  const imageMaterial = <meshBasicMaterial color="white" map={texture} transparent depthWrite={false} side={DoubleSide} />;
+  const imageMaterial = <meshBasicMaterial color="white" map={texture} transparent depthWrite={false} side={DoubleSide} {...rest} />;
   
   if (isHovered) {
     return (

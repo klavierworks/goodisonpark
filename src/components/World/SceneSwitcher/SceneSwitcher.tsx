@@ -1,5 +1,5 @@
 import { config, useSpring } from "@react-spring/core";
-import { $currentView, $isDebug, $isTransitioning } from "../../../store/ui";
+import { $currentlyViewingSpace, $currentView, $isDebug, $isTransitioning } from "../../../store/ui";
 import Grid from "../Grid/Grid";
 import Space from "../Space/Space";
 import useAtomState from "../useAtomState";
@@ -27,6 +27,13 @@ const SceneSwitcher = () => {
     },
     onChange: () => {
       invalidate();
+    },
+    onRest: () => {
+      if (currentView === "grid") {
+        $currentlyViewingSpace.set("grid");
+      } else {
+        $currentlyViewingSpace.set("space");
+      }
     }
   })
 

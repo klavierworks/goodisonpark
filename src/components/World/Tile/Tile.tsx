@@ -8,7 +8,7 @@ import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $hoveredEntry, $hoveredWithIntentionEntryId, $selectedEntry } from "../../../store/ui";
+import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning, $selectedEntry } from "../../../store/ui";
 
 type TileProps = {
   canInteract?: boolean;
@@ -58,10 +58,6 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
       const closestObjectUuid = e.intersections[0].object.uuid;
       
       if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid) {
-        return;
-      }
-
-      if (e.distance > 120) {
         return;
       }
 
@@ -127,12 +123,26 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     }
   })
 
+  const [isTransitioning] = useAtomState($isTransitioning);
+  useEffect(() => {
+    setIsHovered(false);
+    $hoveredWithIntentionEntryId.set(null);
+  }, [isTransitioning]);
+
   useFrame(() => {
     if (!spriteRef.current) {
       return;
     }
 
+    const x = spring.x.get();
+    const y = spring.y.get();
+
+    const currentScale = spriteRef.current.scale;
+    if (currentScale.x === x && currentScale.y === y) {
+      return;
+    }
     spriteRef.current.scale.set(spring.x.get(), spring.y.get(), 1);
+    invalidate();
     //spriteRef.current.material.opacity = spring.opacity.get();
   });
 

@@ -1,5 +1,4 @@
-import { useCursor, useTexture } from "@react-three/drei";
-import { ASSET_URL } from "astro:env/client";
+import { useCursor } from "@react-three/drei";
 import Outline from "./Outline/Outline";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Group, MeshBasicMaterial, type Sprite } from "three";
@@ -9,6 +8,7 @@ import { $entries } from "../../../store/data";
 import { config, useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
 import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning, $selectedEntry } from "../../../store/ui";
+import { tileGeometry } from "../../../store/textureCache";
 
 type TileProps = {
   canInteract?: boolean;
@@ -124,16 +124,19 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
   }, [entries, entry.id]);
 
   const invalidate = useThree((state) => state.invalidate);
-  const spring = useSpring({
+  const [spring] = useSpring(() => ({
     x: isVisible && isActive ? entry.thumbnail.width : 0,
     y: isVisible && isActive ? entry.thumbnail.height : 0,
     opacity: !isHoveredWithIntention && hoveredWithIntentionEntryId && hasHoverAnimation ? 0 : 1,
     onChange: () => {
       invalidate()
     }
-  })
+  }), [isVisible, isActive, entry.thumbnail.width, entry.thumbnail.height, isHoveredWithIntention, hoveredWithIntentionEntryId, hasHoverAnimation]);
 
   useEffect(() => {
+    if (!isHovered) {
+      return;
+    }
     setIsHovered(false);
     $hoveredWithIntentionEntryId.set(null);
   }, [isTransitioning]);
@@ -188,7 +191,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
         name={entry.id}
         scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
         >
-        <planeGeometry args={[1, 1]} />
+        <primitive object={tileGeometry} attach="geometry" />
         <Suspense fallback={<></>}>
           <Thumbnail filename={entry.filename} isHovered={isHoveredWithIntention} />
         </Suspense>
@@ -202,6 +205,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
             scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
             position={[0,0,-100 * (index + 1)]}
             >
+            <primitive object={tileGeometry} attach="geometry" />
             <planeGeometry args={[1, 1]} />
             <Suspense fallback={<></>}>
               <Thumbnail filename={relatedEntry.filename} isHovered={false} opacity={0.7} />

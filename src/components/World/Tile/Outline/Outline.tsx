@@ -1,8 +1,8 @@
 import { useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
-import { useMemo, useRef } from "react";
-import { CanvasTexture, DoubleSide, MeshBasicMaterial, Sprite, SpriteMaterial } from "three";
-import { canvasTextureCache } from "../../../../store/textureCache";
+import { memo, useMemo, useRef } from "react";
+import { CanvasTexture, DoubleSide, Mesh, MeshBasicMaterial, PlaneGeometry, Sprite, SpriteMaterial } from "three";
+import { canvasTextureCache, tileGeometry } from "../../../../store/textureCache";
 
 type OutlineProps = {
   entry: Entry;
@@ -20,11 +20,20 @@ context.strokeStyle = 'white';
 context.strokeRect(0, 0, canvas.width, canvas.height);
 const canvasTexture = new CanvasTexture(canvas);
 
-const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
+
+const material = new MeshBasicMaterial({
+  map: canvasTexture,
+  depthWrite: false,
+  color: 'white',
+  transparent: true,
+  side: DoubleSide,
+});
+
+const Outline = memo(({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
   const outlineRef = useRef<Sprite>(null);
 
   const invalidate = useThree((state) => state.invalidate);
-  const outlineSpring = useSpring({
+  const [outlineSpring] = useSpring(() => ({
     opacity: isHovered ? 1 : 0,
     config: {
       tension: 300,
@@ -34,7 +43,9 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
     onChange: () => {
       invalidate();
     }
-  })
+  }), [isHovered]);
+
+  const localMaterial = useMemo(() => material.clone(), []);
 
   useFrame(() => {  
     if (!outlineRef.current || !spriteRef.current) {
@@ -48,16 +59,10 @@ const Outline = ({ entry, isHovered, spriteRef, ...rest }: OutlineProps) => {
 
   return (
     <mesh {...rest} ref={outlineRef}  renderOrder={2} visible={isHovered}>
-      <planeGeometry args={[1, 1]} />
-      <meshBasicMaterial
-        map={canvasTexture}
-        depthWrite={false}
-        color="white"
-        transparent
-        side={DoubleSide}
-      />
+      <primitive object={tileGeometry} attach="geometry" />
+      <primitive object={localMaterial} attach="material" />
     </mesh>
   )
-}
+});
 
 export default Outline;

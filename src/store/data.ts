@@ -1,6 +1,6 @@
 import { atom } from 'nanostores'
 import { getFilters } from '../api/utils';
-import { $currentView, $selectedEntry } from './ui';
+import { $currentlyViewingSpace, $currentView, $selectedEntry } from './ui';
 import { select } from 'three/tsl';
 
 export const $allEntries = atom<Entry[]>([])
@@ -100,6 +100,7 @@ const getUrlSearchParams = () => {
   const view = searchParams.get('view');
   if (view) {
     $currentView.set(view as View);
+    $currentlyViewingSpace.set(view as View);
     console.log(`View loaded from URL: ${view}`);
   }
 

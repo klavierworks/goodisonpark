@@ -54,6 +54,7 @@ const Ring = ({ color, isDebug, radius, tier, y }: RingProps) => {
           position={[tile.position[0], tile.position[1], tile.position[2]]}
           rotation={tile.rotation as [number, number, number]}
           scale={0.01}
+          hasHoverAnimation={false}
           onClick={handleClickTile}
           userData={{
             point: tile.point,

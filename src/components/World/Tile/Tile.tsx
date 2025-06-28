@@ -198,7 +198,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
       </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
       <group name={`${entry.id}--related`}>
-        {isHoveredWithIntention && !isTouchDevice && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
+        {hasHoverAnimation && isHoveredWithIntention && !isTouchDevice && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
           <mesh
             key={relatedEntry.id}
             name={`${entry.id}--related-${relatedEntry.id}`}

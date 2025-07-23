@@ -1,7 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import SceneSwitcher, { GRID_CAMERA_POSITION, SPACE_CAMERA_POSITION } from "./SceneSwitcher/SceneSwitcher";
 import { AdaptiveDpr, Bvh, OrbitControls, PerspectiveCamera, Preload } from "@react-three/drei";;
-import { Perf } from "r3f-perf";
 import { NoToneMapping, SRGBColorSpace } from "three";
 import useAtomState from "./useAtomState";
 import { $currentView, $isDebug } from "../../store/ui";
@@ -19,7 +18,6 @@ const World = () => {
     }} style={{
       touchAction: "none",
     }}>
-      <Perf position="top-left" />
       <Preload all />
       <AdaptiveDpr pixelated />
       {isDebug ? (

@@ -5,13 +5,13 @@ const text = [
   'Paragraph #3'
 ]
 ---
-<div class="title">Goodison Memorial</div>
 <div class="text">
-  {text[0]}
+  <p>Goodison Park, built as the home of Everton Football Club in 1892, became the first purpose built football stadium in the world.</p>
+  <p>After 133 years, as the Everton men’s team now prepares to begin a new chapter at their new home at Bramley Moore Dock for the 2025 to 26 season, the stadium will become the home of Everton Women.</p>
+  <p>As a lasting legacy to commemorate Goodison Park to date, we have archived and contextualized all fan clips captured over the years to create a digital place. This will be the first digital stadium, allowing fans to relive memories whenever they want.</p>
 </div>
-<button class="stage2-nav" data-text={JSON.stringify(text)}>
-  Click<br />
-  <span>1 / 3</span>
+<button class="stage2-nav">
+  [Enter]
 </button>
 
 <script>
@@ -46,15 +46,15 @@ document.addEventListener('stage2', () => {
   text-transform: none;
 }
 .text {
-  @mixin title;
+  @mixin text;
   text-transform: none;
-  font-size: 3.5vw;
   text-align: center;
   grid-row: 4 / 5;
 }
 .stage2-nav {
   @mixin button;
-  line-height: 1.5;
+  position: fixed;
+  bottom: 20px;
   appearance: none;
   background-color: transparent;
   border: none;

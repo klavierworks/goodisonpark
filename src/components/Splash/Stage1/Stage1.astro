@@ -1,29 +1,7 @@
 ---
-const WORDS = [
-  'Nothing',
-  'but',
-  'the',
-  'best'
-];
-
 ---
-<div class="credit">A project<br /> by Global Fandom</div>
-<div class="lines">
-  <div class="line">
-    {WORDS.slice(0,2).map((word, index) => (
-      <div class={`word word${index + 1}`}>
-      {word}
-    </div>
-  ))}
-  </div>
-  <div class="line">
-    {WORDS.slice(-2).map((word, index) => (
-      <div class={`word word${index + 3}`}>
-        {word}
-      </div>
-    ))}
-  </div>
-</div>
+<video src="/splash/16-9.mp4" autoplay muted loop playsinline class="video"></video>
+<div class="credit"></div>
 <div class="loading">
   Loading
 </div>
@@ -34,6 +12,13 @@ const WORDS = [
 <script>
 import { $loadProgress } from "../../../store/ui";
 
+window.addEventListener('load', () => {
+  if (window.innerWidth > window.innerHeight) {
+    (document.querySelector('.video') as HTMLVideoElement).src = '/splash/16-9.mp4';
+  } else {
+    (document.querySelector('.video') as HTMLVideoElement).src = '/splash/9-16.mp4';
+  }
+});
 $loadProgress.subscribe((progress) => {
   const progressElement = document.querySelector('.progress');
   if (progressElement) {
@@ -62,6 +47,14 @@ window.setTimeout(() => {
 }, 2000); // Simulate loading completion after 3 seconds
 </script>
 <style>
+  .video {
+    position: fixed;
+    inset: 0;
+    object-fit: cover;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+  }
 
 .line {
   display: flex;

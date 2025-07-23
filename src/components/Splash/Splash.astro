@@ -3,9 +3,8 @@ import SimpleStadium from "../SimpleStadium/SimpleStadium";
 import Stage1 from "./Stage1/Stage1.astro";
 import Stage2 from "./Stage2/Stage2.astro";
 ---
-<div class="stages isActive isLoading" transition:persist transition:persist-props>
+<div class="stages isActive isLoading showing-stage1" transition:persist transition:persist-props>
   <div class="box">
-    <SimpleStadium className="stadium" client:only isSplash />
     <div class="stage stage1 isActive">
       <Stage1 />
     </div>
@@ -17,10 +16,14 @@ import Stage2 from "./Stage2/Stage2.astro";
 <script>
 const stages = document.querySelector('.stages')!;
 document.addEventListener('stage2', () => {
+  stages.classList.remove('showing-stage1');
+  stages.classList.add('showing-stage2');
   stages.querySelector('.stage1')?.classList.remove('isActive');
   stages.querySelector('.stage2')?.classList.add('isActive');
 });
 document.addEventListener('stage3', () => {
+  stages.classList.remove('showing-stage2');
+  stages.classList.add('showing-stage3');
   stages.querySelector('.stage2')?.classList.remove('isActive');
   window.sessionStorage.setItem('hasViewedSplash', 'true');
   document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
@@ -35,6 +38,7 @@ const url = new URL(window.location.href);
 if (url.searchParams.get('bypassSplash') === 'true') {
   document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
 }
+document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
 </script>
 
 <style is:global>
@@ -53,6 +57,15 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   display: none;
   cursor: pointer;
   pointer-events: none;
+
+  &.showing-stage1 {
+    background: #050717;
+  }
+
+  &.showing-stage2 {
+    background: #0000004D;
+    backdrop-filter: blur(10px);
+  }
   
   &.isActive {
     display: flex;
@@ -108,23 +121,26 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   width: 65%;
   height: 70%;
   user-select: none;
-  &::before,
-  &::after {
-    content: '';
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    transform-origin: center center;
-    height: 1px;
-    background-color: white;
-    scale: 0 1;
-    animation: border var(--duration) var(--delay) linear forwards;
-  }
 
-  &::after {
-    top: auto;
-    bottom: 0;
+  .showing-stage1 & {
+    &::before,
+    &::after {
+      content: '';
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: center center;
+      height: 1px;
+      background-color: white;
+      scale: 0 1;
+      animation: border var(--duration) var(--delay) linear forwards;
+    }
+
+    &::after {
+      top: auto;
+      bottom: 0;
+    }
   }
 }
 .stage {

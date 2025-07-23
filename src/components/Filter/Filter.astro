@@ -218,7 +218,7 @@ filter-element {
 }
 .options {
   position: absolute;
-  bottom: 100%;
+  bottom: calc(100% - 1.65em);
   left: 0;
   right: 0;
   height: 100dvh;
@@ -232,8 +232,11 @@ filter-element {
   --webkit-overflow-scrolling: none;
   scrollbar-color: white transparent;
   translate: 0 calc(100% + 2em);
-  margin-bottom: 1em;
+  text-align: left;
   padding-top: 25dvh;
+  z-index: 2;
+  background: #FFFFFF0D;
+  backdrop-filter: blur(12px);
   mask: linear-gradient(to bottom, transparent 0%, transparent 15%, black 25%, black 100%);
 
   .isOpen & {
@@ -248,7 +251,7 @@ filter-element {
   
   li {
     margin: 0 0 0.25em;
-    padding: 0;
+    padding: 0 3px;
     list-style: none;
     opacity: 0.7;
 
@@ -266,13 +269,16 @@ filter-element {
 .toggle-box {
   margin: 0 0 1.5em;
   cursor: pointer;
+  background: #FFFFFF0D;
+  backdrop-filter: blur(12px)
 }
 
 .cross-container {
   position: relative;
   max-width: 100%;
   width: max-content;
-  margin: 0 auto;
+  margin: 0;
+  padding: 3px;
   pointer-events: none;
   cursor: pointer;
 

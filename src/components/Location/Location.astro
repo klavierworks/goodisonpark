@@ -1,18 +1,32 @@
 ---
 ---
 
-<div class="locator stand">
-  <div class="title">Stand</div>
-  <div class="detail"></div>
-</div>
-<div class="locator block">
-  <div class="title">Block</div>
-  <div class="detail"></div>
+<div class="location-nav">
+  <div class="locator stand">
+    <div class="title">Stand</div>
+    <div class="detail"></div>
+  </div>
+  <div class="locator block">
+    <div class="title">Block</div>
+    <div class="detail"></div>
+  </div>
 </div>
 
 <script>
-import { $block, $stand } from "../../store/ui";
-
+import { $block, $currentView, $stand } from "../../store/ui";
+$currentView.subscribe((view) => {
+  const locatorElement = document.querySelector('.location-nav');
+  if (!locatorElement) {
+    return;
+  }
+  if (view === 'space') {
+    locatorElement.classList.add('isSpaceView');
+    locatorElement.classList.remove('isGridView');
+  } else {
+    locatorElement.classList.add('isGridView');
+    locatorElement.classList.remove('isSpaceView');
+  }
+});
 $block.subscribe(block => {
   const blockElement = document.querySelector('.locator.block .detail');
   if (blockElement) {
@@ -28,10 +42,19 @@ $stand.subscribe(stand => {
 });
 </script>
 <style>
+.location-nav {
+  display: none;
+
+  &.isSpaceView {
+    display: block;
+  }
+}
 .locator {
   @mixin button;
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   pointer-events: none;
   z-index: 1000;
   display: flex;

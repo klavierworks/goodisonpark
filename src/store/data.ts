@@ -167,3 +167,7 @@ export const getOptionsByFilter = (filter: Filter): string[] => {
   });
   return sortedOptions;
 }
+
+export const getEntryIndexById = (id: string): number => {
+  return $entries.get().findIndex(entry => entry.id === id);
+}

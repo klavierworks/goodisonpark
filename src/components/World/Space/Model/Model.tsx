@@ -1,14 +1,13 @@
 import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CAMERA_DISTANCE, STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
+import { STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
 import StadiumModel from '../../../StadiumLineModel.tsx';
-import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve, Quaternion } from "three";
-import { Line, Plane, Sphere } from "@react-three/drei";
+import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve } from "three";
+import { Line } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
-import { drawStadiumShape, getRotationAroundPoint } from "./drawUtils.ts";
+import { drawStadiumShape } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
 import { $currentlyViewingSpace, $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
-import { useDrag } from "@use-gesture/react";
 import type { SimpleRotationControlsRef } from "./SimpleRotationControls.tsx";
 import SimpleRotationControls from "./SimpleRotationControls.tsx";
 import { SPACE_CAMERA_POSITION } from "../../SceneSwitcher/SceneSwitcher.tsx";

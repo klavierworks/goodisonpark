@@ -24,8 +24,9 @@ const filters = getFilters();
   </div>
 </div>
 <script>
-import { $activeFilters } from "../../store/data";
-import { $currentView } from "../../store/ui";
+import { $activeFilters , getEntryIndexById } from "../../store/data";
+import { $currentView, $selectedEntry } from "../../store/ui";
+import { $entries } from "../../store/data";
 
 const mapElement = document.querySelector('.map');
 $activeFilters.subscribe((filters) => {
@@ -61,6 +62,29 @@ gridButton.addEventListener('click', (e) => {
   window.history.replaceState({}, '', `${window.location.pathname}?view=grid`);
 });
 
+const handleNavigate = (e: Event, direction: 'left' | 'right') => {
+  e.preventDefault();
+
+  const currentSelectedEntryId = $selectedEntry.get();
+  if (!currentSelectedEntryId) {
+    return;
+  }
+
+  const currentIndex = getEntryIndexById(currentSelectedEntryId);
+  const nextIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+  const entries = $activeFilters.get();
+  const clampedEntry = Math.max(0, Math.min(nextIndex, $entries.get().length - 1));
+  const nextEntry = $entries.get()[clampedEntry];
+  if (!nextEntry) {
+    return;
+  }
+  $selectedEntry.set(nextEntry.id);
+}
+
+const leftButton = document.querySelector('.left')!;
+leftButton.addEventListener('click', e => handleNavigate(e, 'left'));
+const rightButton = document.querySelector('.right')!;
+rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
 </script>
 <style>
 .filters {
@@ -76,14 +100,14 @@ gridButton.addEventListener('click', (e) => {
   contain: layout;
 
   @media (max-width: 600px) {
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: end;
+    grid-template-columns: 1fr 80px;
   }
 
   &.isGridView {
     grid-template-columns: repeat(4, 3fr) 0px;
+    @media (max-width: 600px) {
+      grid-template-columns: 1fr 0px;
+    }
   }
 }
 
@@ -119,6 +143,7 @@ gridButton.addEventListener('click', (e) => {
   @media (max-width: 600px) {
     width: 80px;
     grid-template-columns: repeat(2, 1fr);
+    grid-column: 2 / 3;
 
     .grid-button {
       display: none;

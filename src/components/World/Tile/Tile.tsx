@@ -7,7 +7,7 @@ import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { config, useSpring } from "@react-spring/core";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning, $selectedEntry } from "../../../store/ui";
+import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning } from "../../../store/ui";
 import { tileGeometry } from "../../../store/textureCache";
 
 type TileProps = {

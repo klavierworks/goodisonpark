@@ -38,10 +38,6 @@ const SimpleStadium = ({ className, isSplash } : Props) => {
     };
   }, []);
 
-  if (window.innerWidth < 600 && !isSplash) {
-    return null; // Hide the component on small screens
-  }
-
   return (
     <Canvas flat frameloop='demand' className={className} camera={{
       position: [0, 180, -100],

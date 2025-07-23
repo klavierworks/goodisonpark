@@ -10,7 +10,7 @@ const validateHeaders = (keys: string[]) => {
   });
 }
 
-const KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY ?? process.env.VITE_GOOGLE_SHEETS_API_KEY;
+const KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY /*?? process.env.VITE_GOOGLE_SHEETS_API_KEY*/;
 
 const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${KEY}`);
@@ -24,7 +24,12 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const values = data.values.slice(1);
 
   const formatted: Entry[] = (await Promise.all(values.map(async (value) => {
-    let filenameParts = value[0].trim().split('.');
+    if (!value[13]) {
+      return null; // Skip entries without a filename
+    }
+
+    let filenameParts = value[13].trim().split('.');
+
     filenameParts.pop();
     const filename = filenameParts.join('.');
 
@@ -37,7 +42,7 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
     });
 
     return {
-      id: `key--${value[0].trim()}`,
+      id: value[0].trim(),
       filename,
       ...(
         keepVideoUrls ? {

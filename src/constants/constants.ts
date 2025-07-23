@@ -6,7 +6,7 @@ export const FILTERABLE_HEADERS = {
 } as const;
 
 export const EXPECTED_SHEET_HEADERS = [
-  'filename',
+  'id',
   'link',
   'memory',
   'year',
@@ -15,4 +15,9 @@ export const EXPECTED_SHEET_HEADERS = [
   'stand',
   'section',
   'block',
+  'SPLASH INTRO',
+  'Start time',
+  'End time',
+  'INSTAGRAM SINGLE POSTS',
+  'filename',
 ] as const

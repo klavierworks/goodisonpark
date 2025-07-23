@@ -77,8 +77,9 @@ gridButton.addEventListener('click', (e) => {
 
   @media (max-width: 600px) {
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     justify-content: start;
+    align-items: end;
   }
 
   &.isGridView {
@@ -114,6 +115,15 @@ gridButton.addEventListener('click', (e) => {
   margin: 0 0 1.5em;
   grid-column: 5 / 6;
   width: 100%;
+
+  @media (max-width: 600px) {
+    width: 80px;
+    grid-template-columns: repeat(2, 1fr);
+
+    .grid-button {
+      display: none;
+    }
+  }
   
   button {
     @mixin button;
@@ -123,7 +133,7 @@ gridButton.addEventListener('click', (e) => {
     place-content: center;
     place-items: center;
     border: none;
-    height: 16px;
+    height: 20px;
     padding: 3px;
     text-decoration: none;
     pointer-events: auto;
@@ -149,6 +159,10 @@ gridButton.addEventListener('click', (e) => {
   z-index: -1;
   backdrop-filter: blur(12px);
   background: #FFFFFF0D;
+
+  @media (max-width: 600px) {
+    grid-column: span 2;
+  }
   
   a {
     pointer-events: all;

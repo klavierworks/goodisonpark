@@ -1,6 +1,6 @@
 import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CAMERA_DISTANCE, STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
-import StadiumModel from "../../../StadiumLineModel.tsx";
+import StadiumModel from '../../../StadiumLineModel.tsx';
 import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve, Quaternion } from "three";
 import { Line, Plane, Sphere } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";

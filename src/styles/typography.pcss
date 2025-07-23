@@ -36,7 +36,12 @@
 @define-mixin text {
   @mixin body-font;
   @mixin body-style;
-  font-size: 32px
+
+  font-size: 32px;
+
+  @media (max-width: 600px) {
+    font-size: 16px;
+  }
 }
 
 @define-mixin body {

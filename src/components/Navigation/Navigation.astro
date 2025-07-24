@@ -12,6 +12,7 @@ import Right from "./right.svg";
 const filters = getFilters();
 ---
 <Location />
+<div class="filter close">[close]</div>
 {filters.map(filter => <Filter class="filter" filter={filter} />)}
 <div class="map">
   <SimpleStadium client:only />
@@ -114,6 +115,21 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
 
   :global(.isFocused) & {
     display: none;
+  }
+}
+
+.close {
+  @mixin ui-button;
+  height: 24px;
+  display: none;
+  align-items: center;
+  padding: 3px;
+  pointer-events: none;
+
+  @media (max-width: 600px) {
+    :global(.isFocused) & {
+      display: flex;
+    }
   }
 }
 

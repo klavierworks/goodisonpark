@@ -26,10 +26,18 @@
 
 <script>
 const link = document.getElementById('home-link')!;
-console.log('link', link);
+let isActive = false;
 link.addEventListener('click', (e) => {
   e.preventDefault();
-  link.classList.toggle('isActive', !link.classList.contains('isActive'));
+  isActive = !isActive;
+  link.classList.toggle('isActive', isActive);
+});
+
+window.addEventListener('click', (e) => {
+  if (!link.contains(e.target as Node)) {
+    isActive = false;
+    link.classList.remove('isActive');
+  }
 });
 </script>
 <style>

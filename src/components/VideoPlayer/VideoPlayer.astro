@@ -58,6 +58,7 @@ export class VideoPlayerElement extends HTMLElement {
     this.appendChild(this.videoElement);
 
     const hls = new Hls();
+    console.log('Setting up video for filename:', filename);
     hls.loadSource(ASSET_URL + `videos/${filename}/master.m3u8`);
     hls.attachMedia(this.videoElement);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {

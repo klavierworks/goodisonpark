@@ -1,6 +1,6 @@
 ---
 ---
-<video src="/splash/16-9.mp4" autoplay muted loop playsinline class="video"></video>
+<video src="/splash/16-9.mp4" autoplay muted loop playsinline class="splash-video"></video>
 <div class="credit"></div>
 <div class="loading">
   Loading
@@ -14,9 +14,9 @@ import { $loadProgress } from "../../../store/ui";
 
 window.addEventListener('load', () => {
   if (window.innerWidth > window.innerHeight) {
-    (document.querySelector('.video') as HTMLVideoElement).src = '/splash/16-9.mp4';
+    (document.querySelector('.splash-video') as HTMLVideoElement).src = '/splash/16-9.mp4';
   } else {
-    (document.querySelector('.video') as HTMLVideoElement).src = '/splash/9-16.mp4';
+    (document.querySelector('.splash-video') as HTMLVideoElement).src = '/splash/9-16.mp4';
   }
 });
 $loadProgress.subscribe((progress) => {
@@ -24,7 +24,7 @@ $loadProgress.subscribe((progress) => {
   if (progressElement) {
     progressElement.textContent = `${progress}%`;
   }
-  console.log(`Load progress: ${progress}%`);
+
   if (progress >= 100) {
     document.querySelector('.isLoading')?.classList.remove('isLoading');
   }

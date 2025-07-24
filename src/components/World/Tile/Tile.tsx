@@ -6,7 +6,7 @@ import Thumbnail from "./Thumbnail/Thumbnail";
 import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { config, useSpring } from "@react-spring/core";
-import { useFrame, useThree } from "@react-three/fiber";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning } from "../../../store/ui";
 import { tileGeometry } from "../../../store/textureCache";
 
@@ -62,10 +62,10 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
   }), []);
 
   const pointerAttributes = useMemo(() => canInteract ? ({
-    onPointerOver: (e) => {
+    onPointerOver: (e: ThreeEvent<PointerEvent>) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
       
-      if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid) {
+      if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid || e.distance > 100) {
         return;
       }
 

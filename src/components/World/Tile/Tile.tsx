@@ -197,22 +197,6 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
         </Suspense>
       </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
-      <group name={`${entry.id}--related`}>
-        {hasHoverAnimation && isHoveredWithIntention && !isTouchDevice && entries.filter(e => e.memory === entry.memory && e.id !== entry.id && e.thumbnail.height < entry.thumbnail.height).sort((a,b) => a.thumbnail.height > b.thumbnail.height ? 1 : 0).map((relatedEntry, index) => (
-          <mesh
-            key={relatedEntry.id}
-            name={`${entry.id}--related-${relatedEntry.id}`}
-            scale={[entry.thumbnail.width, entry.thumbnail.height, 1]}
-            position={[0,0,-100 * (index + 1)]}
-            >
-            <primitive object={tileGeometry} attach="geometry" />
-            <planeGeometry args={[1, 1]} />
-            <Suspense fallback={<></>}>
-              <Thumbnail filename={relatedEntry.filename} isHovered={false} opacity={0.7} />
-            </Suspense>
-          </mesh>
-        ))}
-      </group>
     </group>
   )
 }

@@ -10,8 +10,8 @@ export const $loadProgress = atom(0);
 export const $hoveredEntry = atom<Entry | null>(null);
 export const $hoveredWithIntentionEntryId = atom<string | null>(null);
 
-export const $currentView = atom<View>('grid');
-export const $currentlyViewingSpace = atom<View>('grid');
+export const $currentView = atom<View>('space');
+export const $currentlyViewingSpace = atom<View>('space');
 export const $selectedEntry = atom<string | null>(null);
 
 export const $isTransitioning = atom(false);

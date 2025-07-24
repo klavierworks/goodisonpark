@@ -4,6 +4,7 @@ import { getDatabase } from "../api/api"
 import FocusedPlayer from "./FocusedPlayer/FocusedPlayer.astro";
 import Splash from "./Splash/Splash.astro";
 import { setEntries } from "../store/data";
+import Navigation from "./Navigation/Navigation.astro";
 
 const entries = await getDatabase();
 setEntries(entries);
@@ -33,6 +34,7 @@ setEntries(entries);
 	<body>
     <slot />
     <FocusedPlayer />
+    <Navigation />
     <Splash />
 	</body>
 </html>

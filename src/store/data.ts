@@ -38,15 +38,6 @@ const setUrlSearchParams = () => {
     console.log('Selected entry cleared');
   }
 
-  const currentView = $currentView.get();
-  if (currentView) {
-    searchParams.set('view', currentView);
-    console.log(`Current view set: ${currentView}`);
-  } else {
-    searchParams.delete('view');
-    console.log('Current view cleared');
-  }
-
   const filters = getFilters();
   const activeFilters = $activeFilters.get();
   filters.forEach((key) => {
@@ -95,13 +86,6 @@ const getUrlSearchParams = () => {
       filters[key as keyof ActiveFilters] = value;
       console.log(`Filter loaded from URL: ${key} = ${value}`);
     }
-  }
-  
-  const view = searchParams.get('view');
-  if (view) {
-    $currentView.set(view as View);
-    $currentlyViewingSpace.set(view as View);
-    console.log(`View loaded from URL: ${view}`);
   }
 
   const selectedEntry = searchParams.get('selectedEntry');

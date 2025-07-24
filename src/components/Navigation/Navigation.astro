@@ -12,7 +12,7 @@ import Right from "./right.svg";
 const filters = getFilters();
 ---
 <Location />
-<div class="filters isGridView" transition:name="filters" transition:persist>
+<div class="filters isSpaceView" transition:name="filters" transition:persist>
   {filters.map(filter => <Filter class="filter" filter={filter} />)}
   <div class="view-toggle">
     <div class="map">
@@ -24,7 +24,7 @@ const filters = getFilters();
   </div>
 </div>
 <script>
-import { $activeFilters , getEntryIndexById } from "../../store/data";
+import { $activeFilters , $focusedEntry, getEntryIndexById } from "../../store/data";
 import { $currentView, $selectedEntry } from "../../store/ui";
 import { $entries } from "../../store/data";
 
@@ -55,6 +55,14 @@ $currentView.subscribe((view) => {
   }
 });
 
+$focusedEntry.subscribe((focusedEntry) => {
+  const isFocused = focusedEntry !== null;
+  if (!filtersElement) {
+    return;
+  }
+  filtersElement.classList.toggle('isFocused', isFocused);
+});
+
 const gridButton = document.querySelector('.grid-button')!;
 gridButton.addEventListener('click', (e) => {
   e.preventDefault();
@@ -65,19 +73,29 @@ gridButton.addEventListener('click', (e) => {
 const handleNavigate = (e: Event, direction: 'left' | 'right') => {
   e.preventDefault();
 
-  const currentSelectedEntryId = $selectedEntry.get();
+  const isFocused = $focusedEntry.get() !== null;
+  const currentSelectedEntryId = isFocused ? $focusedEntry.get() : $selectedEntry.get();
   if (!currentSelectedEntryId) {
     return;
   }
 
   const currentIndex = getEntryIndexById(currentSelectedEntryId);
-  const nextIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
-  const entries = $activeFilters.get();
-  const clampedEntry = Math.max(0, Math.min(nextIndex, $entries.get().length - 1));
-  const nextEntry = $entries.get()[clampedEntry];
+  let nextIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+  if (nextIndex < 0) {
+    nextIndex = $entries.get().length - 1;
+  } else if (nextIndex >= $entries.get().length) {
+    nextIndex = 0;
+  }
+  
+  const nextEntry = $entries.get()[nextIndex];
   if (!nextEntry) {
     return;
   }
+
+  if (isFocused) {
+    $focusedEntry.set(nextEntry.id);
+  }
+  
   $selectedEntry.set(nextEntry.id);
 }
 
@@ -124,6 +142,10 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
   &:nth-child(5) {
     order: 3;
   }
+
+  .isFocused & {
+    display: none;
+  }
 }
 
 .view-toggle {
@@ -168,12 +190,6 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
     background: #FFFFFF0D;
   }
 }
-
-.isGridView .grid,
-.isSpaceView .space {
-    color: var(--navy);
-    background-color: white;
-  }
 
 .map {
   position: relative;

@@ -4,9 +4,9 @@ import StadiumModel from '../../../StadiumLineModel.tsx';
 import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve } from "three";
 import { Line } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
-import { drawStadiumShape } from "./drawUtils.ts";
+import { drawStadiumShape, getStadiumSection } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $currentlyViewingSpace, $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
+import { $block, $currentlyViewingSpace, $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
 import type { SimpleRotationControlsRef } from "./SimpleRotationControls.tsx";
 import SimpleRotationControls from "./SimpleRotationControls.tsx";
@@ -84,7 +84,6 @@ const Model = ({ entries }: ModelProps) => {
     const angle = cameraDirection.angleTo(initialOffset);
 
     const newAngle = angle * (initialOffset.x < 0 ? -1 : 1);
-
     initialOffset.y = HEIGHT_RANGE * -y;
     if (newAngle === pivot.rotation.y && initialOffset.equals(stadiumSceneRef.current.position)) {
       return;
@@ -95,6 +94,9 @@ const Model = ({ entries }: ModelProps) => {
     pivot.position.z -= 50;
 
     stadiumSceneRef.current.position.copy(initialOffset);
+
+    const block = getStadiumSection(newAngle, y)
+    $block.set(block ?? '');
 
     invalidate()
   }, []);
@@ -122,6 +124,7 @@ const Model = ({ entries }: ModelProps) => {
     }
     updatePosition();
   });
+
   return ( 
     <group>
       <SimpleRotationControls controlsRef={controlsRef} enabled={currentlyViewingSpace === 'space' && !isTransitioning} speedX={0.5} speedY={2} yLimits={[0,1]} />

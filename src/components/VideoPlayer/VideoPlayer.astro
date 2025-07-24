@@ -46,6 +46,7 @@ export class VideoPlayerElement extends HTMLElement {
 
   setupVideo() {
     const filename = this.getAttribute('filename');
+    this.reset();
     this.videoElement = document.createElement('video');
     this.videoElement.muted = !this.hasAttribute('muted') || this.getAttribute('muted') === 'true';
 

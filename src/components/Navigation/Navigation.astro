@@ -12,17 +12,13 @@ import Right from "./right.svg";
 const filters = getFilters();
 ---
 <Location />
-<div class="filters isSpaceView" transition:name="filters" transition:persist>
-  {filters.map(filter => <Filter class="filter" filter={filter} />)}
-  <div class="view-toggle">
-    <div class="map">
-      <SimpleStadium client:only />
-    </div>
-    <button class="left"><Left /></button>
-    <button class="grid-button"><Grid /></button>
-    <button class="right"><Right /></button>
-  </div>
+{filters.map(filter => <Filter class="filter" filter={filter} />)}
+<div class="map">
+  <SimpleStadium client:only />
 </div>
+<button class="left"><Left /></button>
+<button class="grid-button"><Grid /></button>
+<button class="right"><Right /></button>
 <script>
 import { $activeFilters , $focusedEntry, getEntryIndexById } from "../../store/data";
 import { $currentView, $selectedEntry } from "../../store/ui";
@@ -39,28 +35,6 @@ $activeFilters.subscribe((filters) => {
   } else {
     mapElement.classList.remove('hasActiveFilters');
   }
-});
-
-const filtersElement = document.querySelector('.filters');
-$currentView.subscribe((view) => {
-  if (!filtersElement) {
-    return;
-  }
-  if (view === 'space') {
-    filtersElement.classList.add('isSpaceView');
-    filtersElement.classList.remove('isGridView');
-  } else {
-    filtersElement.classList.add('isGridView');
-    filtersElement.classList.remove('isSpaceView');
-  }
-});
-
-$focusedEntry.subscribe((focusedEntry) => {
-  const isFocused = focusedEntry !== null;
-  if (!filtersElement) {
-    return;
-  }
-  filtersElement.classList.toggle('isFocused', isFocused);
 });
 
 const gridButton = document.querySelector('.grid-button')!;
@@ -105,45 +79,40 @@ const rightButton = document.querySelector('.right')!;
 rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
 </script>
 <style>
-.filters {
-  display: grid;
-  grid-template-columns: repeat(4, 3fr) 2fr;
-  gap: 20px;
-  padding: 0 20px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  pointer-events: none;
-  contain: layout;
-
-  @media (max-width: 600px) {
-    grid-template-columns: 1fr 80px;
-  }
-
-  &.isGridView {
-    grid-template-columns: repeat(4, 3fr) 0px;
-    @media (max-width: 600px) {
-      grid-template-columns: 1fr 0px;
+  :root {
+    @media (min-width: 600px) {
+      --filter-width: ((100% - (6 * 20px)) / 5);
     }
   }
-}
 
 .filter {
-  grid-column: span 1;
-  grid-row: 2 / 3;
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  right: 120px;
+  
+  @media (min-width: 600px) {
+    width: calc(var(--filter-width));
+    right: initial;
 
-  &:nth-child(1),
-  &:nth-child(2) {
-    order: 1;
+    &.year {
+      left: calc(40px + var(--filter-width));
+    }
+
+    &.name {
+      left: calc(60px + (var(--filter-width) * 2));
+    }
+
+    &.category {
+      left: calc(80px + (var(--filter-width) * 3));
+    }
+
+    :global(.isGridView) & {
+      --filter-width: ((100% - (5 * 20px)) / 4);
+    }
   }
 
-  &:nth-child(4),
-  &:nth-child(5) {
-    order: 3;
-  }
-
-  .isFocused & {
+  :global(.isFocused) & {
     display: none;
   }
 }
@@ -151,81 +120,99 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
 .view-toggle {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
   grid-template-rows: max-content max-content;
-  order: 2;
-  place-self: center;
+  gap: 5px;
   position: relative;
   overflow: hidden;
-  grid-row: 1 / 3;
-  margin: 0 0 1.5em;
-  grid-column: 5 / 6;
-  width: 100%;
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 80px;
 
-  @media (max-width: 600px) {
-    width: 80px;
-    grid-template-columns: repeat(2, 1fr);
-    grid-column: 2 / 3;
+  @media (min-width: 600px) {
+    width: calc(var(--filter-width));
+  }
 
-    .grid-button {
-      display: none;
-    }
+  :global(.isGridView) & {
+    display: none;
   }
   
-  button {
-    @mixin button;
-    grid-row: 2 / 3;
-    grid-column: span 1;
-    display: flex;
-    place-content: center;
-    place-items: center;
-    border: none;
-    height: 20px;
-    padding: 3px;
-    text-decoration: none;
-    pointer-events: auto;
-    cursor: pointer;
-    color: white;
-    backdrop-filter: blur(12px);
-    background: #FFFFFF0D;
+}
+
+
+.map {
+  @mixin ui-button;
+  position: fixed;
+  right: 20px;
+  bottom: 50px;
+  width: 80px;
+  aspect-ratio: 1 / 1;
+
+  pointer-events: none !important;
+
+  @media (min-width: 600px) {
+    width: calc(var(--filter-width));
+  }
+
+  :global(.isGridView) & {
+    display: none;
+  }
+
+  :global(div) {
+    pointer-events: none !important;
   }
 }
 
-.map {
-  position: relative;
-  grid-row: 1 / 2;
-  grid-column: span 3;
-  aspect-ratio: 1 / 1;
-  background-color: var(--navy);
-  z-index: -1;
-  backdrop-filter: blur(12px);
-  background: #FFFFFF0D;
+button {
+  @mixin ui-button;
+  @mixin button;
+  position: absolute;
+  bottom: 20px;
+  width: calc(var(--width) - 4px);
 
-  @media (max-width: 600px) {
-    grid-column: span 2;
-  }
-  
-  a {
-    pointer-events: all;
-    cursor: pointer;
-  }
+  display: flex;
+  place-content: center;
+  place-items: center;
+  border: none;
+  height: 24px;
+  padding: 3px;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  color: white;
 
-  .isGridView & {
-    @media (max-width: 600px) {
-      display: none;
-    }
-  }
+  --width: 42px;
 
-  .isSpaceView & {
-    pointer-events: none !important;
-
-    :global(div) {
-      pointer-events: none !important;
-    }
+  :global(.isGridView) & {
+    display: none;
   }
 
-  &.hasActiveFilters {
-    translate: 0 0 !important;
+  @media (min-width: 600px) {
+    --width: (var(--filter-width) / 3);
+  }
+}
+
+.left {
+  right: 62px;
+  @media (min-width: 600px) {
+    left: calc(100px + (var(--filter-width) * 4));
+  }
+}
+
+.grid-button {
+  display: none;
+
+  @media (min-width: 600px) {
+    display: flex;
+    left: calc(102px + (var(--filter-width) * 4) + var(--width));
+  }
+}
+
+.right {
+  right: 20px;
+
+  @media (min-width: 600px) {
+    left: calc(104px + (var(--filter-width) * 4) + (var(--width) * 2));
   }
 }
 </style>

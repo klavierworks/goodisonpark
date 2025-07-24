@@ -7,7 +7,7 @@ import useAtomState from "../useAtomState";
 import { $entries } from "../../../store/data";
 import { config, useSpring } from "@react-spring/core";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning } from "../../../store/ui";
+import { $currentView, $hoveredEntry, $hoveredWithIntentionEntryId, $isTransitioning } from "../../../store/ui";
 import { tileGeometry } from "../../../store/textureCache";
 
 type TileProps = {
@@ -65,7 +65,8 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
     onPointerOver: (e: ThreeEvent<PointerEvent>) => {
       const closestObjectUuid = e.intersections[0].object.uuid;
       
-      if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid || e.distance > 100) {
+      const isNear = $currentView.get() === 'grid' || e.distance < 100;
+      if (!spriteRef.current || spriteRef.current.uuid !== closestObjectUuid || !isNear) {
         return;
       }
 

@@ -1,7 +1,6 @@
 ---
 import { getOptionsByFilter } from "../../store/data";
 import { getFilterLabel } from "../../api/utils";
-import { Image } from "astro:assets";
 
 type Props = {
   class: string;
@@ -13,20 +12,14 @@ const { class: className, filter, ...rest } = Astro.props as Props;
 const options = getOptionsByFilter(filter)
 ---
 <filter-element data-filter={filter} class={`${className} ${filter}`} {...rest}>
-  <div class="backdrop"></div>
   <ul class="options">
-    <div class="content">
-      {options.map((option) => (
-        <li data-option={option}>{option}</li>
-      ))}
-    </div>
+    {options.map((option) => (
+      <li data-option={option}>{option}</li>
+    ))}
   </ul>
-  <div class="toggle-box" data-name="name-click-target">
-    <div class="cross-container" data-name="name-click-target">
-      <span class="name-span">
-        {getFilterLabel(filter)}
-      </span>
-    </div>
+  <div class="filter-name" data-name="name-click-target">
+    <span class="name-span">{getFilterLabel(filter)}</span>
+    <button class="cross">×</button>
   </div>
 </filter-element>
 <script>
@@ -80,7 +73,7 @@ class FilterElement extends HTMLElement {
     const activeFilter = $activeFilters.get()[this.filter];
     const hoveredEntry = $hoveredEntry.get();
     if (activeFilter) {
-      nameElement.textContent = activeFilter;
+      nameElement.textContent = `[${activeFilter}]`;
       return;
     }
 
@@ -187,12 +180,18 @@ if (!customElements.get('filter-element')) {
 </script>
 <style>
 filter-element {
+  @mixin ui-button;
   @mixin body;
-  width: 100%;
-  text-align: center;
   position: relative;
+  overflow: hidden;
+  text-align: center;
   pointer-events: auto;
+  max-height: 24px;
   
+  &.isOpen {
+    max-height: 75vh;
+  }
+
   &:not(.memory) {
     @media (max-width: 600px) {
       display: none;
@@ -200,122 +199,83 @@ filter-element {
   }
 }
 
-.backdrop {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background-color: lab(var(--navy-tuple) / 0.7);
+.options {
+  @mixin body;
+  display: flex;
+  flex-direction: column;
+  max-height: 75vh;
+  width: 100%;
+  overflow-y: auto;
+  text-align: left;
+  justify-content: flex-start;
+  align-content: flex-start;
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  z-index: -1;
+  pointer-events: none;
+  padding: 3px;
+  margin: 0;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+    background: rgb(150 150 150)
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: white;
+    border-radius: 8px;
+  }
 
   .isOpen & {
     opacity: 1;
     pointer-events: auto;
   }
+
+  li {
+    cursor: pointer;
+    width: 100%;
+    list-style: none;
+    margin: 2px 0;
+  }
 }
-.options {
+
+.filter-name {
   position: absolute;
-  bottom: calc(100% - 1.65em);
   left: 0;
-  right: 0;
-  height: 100dvh;
-  overflow: auto;
+  bottom: 0;
+  padding: 3px;
+  height: 24px;
   display: flex;
-  flex-direction: column;
-  margin: 0;
+  width: 100%;
+  flex-direction: row;
+  align-items: flex-start;
+  align-items: center;
   cursor: pointer;
-  padding: 0;
-  scrollbar-width: thin;
-  --webkit-overflow-scrolling: none;
-  scrollbar-color: white transparent;
-  translate: 0 calc(100% + 2em);
-  text-align: left;
-  padding-top: 25dvh;
-  z-index: 2;
-  background: #FFFFFF0D;
-  backdrop-filter: blur(12px);
-  mask: linear-gradient(to bottom, transparent 0%, transparent 15%, black 25%, black 100%);
 
   .isOpen & {
-    translate: 0 0;
+    display: none;
   }
 
-  .content {
-    margin-top: auto;
-    height: max-content;
-    max-height: 80dvh;
+
+  .name-span {
+    @mixin body;
+    line-height: 1.2;
+    pointer-events: none;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
-  
-  li {
-    margin: 0 0 0.25em;
-    padding: 0 3px;
-    list-style: none;
-    opacity: 0.7;
-
-    &.isActive,
-    &:hover {
-      opacity: 1;
-    }
-
-    &.isHidden {
-      display: none;
-    }
-  }
-}
-
-.toggle-box {
-  margin: 0 0 1.5em;
-  padding: 3px;
-  cursor: pointer;
-  background: #FFFFFF0D;
-  backdrop-filter: blur(12px)
-}
-
-.cross-container {
-  position: relative;
-  max-width: calc(100% - 20px);
-  width: max-content;
-  margin: 0;
-  pointer-events: none;
-  cursor: pointer;
-
-  &::after {
-    content: '';
-    position: absolute;
-    left: calc(100% + 0.5em);
-    top: 50%;
-    pointer-events: all;
-    transform: translateY(calc(-50% - 1px));
+  .cross {
+    appearance: none;
+    border: none;
+    background: transparent;
     color: white;
-  }
-
-  .hasActiveOption & {
-    &::after {
-      content: '×';
-      cursor: pointer;
+    line-height: 0.3;
+    translate: 0 0.5px;
+    display: none;
+    pointer-events: none;
+    
+    .hasActiveOption & {
+      display: block;
     }
   }
 }
-
-.name-span {
-  position: relative;
-  display: inline-block;
-  overflow: hidden;
-  max-width: 100%;
-  text-overflow: ellipsis;
-  opacity: 0.5;
-  white-space: nowrap;
-  pointer-events: none;
-  cursor: pointer;
-
-  .hasActiveHoverOption & {
-    opacity: 1;
-  }
-
-  .hasActiveOption & {
-    opacity: 1;
-  }
-}
-
 </style>

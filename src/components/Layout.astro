@@ -39,12 +39,23 @@ setEntries(entries);
 	</body>
 </html>
 <script>
-  import { setEntries } from "../store/data";
+  import { $focusedEntry, setEntries } from "../store/data";
+import { $currentView } from "../store/ui";
   const entries = window.entries
   if (!entries) {
     throw new Error("No entries found");
   }
   setEntries(entries);
+
+  $currentView.subscribe((view) => {
+    document.body.classList.toggle('isGridView', view === 'grid');
+    document.body.classList.toggle('isSpaceView', view === 'space');
+  });
+  $focusedEntry.subscribe((focusedEntry) => {
+    const isFocused = focusedEntry !== null;
+    document.body.classList.toggle('isFocused', isFocused);
+  });
+
 </script>
 <style is:global>
   @import '../styles/variables.pcss';

@@ -25,16 +25,7 @@ document.addEventListener('stage2', () => {
     event.stopImmediatePropagation();
     event.preventDefault();
 
-    if (!document.querySelector('.stage2')!.classList.contains('isActive')) {
-      return;
-    }
-    page++;
-    if (page > text.length) {
-      document.dispatchEvent(new CustomEvent('stage3', { bubbles: true }));
-      return;
-    }
-    document.querySelector('.text')!.textContent = text[page - 1] || '';
-    nav.querySelector('span')!.textContent = `${page} / 3`;
+    document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
     return false;
   });
 });

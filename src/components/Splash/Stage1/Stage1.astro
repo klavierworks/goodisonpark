@@ -29,22 +29,26 @@ $loadProgress.subscribe((progress) => {
     document.querySelector('.isLoading')?.classList.remove('isLoading');
   }
 
-  document.querySelector('.stages')?.addEventListener('click', (e) => {
-    if ($loadProgress.get() >= 100) {
-      //if (window.sessionStorage.getItem('hasViewedSplash') === 'true') {
-      //  document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
-      //}
-      document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
-    }
+  const stages = document.querySelector('.stages')!;
+
+  const stagesClick = (e) => {
     e.stopPropagation();
     e.preventDefault();
-  });
+    e.stopImmediatePropagation();
+    if ($loadProgress.get() >= 100) {
+      stages.removeEventListener('click', stagesClick);
+      document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
+    }
+    return false;
+  }
+
+  stages?.addEventListener('click', stagesClick);
 });
 
 
 window.setTimeout(() => {
   $loadProgress.set(100);
-}, 2000); // Simulate loading completion after 3 seconds
+}, 2000); // Simulate loading completion after 2 seconds
 </script>
 <style>
   .splash-video {

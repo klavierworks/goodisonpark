@@ -18,14 +18,10 @@ const stages = document.querySelector('.stages')!;
 document.addEventListener('stage2', () => {
   stages.classList.remove('showing-stage1');
   stages.classList.add('showing-stage2');
-  stages.querySelector('.stage1')?.classList.remove('isActive');
-  stages.querySelector('.stage2')?.classList.add('isActive');
-  //window.sessionStorage.setItem('hasViewedSplash', 'true');
-  document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
+}, {
+  once: true
 });
 document.addEventListener('splashcomplete', () => {
-  stages.querySelector('.stage1')?.classList.remove('isActive');
-  stages.querySelector('.stage2')?.classList.remove('isActive');
   stages.classList.remove('isActive');
   stages.querySelector('.stadium')?.remove()
 });
@@ -81,8 +77,9 @@ if (url.searchParams.get('bypassSplash') === 'true') {
     transition: opacity 0.5s ease-in-out;
     pointer-events: none;
   }
-  .stage1.isActive, .stage2.isActive {
+  &.showing-stage1 .stage1, &.showing-stage2 .stage2 {
     pointer-events: auto;
+    display: grid;
     opacity: 1;
   }
 }
@@ -146,10 +143,6 @@ if (url.searchParams.get('bypassSplash') === 'true') {
   place-content: center;
   height: 100%;
   width: 100%;
-
-  &.isActive {
-  display: grid;
-  }
 }
 </style>
 <style is:global>

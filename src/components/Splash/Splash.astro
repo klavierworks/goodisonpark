@@ -20,11 +20,6 @@ document.addEventListener('stage2', () => {
   stages.classList.add('showing-stage2');
   stages.querySelector('.stage1')?.classList.remove('isActive');
   stages.querySelector('.stage2')?.classList.add('isActive');
-});
-document.addEventListener('stage3', () => {
-  stages.classList.remove('showing-stage2');
-  stages.classList.add('showing-stage3');
-  stages.querySelector('.stage2')?.classList.remove('isActive');
   window.sessionStorage.setItem('hasViewedSplash', 'true');
   document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
 });

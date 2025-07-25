@@ -130,7 +130,7 @@ const Model = ({ entries }: ModelProps) => {
       <SimpleRotationControls controlsRef={controlsRef} enabled={currentlyViewingSpace === 'space' && !isTransitioning} speedX={0.5} speedY={2} yLimits={[0,1]} />
       <group name="pivot-group">
         <group ref={stadiumSceneRef}>
-          <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={800} position={[0,STADIUM_Y_POSITION,0]} />
+          <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={600} position={[0,STADIUM_Y_POSITION,0]} />
           <Line
             points={cameraLine.getPoints(100)}
             color="white"

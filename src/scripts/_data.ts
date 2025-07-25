@@ -16,8 +16,8 @@ export const updateGoogleSheet = async (rowIndex: number, entry: Entry) => {
 
   const sheet = doc.sheetsById['1480154901']
 
-  await sheet.loadCells(`A1:A${rowIndex}`);
-  sheet.getCellByA1(`A${rowIndex}`).value = entry.filename;
+  await sheet.loadCells(`N1:N${rowIndex}`);
+  sheet.getCellByA1(`N${rowIndex}`).value = entry.filename;
 
   await sheet.saveUpdatedCells();
 }

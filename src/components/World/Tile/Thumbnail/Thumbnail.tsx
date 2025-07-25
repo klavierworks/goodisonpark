@@ -15,7 +15,7 @@ const Thumbnail = ({ filename, isHovered, ...rest }: ThumbnailProps) => {
   if (thumbnailCache.has(filename)) {
     texture = thumbnailCache.get(filename) as unknown as Texture;
   } else {
-    texture = useTexture(ASSET_URL + `videos/${filename}/${filename}.jpg`);
+    texture = useTexture(ASSET_URL + `videos/thumbnails/${filename}.jpg`);
     thumbnailCache.set(filename, texture);
   }
 

@@ -81,19 +81,28 @@ const resolutionConfigs: Record<Resolution, ResolutionConfig> = {
   }
 };
 
+const parseTimeToSeconds = (time: string): number => {
+  const [minutes, seconds] = time.split(':').map(Number);
+  return minutes * 60 + seconds;
+};
+
 /**
  * Reformat a local video file into HLS format with multiple resolutions
  * @param videoPath Full path to the video file
  * @param filenameNoExt Filename without extension
+ * @param startTime Start time in MM:SS format (optional)
+ * @param endTime End time in MM:SS format (optional)
  * @returns Path to the master playlist
  */
-export const reformatLocalVideo = async (videoPath: string, filenameNoExt: string): Promise<string> => {
+export const reformatLocalVideo = async (videoPath: string, filenameNoExt: string, startTime?: string, endTime?: string): Promise<string> => {
   try {
     console.log(`Processing ${path.basename(videoPath)}...`);
     
     // Create output directory structure
     const outputFolder = `./public/videos/${filenameNoExt}`;
+    const thumbnailsFolder = `./public/thumbnails`;
     await fs.mkdir(outputFolder, { recursive: true });
+    await fs.mkdir(thumbnailsFolder, { recursive: true });
     
     // Get source video metadata
     const metadata = await getVideoMetadata(videoPath);
@@ -108,7 +117,9 @@ export const reformatLocalVideo = async (videoPath: string, filenameNoExt: strin
       videoPath, 
       outputFolder, 
       filenameNoExt, 
-      resolutionsToCreate
+      resolutionsToCreate,
+      startTime,
+      endTime
     );
     
     // Create HLS segments for each resolution
@@ -121,7 +132,7 @@ export const reformatLocalVideo = async (videoPath: string, filenameNoExt: strin
     await cleanupIntermediateFiles(outputFolder, filenameNoExt);
     
     // Extract and optimize first frame
-    await extractAndOptimizeFirstFrame(videoPath, outputFolder, filenameNoExt);
+    await extractAndOptimizeFirstFrame(videoPath, thumbnailsFolder, filenameNoExt, startTime);
     
     console.log(`✅ Completed processing ${path.basename(videoPath)}`);
     console.log(`   HLS master playlist available at: ${outputFolder}/master.m3u8`);
@@ -188,7 +199,9 @@ const createResolutionFiles = async (
   inputFile: string,
   outputFolder: string,
   filenameNoExt: string,
-  resolutions: Resolution[]
+  resolutions: Resolution[],
+  startTime?: string,
+  endTime?: string
 ): Promise<VideoStream[]> => {
   const streams: VideoStream[] = [];
   
@@ -200,6 +213,17 @@ const createResolutionFiles = async (
     
     // Create a new ffmpeg instance for this resolution
     const command = ffmpeg(inputFile);
+    
+    // Set start time (0 if not provided)
+    const startSeconds = startTime ? parseTimeToSeconds(startTime) : 0;
+    command.seekInput(startSeconds);
+    
+    // Set duration if endTime is provided
+    if (endTime) {
+      const endSeconds = parseTimeToSeconds(endTime);
+      const duration = endSeconds - startSeconds;
+      command.duration(duration);
+    }
     
     // Set basic encoding options
     command
@@ -386,7 +410,8 @@ const cleanupIntermediateFiles = async (
 const extractAndOptimizeFirstFrame = async (
   inputFile: string,
   outputFolder: string,
-  filenameNoExt: string
+  filenameNoExt: string,
+  startTime?: string
 ): Promise<void> => {
   console.log("Extracting first frame...");
   
@@ -394,6 +419,12 @@ const extractAndOptimizeFirstFrame = async (
   
   // Create a new ffmpeg instance
   const command = ffmpeg(inputFile);
+  
+  // Seek to start time if provided, otherwise use beginning of video
+  if (startTime) {
+    const startSeconds = parseTimeToSeconds(startTime);
+    command.seekInput(startSeconds);
+  }
   
   // Extract first frame
   command

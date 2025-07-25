@@ -1,4 +1,3 @@
-import { getImage, Image } from "astro:assets";
 import { EXPECTED_SHEET_HEADERS } from "../constants/constants";
 
 const validateHeaders = (keys: string[]) => {
@@ -10,10 +9,8 @@ const validateHeaders = (keys: string[]) => {
   });
 }
 
-const KEY = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY /*?? process.env.VITE_GOOGLE_SHEETS_API_KEY*/;
-
-const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
-  const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${KEY}`);
+const getDataFromApi = async (keepVideoUrls = false, key: string): Promise<Database> => {
+  const response = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/1u3Z_-eD1AtncpZCrd0EEQTyFDni2AhSp2eId2w5lqog/values/Active?alt=json&key=${key}`);
   const data = await response.json() as {
     values: string[][]
   };
@@ -24,23 +21,13 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
   const values = data.values.slice(1);
 
   const formatted: Entry[] = (await Promise.all(values.map(async (value) => {
-    if (!value[13]) {
-      return null; // Skip entries without a filename
-    }
-
-    let filenameParts = value[13].trim().split('.');
-
-    filenameParts.pop();
-    const filename = filenameParts.join('.');
-
-    if (!filename) {
-      return null; // Skip entries without a filename
+    let filename = undefined;
+    if (value[13]) {
+      let filenameParts = value[13]?.trim()?.split('.');
+      filenameParts.pop();
+      filename = filenameParts.join('.');
     }
   
-    const image = await getImage({
-      src: import(`../../public/videos/${filename}/${filename}.jpg`)
-    });
-
     return {
       id: value[0].trim(),
       filename,
@@ -56,11 +43,8 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
       stand: value[6]?.trim(),
       section: value[7]?.trim(),
       block: value[8]?.trim(),
-      thumbnail: {
-        src: image.src,
-        width: image.options.width,
-        height: image.options.height
-      }
+      startTime: value[10]?.trim(),
+      endTime: value[11]?.trim(),
     }
   }))).filter((entry) => entry !== null);
 
@@ -68,7 +52,10 @@ const getDataFromApi = async (keepVideoUrls = false): Promise<Database> => {
 }
 
 export const getRawDatabase = async (): Promise<Database> => {
-  const database = await getDataFromApi(true);
+  if (!process.env.VITE_GOOGLE_SHEETS_API_KEY) {
+    throw new Error('Google Sheets API key is not set in environment variables');
+  }
+  const database = await getDataFromApi(true, process.env.VITE_GOOGLE_SHEETS_API_KEY);
 
   return database;
 }
@@ -79,9 +66,25 @@ export const getDatabase = async (): Promise<Database> => {
     return cachedData;
   }
 
-  const database = await getDataFromApi();
+  const database = await getDataFromApi(false, import.meta.env.VITE_GOOGLE_SHEETS_API_KEY);
+  const {getImage} = await import('astro:assets');
+
+  const images = import.meta.glob('../../public/videos/thumbnails/*.jpg', { eager: true });
   // Filter out entries without minimum required fields
-  const entriesWithVideos = database.filter((entry) => entry.filename && entry.block && entry.stand);
+  const entriesWithVideos = (await Promise.all(database.filter((entry) => entry.filename && entry.block && entry.stand && images[`../../public/videos/thumbnails/${entry.id}.jpg`]).map(async (entry) => {
+    const image = await getImage({
+      src: images[`../../public/videos/thumbnails/${entry.id}.jpg`].default,
+    });
+    return {
+      ...entry,
+      thumbnail: {
+        src: image.src!,
+        width: image.options.width!,
+        height: image.options.height!
+      }
+    };
+  }
+  )));
   cachedData = entriesWithVideos;
   return entriesWithVideos;
 }

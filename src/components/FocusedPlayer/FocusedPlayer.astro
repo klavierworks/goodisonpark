@@ -86,7 +86,7 @@ export class FocusedPlayerElement extends HTMLElement {
       console.error('FocusedPlayerElement: video-player-element not found');
       return;
     }
-    videoPlayerElement.setAttribute('filename', this.entry.filename);
+    videoPlayerElement.setAttribute('filename', this.entry.id);
     videoPlayerElement.setAttribute('name', this.entry.name);
     videoPlayerElement.setAttribute('muted', 'false');
     console.log('setup called for entry:', this.entry);

@@ -31,9 +31,9 @@ $loadProgress.subscribe((progress) => {
 
   document.querySelector('.stages')?.addEventListener('click', (e) => {
     if ($loadProgress.get() >= 100) {
-      if (window.sessionStorage.getItem('hasViewedSplash') === 'true') {
-        document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
-      }
+      //if (window.sessionStorage.getItem('hasViewedSplash') === 'true') {
+      //  document.dispatchEvent(new CustomEvent('splashcomplete', { bubbles: true }));
+      //}
       document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
     }
     e.stopPropagation();

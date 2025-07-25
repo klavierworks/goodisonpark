@@ -82,7 +82,7 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
 <style>
   :root {
     @media (min-width: 600px) {
-      --filter-width: ((100% - (6 * 20px)) / 14);
+      --filter-width: ((100% - (6 * 20px)) / 22);
     }
   }
 
@@ -93,23 +93,23 @@ rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
   right: 120px;
   
   @media (min-width: 600px) {
-    width: calc(var(--filter-width) * 3);
+    width: calc(var(--filter-width) * 5);
     right: initial;
 
     &.year {
-      left: calc(40px + var(--filter-width) * 3);
+      left: calc(40px + var(--filter-width) * 5);
     }
 
     &.name {
-      left: calc(60px + (var(--filter-width) * 6));
+      left: calc(60px + (var(--filter-width) * 10));
     }
 
     &.category {
-      left: calc(80px + (var(--filter-width) * 9));
+      left: calc(80px + (var(--filter-width) * 15));
     }
 
     :global(.isGridView) & {
-      --filter-width: ((100% - (5 * 20px)) / 12);
+      --filter-width: ((100% - (5 * 20px)) / 20);
     }
   }
 
@@ -189,7 +189,7 @@ button {
   right: 62px;
 
   @media (min-width: 600px) {
-    left: calc(100px + (var(--filter-width) * 12));
+    left: calc(100px + (var(--filter-width) * 20));
   }
 }
 
@@ -198,7 +198,7 @@ button {
 
   @media (min-width: 600px) {
     display: flex;
-    left: calc(102px + (var(--filter-width) * 12) + var(--width));
+    left: calc(102px + (var(--filter-width) * 20) + var(--width));
   }
 }
 
@@ -206,7 +206,7 @@ button {
   right: 20px;
 
   @media (min-width: 600px) {
-    left: calc(104px + (var(--filter-width) * 12) + (var(--width) * 2));
+    left: calc(104px + (var(--filter-width) * 20) + (var(--width) * 2));
   }
 }
 </style>

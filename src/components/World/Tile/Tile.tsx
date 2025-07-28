@@ -13,13 +13,12 @@ import { tileGeometry } from "../../../store/textureCache";
 type TileProps = {
   canInteract?: boolean;
   entry: Entry
-  hasHoverAnimation?: boolean;
   isActive?: boolean;
   onClick?: (entry: Entry) => void;
 } & React.ComponentPropsWithoutRef<'group'>;
 
 const INTENTION_PAUSE = 1000; // ms
-const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive = true, onClick, ...rest }: TileProps) => {
+const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: TileProps) => {
   const spriteRef = useRef<Sprite>(null);
 
   const [isHovered, setIsHovered] = useState(false);
@@ -55,11 +54,6 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
   });
 
   const pointerDownTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const [pointerHoverSpring] = useSpring(() => ({
-    x: 0,
-    y: 0,
-    config: config.slow,
-  }), []);
 
   const pointerAttributes = useMemo(() => canInteract ? ({
     onPointerOver: (e: ThreeEvent<PointerEvent>) => {
@@ -76,7 +70,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
       setIsHovered(false);
       $hoveredWithIntentionEntryId.set(null);
     },
-    onPointerDown: (e) => {
+    onPointerDown: () => {
       if (isTouchDevice) {
         setIsHovered(true);
       }
@@ -96,13 +90,7 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
         $hoveredWithIntentionEntryId.set(entry.id);
       }, INTENTION_PAUSE);
     },
-    onPointerMove: (e) => {
-      pointerDownPosition.current.movementX += e.movementX;
-      pointerDownPosition.current.movementY += e.movementY;
-      pointerHoverSpring.x.start(e.uv.x);
-      pointerHoverSpring.y.start(e.uv.y);
-    },
-    onPointerUp: (e) => {
+    onPointerUp: () => {
       const isTap = Math.abs(pointerDownPosition.current.movementX) < 5 && Math.abs(pointerDownPosition.current.movementY) < 5;
       clearTimeout(pointerDownTimerRef.current as NodeJS.Timeout);
       if (onClick && isTouchDevice && isTap) {
@@ -128,11 +116,10 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
   const [spring] = useSpring(() => ({
     x: isVisible && isActive ? entry.thumbnail.width : 0,
     y: isVisible && isActive ? entry.thumbnail.height : 0,
-    opacity: !isHoveredWithIntention && hoveredWithIntentionEntryId && hasHoverAnimation ? 0 : 1,
     onChange: () => {
       invalidate()
     }
-  }), [isVisible, isActive, entry.thumbnail.width, entry.thumbnail.height, isHoveredWithIntention, hoveredWithIntentionEntryId, hasHoverAnimation]);
+  }), [isVisible, isActive, entry.thumbnail.width, entry.thumbnail.height]);
 
   useEffect(() => {
     if (!isHovered) {
@@ -151,39 +138,14 @@ const Tile = ({ canInteract = true, entry, hasHoverAnimation = false, isActive =
     const y = spring.y.get();
 
     const currentScale = spriteRef.current.scale;
-    const opacity = spring.opacity.get();
-    if (currentScale.x === x && currentScale.y === y && spriteRef.current.material.opacity === opacity) {
+    if (currentScale.x === x && currentScale.y === y) {
       return;
     }
-    spriteRef.current.material.opacity = opacity;
     spriteRef.current.scale.set(spring.x.get(), spring.y.get(), 1);
     invalidate();
   });
 
   const groupRef = useRef<Group>(null);
-  useFrame(({ scene }) => {
-    if (!hasHoverAnimation || isTouchDevice) {
-      return;
-    }
-
-    if (!isHoveredWithIntention) {
-      groupRef.current?.rotation.set(0, 0, 0);
-      return;
-    }
-
-    if (!groupRef.current) {
-      return;
-    }
-
-    const x = pointerHoverSpring.y.get() * 2 - 1;
-    const y = pointerHoverSpring.x.get() * 2 - 1;
-
-    groupRef.current.rotation.set(
-      -0.25 * x,
-      0.25 * y,
-      0
-    );
-  });
 
   return (
     <group ref={groupRef} {...rest} {...pointerAttributes}>

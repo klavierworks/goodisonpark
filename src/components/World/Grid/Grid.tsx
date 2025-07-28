@@ -12,17 +12,6 @@ import { useDrag } from "@use-gesture/react"
 const Grid = () => {
   const [entries] = useAtomState($entries);
   const [allEntries] = useAtomState($allEntries);
-  const rearEntries = useMemo(() => {
-    const array = [
-      ...allEntries,
-      ...allEntries,
-    ]
-
-    return array.map((entry, index) => ({
-      ...entry,
-      uniqueId: `rear-${entry.id}-${index}`,
-    }))
-  }, [allEntries]);
 
   const [hasTransitionedIn, setHasTransitionedIn] = useState(false);
   const [visibleEntries, setVisibleEntries] = useState<readonly Entry[]>([]);
@@ -59,7 +48,6 @@ const Grid = () => {
     transitionToNewEntries(entries);
   }, [entries]);
 
-  const rearEntriesLayout = useMemo(() => getMasonryLayout(rearEntries), [rearEntries]);
   const layout = useMemo(() => visibleEntries.length > 0 ? getMasonryLayout(visibleEntries) : null, [visibleEntries]);
 
   const [isHovering, setIsHovering] = useState(false);
@@ -149,9 +137,10 @@ const Grid = () => {
 
     const xPos = clamp(
       gridRef.current.position.x + (offsetX * DIRECTION),
-      -layout.containerWidth / 2,
-      layout.containerWidth / 2,
+      (-layout.containerWidth / 2),
+      (layout.containerWidth / 2),
     )
+    console.log(layout.containerWidth, layout.containerWidth / 2, xPos, viewport.width, window.innerWidth);
     const yPos = clamp(
       gridRef.current.position.y + (offsetY * DIRECTION),
       -layout.containerHeight / 2,
@@ -190,7 +179,6 @@ const Grid = () => {
           key={entry.id}
           entry={entry}
           isActive={hasTransitionedIn}
-          hasHoverAnimation
           position={[
             layout.positions[index].x,
             layout.positions[index].y,
@@ -204,22 +192,6 @@ const Grid = () => {
           <planeGeometry args={[15000,15000]} />
           <meshBasicMaterial color="rgb(3, 14, 40)" transparent opacity={0.8} />
         </mesh>
-        <group position={[0, 0, 0]}>
-          {rearEntriesLayout && rearEntries.map((entry, index) => (
-            <Tile
-              canInteract={false}
-              key={entry.uniqueId}
-              entry={entry}
-              isActive={true}
-              position={[
-                rearEntriesLayout.positions[index].x,
-                rearEntriesLayout.positions[index].y ,
-                rearEntriesLayout.positions[index].z
-              ]}
-              onClick={handleClickEntry}
-            />
-          ))}
-        </group>
       </group>
     </group>
   );

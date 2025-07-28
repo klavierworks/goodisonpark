@@ -19,7 +19,6 @@ const options = getOptionsByFilter(filter)
   </ul>
   <div class="filter-name" data-name="name-click-target">
     <span class="name-span">{getFilterLabel(filter)}</span>
-    <button class="cross">×</button>
   </div>
 </filter-element>
 <script>
@@ -200,7 +199,7 @@ filter-element {
 }
 
 .options {
-  @mixin body;
+  @mixin button;
   display: flex;
   flex-direction: column;
   max-height: 75vh;
@@ -257,7 +256,7 @@ filter-element {
 
 
   .name-span {
-    @mixin body;
+    @mixin button;
     line-height: 1.2;
     pointer-events: none;
     white-space: nowrap;

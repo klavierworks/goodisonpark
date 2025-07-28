@@ -3,17 +3,17 @@
 
 <div class="location-nav">
   <div class="locator stand">
-    <div class="title">Stand</div>
     <div class="detail"></div>
   </div>
   <div class="locator block">
-    <div class="title">Block</div>
     <div class="detail"></div>
   </div>
 </div>
 
 <script>
-import { $block, $currentView, $stand } from "../../store/ui";
+import { $block, $currentView } from "../../store/ui";
+import {STAND_MAPPING} from './STAND_MAPPING';
+
 $currentView.subscribe((view) => {
   const locatorElement = document.querySelector('.location-nav');
   if (!locatorElement) {
@@ -27,19 +27,22 @@ $currentView.subscribe((view) => {
     locatorElement.classList.remove('isSpaceView');
   }
 });
+
+const getStand = (block: string): string => {
+  const map = Object.entries(STAND_MAPPING).find(([_, blocks]) => blocks.includes(block));
+  return map ? map[0] : '';
+}
+const blockElement = document.querySelector('.locator.block .detail');
+const standElement = document.querySelector('.locator.stand .detail');
 $block.subscribe(block => {
-  const blockElement = document.querySelector('.locator.block .detail');
   if (blockElement) {
     blockElement.textContent = block;
   }
-});
-
-$stand.subscribe(stand => {
-  const standElement = document.querySelector('.locator.stand .detail');
   if (standElement) {
-    standElement.textContent = stand;
+    standElement.textContent = getStand(block);
   }
 });
+
 </script>
 <style>
 .location-nav {

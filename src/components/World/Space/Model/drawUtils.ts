@@ -69,7 +69,7 @@ const layout: Record<Tier, Record<Section, string[]>> = {
   middle: {
     topSemicircle: [],
     leftStraight: [
-      'LB6', 'LB5', 'LB4', 'LB3', 'LB2', 'LV2', 'LV1'
+      'LB6', 'LB5', 'LB4', 'LB3', 'LB2', 'LV4', 'LV3', 'LV2', 'LV1'
     ],
     bottomSemicircle: [
       'GS1', 'GS2', 'GS3', 'GS4', 'GS5',

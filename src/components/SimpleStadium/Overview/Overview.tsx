@@ -1,5 +1,5 @@
 import { BufferGeometry, Color, EdgesGeometry, Mesh, MeshBasicMaterial } from "three";
-import { $hoveredEntry } from "../../../store/ui";
+import { $currentView, $hoveredEntry } from "../../../store/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import StadiumModel from "../../StadiumModel";
 import { useThree } from "@react-three/fiber";
@@ -105,7 +105,20 @@ const Overview = ({ hasStadium, hasPoints }: Props) => {
     const ADJUSTMENT_Y = Math.PI / -2;
     const ADJUSTMENT_X = -0.5;
     const handleFrame = () => {
-      if (!stadiumRef.current || !window.modelRotation) {
+      if (!stadiumRef.current) {
+        raf = window.requestAnimationFrame(handleFrame);
+        return;
+      }
+      
+      const isAutoRotating = $currentView.get() === 'grid';
+      if (isAutoRotating) {
+        stadiumRef.current.rotation.y -= 0.001;
+        invalidate();
+        raf = window.requestAnimationFrame(handleFrame);
+        return;
+      }
+
+      if (!window.modelRotation) {
         raf = window.requestAnimationFrame(handleFrame);
         return;
       }

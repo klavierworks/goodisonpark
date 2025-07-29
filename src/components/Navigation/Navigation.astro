@@ -71,7 +71,6 @@ const handleNavigate = (e: Event, direction: 'left' | 'right') => {
     $focusedEntry.set(nextEntry.id);
   }
   
-  console.log(`Navigating ${direction} to entry:`, nextEntry);
   $selectedEntry.set(nextEntry.id);
 }
 

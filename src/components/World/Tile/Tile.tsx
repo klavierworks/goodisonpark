@@ -36,7 +36,6 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     if (!isHovered || !canInteract) {
       return;
     }
-    console.log('HOVERED ENTRY', entry.id);
     $hoveredEntry.set(entry);
     let timer = setTimeout(() => {
       $hoveredWithIntentionEntryId.set(entry.id);

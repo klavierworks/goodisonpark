@@ -40,7 +40,6 @@ const Grid = () => {
         gridRef.current.position.set(0, 0, 0);
       }
       setVisibleEntries(newEntries);
-      console.log('transitioned to new entries', newEntries.length);
       await pause(100);
       setHasTransitionedIn(true);
     }
@@ -140,7 +139,7 @@ const Grid = () => {
       (-layout.containerWidth / 2),
       (layout.containerWidth / 2),
     )
-    console.log(layout.containerWidth, layout.containerWidth / 2, xPos, viewport.width, window.innerWidth);
+
     const yPos = clamp(
       gridRef.current.position.y + (offsetY * DIRECTION),
       -layout.containerHeight / 2,

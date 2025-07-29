@@ -91,7 +91,6 @@ const Overview = ({ hasStadium, hasPoints }: Props) => {
 
     const unsubscribeHover = $hoveredEntry.subscribe(() => {
       updateBlocksVisibility();
-      console.log('hovered entry changed', $hoveredEntry.get());
     });
 
     return () => {

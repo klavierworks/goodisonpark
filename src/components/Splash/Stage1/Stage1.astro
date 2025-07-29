@@ -36,12 +36,10 @@ $loadProgress.subscribe((progress) => {
     e.stopImmediatePropagation();
     if ($loadProgress.get() >= 100) {
       stages.removeEventListener('click', stagesClick);
-      console.log('remove');
       document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
     }
     return false;
   }
-  console.log('LOAD CHANGE')
   stages?.addEventListener('click', stagesClick);
 
 

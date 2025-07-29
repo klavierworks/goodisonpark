@@ -104,7 +104,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
     }
   }) : null, [isHovered]);
 
-  useCursor(isHovered, 'pointer', 'auto');
+  useCursor(isHovered, 'zoom-in', 'auto');
 
   const [entries] = useAtomState($entries);
 

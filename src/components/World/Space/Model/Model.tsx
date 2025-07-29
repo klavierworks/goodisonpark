@@ -6,7 +6,7 @@ import { Line } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
 import { drawStadiumShape, getStadiumSection } from "./drawUtils.ts";
 import { useFrame, useThree } from "@react-three/fiber";
-import { $block, $currentlyViewingSpace, $currentView, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
+import { $block, $currentlyViewingSpace, $currentView, $hoveredEntry, $isTransitioning, $selectedEntry } from "../../../../store/ui.ts";
 import useAtomState from "../../useAtomState.tsx";
 import type { SimpleRotationControlsRef } from "./SimpleRotationControls.tsx";
 import SimpleRotationControls from "./SimpleRotationControls.tsx";
@@ -132,9 +132,16 @@ const Model = ({ entries }: ModelProps) => {
     updatePosition();
   });
 
+
   return ( 
     <group>
-      <SimpleRotationControls controlsRef={controlsRef} enabled={currentlyViewingSpace === 'space' && !isTransitioning} speedX={0.5} speedY={2} yLimits={[0,1]} />
+      <SimpleRotationControls
+        controlsRef={controlsRef}
+        enabled={currentlyViewingSpace === 'space' && !isTransitioning}
+        speedX={0.5}
+        speedY={2}
+        yLimits={[0, 1]}
+      />
       <group name="pivot-group">
         <group ref={stadiumSceneRef}>
           <StadiumModel ref={setModelRefCallback} rotation={[0, 0, 0]} scale={600} position={[0,STADIUM_Y_POSITION,0]} />

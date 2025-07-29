@@ -43,9 +43,15 @@ $loadProgress.subscribe((progress) => {
   stages?.addEventListener('click', stagesClick);
 
 
-window.setTimeout(() => {
-  $loadProgress.set(100);
-}, 2000); // Simulate loading completion after 2 seconds
+let interval: NodeJS.Timeout | null = null;
+const intervalFunction = () => {
+  if ($loadProgress.get() < 100) {
+    $loadProgress.set($loadProgress.get() + 1);
+  } else {
+    clearInterval(interval!);
+  }
+};
+interval = setInterval(intervalFunction, 20);
 </script>
 <style>
   .splash-video {

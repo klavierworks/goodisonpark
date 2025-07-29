@@ -3,6 +3,7 @@ import { MathUtils } from 'three'
 import { useFrame, useThree } from '@react-three/fiber'
 import { useGesture } from '@use-gesture/react'
 import { damp } from 'maath/easing';
+import { $hoveredEntry } from '../../../../store/ui';
 
 export type SimpleRotationControlsRef = {
   setRotation: (x: number, y: number) => void
@@ -39,13 +40,13 @@ function SimpleRotationControls({
 
   const [animation] = React.useState({
     x: 0,
-    y: 0,
+    y: 0.5,
     damping
   })
 
   const localRef = React.useRef<SimpleRotationControlsRef>({
     x: 0,
-    y: 0,
+    y: 0.5,
     setRotation: (x: number, y: number) => null
   });
   
@@ -68,16 +69,30 @@ function SimpleRotationControls({
 
   const { size } = useThree()
 
+  const [hasHoveredTile, setHasHoveredTile] = React.useState(false);
+  React.useEffect(() => {
+    const unsubscribe = $hoveredEntry.subscribe((hoveredEntry) => {
+      if (hoveredEntry) {
+        setHasHoveredTile(true);
+      } else {
+        setHasHoveredTile(false);
+      }
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+  
   React.useEffect(() => {
     if (cursor && enabled) {
-      explDomElement.style.cursor = 'grab'
+      explDomElement.style.cursor = hasHoveredTile ? 'zoom-in' : 'grab'
       gl.domElement.style.cursor = ''
       return () => {
         explDomElement.style.cursor = 'default'
         gl.domElement.style.cursor = 'default'
       }
     }
-  }, [cursor, explDomElement, enabled])
+  }, [cursor, explDomElement, enabled, hasHoveredTile])
   
   useFrame((state, delta) => {
     if (!ref.current) {

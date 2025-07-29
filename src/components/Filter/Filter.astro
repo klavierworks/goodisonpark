@@ -186,9 +186,15 @@ filter-element {
   text-align: center;
   pointer-events: auto;
   max-height: 24px;
+
+  &.hasActiveOption {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    animation: glow 2s infinite alternate;
+  }
   
   &.isOpen {
     max-height: 75vh;
+  
     &:hover,
     &:active {
       background: #FFFFFF0D;
@@ -199,6 +205,15 @@ filter-element {
     @media (max-width: 600px) {
       display: none;
     }
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  }
+  to {
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
   }
 }
 

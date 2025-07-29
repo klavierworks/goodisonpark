@@ -101,6 +101,9 @@ getUrlSearchParams();
 $focusedEntry.subscribe(() => {
   setUrlSearchParams();
 })
+$selectedEntry.subscribe(() => {
+  setUrlSearchParams();
+})
 
 const filterAllEntries = () => {
   const filterEntries = Object.entries($activeFilters.get())

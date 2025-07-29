@@ -20,7 +20,9 @@ const nav = document.querySelector('.stage2-nav')!
 const text = JSON.parse(nav.getAttribute('data-text') || '[]');
 const stages = document.querySelector('.stages')!
 document.addEventListener('stage2', () => {
+  console.log('Stage 2 event triggered');
   stages.addEventListener('click', (event) => {
+    console.log('Stage 2 clicked');
     event.stopPropagation();
     event.stopImmediatePropagation();
     event.preventDefault();

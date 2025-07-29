@@ -2,18 +2,18 @@ import { BufferGeometry, Color, EdgesGeometry, Mesh, MeshBasicMaterial } from "t
 import { $hoveredEntry } from "../../../store/ui";
 import { useCallback, useEffect, useRef, useState } from "react";
 import StadiumModel from "../../StadiumModel";
-import { useFrame, useThree } from "@react-three/fiber";
-import { $activeFilters, $allEntries, $entries } from "../../../store/data";
-import type { Group } from "three";
-import useAtomState from "../../World/useAtomState";
+import { useThree } from "@react-three/fiber";
+import { $activeFilters, $entries, $focusedEntry } from "../../../store/data";
 
 type Props = {
-  isAutoRotating?: boolean;
-  isShowingPoints?: boolean;
+  hasStadium?: boolean;
+  hasPoints?: boolean;
 }
-const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
+
+const Overview = ({ hasStadium, hasPoints }: Props) => {
+  const stadiumRef = useRef<Mesh>(null);
   const [edges, setEdges] = useState<BufferGeometry | null>(null);
-  const [node, setNode] = useState<Mesh | null>(null);
+
   const [blocks, setBlocks] = useState<Mesh[]>([]);
 
   const handleRef = useCallback((node: Mesh) => {
@@ -38,37 +38,13 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
     setEdges(
       new EdgesGeometry(stadium.geometry.clone(), 15)
     );
-    setNode(node);
     setBlocks(blockMeshes);
   }, []);
 
   const invalidate = useThree((state) => state.invalidate);
 
-  const updateActiveMemory = useCallback((memory: string | undefined) => {
-    const matchingBlocks = 
-      memory ? 
-      $allEntries.get().filter(entry => entry.memory.toLowerCase() === memory.toLowerCase()).map(entry => entry.block)
-      : [];
-
-    blocks.forEach((block) => {
-      (block.material as MeshBasicMaterial).color = new Color(0xffffff);
-      (block.material as MeshBasicMaterial).visible = matchingBlocks.includes(block.name);
-    });
-    invalidate();
-  }, [blocks, invalidate]);
-
-  const [hoveredEntry] = useAtomState($hoveredEntry);
-  const [activeFilters] = useAtomState($activeFilters);
-
   useEffect(() => {
-    if (hoveredEntry) {
-      updateActiveMemory(hoveredEntry?.memory);
-    }
-    updateActiveMemory(activeFilters.memory);
-  }, [hoveredEntry, activeFilters]);
-
-  useEffect(() => {
-    if (!isShowingPoints) {
+    if (!hasPoints) {
       return;
     }
 
@@ -76,13 +52,30 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
       const entries = $entries.get() as Entry[];
       const hoveredEntry = $hoveredEntry.get();
       const hoveredBlock = hoveredEntry ? blocks.find(block => block.name === hoveredEntry.block) : null;
+      const focusedEntryId = $focusedEntry.get();
+      const focusedEntryBlock = entries.find(entry => entry.id === focusedEntryId)?.block;
+      
+      const activeFilters = $activeFilters.get();
+      const hasActiveFilters = Object.values(activeFilters).length > 0;
+
       blocks.forEach((block) => {
-        (block.material as MeshBasicMaterial).color = new Color(0xffffff);
-        block.scale.set(4,4,4);
-        if (hoveredBlock && hoveredBlock.name === block.name) {
-          block.scale.set(8,8,8);
+        const material = block.material as MeshBasicMaterial;
+        material.color = new Color(5,5,5);
+        material.transparent = true;
+        material.opacity = 1;
+        block.scale.set(1,1,1)
+        
+        if (focusedEntryBlock && focusedEntryBlock === block.name) {
+          block.scale.set(4,4,4);
+          material.visible = true;
+        } else if (hoveredBlock && hoveredBlock.name === block.name) {
+          block.scale.set(4,4,4);
+          material.visible = true;
+        } else if (hasActiveFilters) {
+          material.visible = entries.find(entry => entry.block === block.name) !== undefined;
+        } else {
+          material.visible = false;
         }
-        (block.material as MeshBasicMaterial).visible = entries.find(entry => entry.block === block.name) !== undefined;
       });
       invalidate();
     }
@@ -91,46 +84,39 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
       updateBlocksVisibility();
     });
 
+    const unsubscribeFocus = $focusedEntry.subscribe(() => {
+      updateBlocksVisibility();
+    });
+
+
     const unsubscribeHover = $hoveredEntry.subscribe(() => {
       updateBlocksVisibility();
+      console.log('hovered entry changed', $hoveredEntry.get());
     });
 
     return () => {
       unsubscribe();
       unsubscribeHover();
+      unsubscribeFocus();
     };
-  }, [blocks, isShowingPoints]);
-
-  const introRef = useRef<Group>(null);
-  useFrame(() => {
-    if (!introRef.current || !isAutoRotating) {
-      return;
-    }
-    introRef.current.position.y = 20
-    introRef.current.position.x = 0
-    introRef.current.position.z = 0
-    introRef.current.rotation.x = Math.PI / 7
-    introRef.current.rotation.y -= 0.001;
-    invalidate();
-  });
+  }, [blocks, hasPoints]);
 
   useEffect(() => {
-    if (isAutoRotating) {
-      return;
-    }
-
     let raf: number;
     const ADJUSTMENT_Y = Math.PI / -2;
+    const ADJUSTMENT_X = -0.5;
     const handleFrame = () => {
-      if (!introRef.current || !window.modelRotation) {
+      if (!stadiumRef.current || !window.modelRotation) {
         raf = window.requestAnimationFrame(handleFrame);
         return;
       }
 
-      const yRotation = window.modelRotation * (Math.PI * 2);
+      const yRotation = window.modelRotation.y * (Math.PI * 2);
+      const xRotation = window.modelRotation.x;
       const y = yRotation + ADJUSTMENT_Y;
-      if (y !== introRef.current.rotation.y) {
-        introRef.current.rotation.set(0, y, 0);
+      const x = ((xRotation - 0.5) * ADJUSTMENT_X) + 0.4;
+      if (y !== stadiumRef.current.rotation.y) {
+        stadiumRef.current.rotation.set(x, y, 0);
         invalidate();
       }
 
@@ -141,22 +127,27 @@ const Overview = ({ isAutoRotating, isShowingPoints }: Props) => {
     return () => {
       window.cancelAnimationFrame(raf);
     }
-  }, [isAutoRotating, invalidate]);
+  }, [invalidate]);
 
   return (
-    <group position={[0,20,0]} ref={introRef}>
-        <StadiumModel ref={handleRef} visible={false} />
-        <group rotation={[Math.PI / 2,0,Math.PI / -1.7]} position={[0,0,0]}>
-        {edges && (
-          <lineSegments geometry={edges} position={[0, 0,0]}>
-            <lineBasicMaterial color="white" opacity={0.1} transparent />
-          </lineSegments>
-        )}
-        </group>
-  
+    <group position={[0,20,0]} ref={stadiumRef}>
+      <StadiumModel ref={handleRef} visible={false} />
+      {hasStadium && (
+        <>
+          <group rotation={[Math.PI / 2,0,Math.PI / -1.7]} position={[0,0,0]}>
+            {edges && (
+              <lineSegments geometry={edges} position={[0, 0,0]}>
+                <lineBasicMaterial color="white" opacity={0.1} transparent />
+              </lineSegments>
+            )}
+          </group>
+        </>
+      )}
+      {hasPoints && (
         <group rotation={[0,Math.PI ,0]}>
-          {isShowingPoints && blocks.map(block => <primitive key={block.uuid} object={block} />)}
+          {blocks.map(block => <primitive key={block.uuid} object={block} />)}
         </group>
+      )}
     </group>
   )
 };

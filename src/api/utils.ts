@@ -7,7 +7,7 @@ export const getFilterLabel = (filter: Filter): string => {
     case 'memory':
       return 'Memory';
     case 'name':
-      return 'Icon';
+      return 'Player';
     case 'category':
       return 'Event';
     default:

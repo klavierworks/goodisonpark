@@ -1,3 +1,4 @@
+import styles from './SimpleStadium.module.css';
 import { Canvas } from '@react-three/fiber';
 import { Preload } from '@react-three/drei';
 import Overview from './Overview/Overview';
@@ -5,50 +6,40 @@ import { useEffect, useMemo, useState } from 'react';
 import { $currentView } from '../../store/ui';
 import { $activeFilters } from '../../store/data';
 import useAtomState from '../World/useAtomState';
+import { EffectComposer,  DepthOfField, Bloom } from '@react-three/postprocessing';
 
 type Props = {
-  className?: string;
   isSplash?: boolean;
 }
-const SimpleStadium = ({ className, isSplash } : Props) => {
-  const [currentView] = useAtomState($currentView);
-  const [activeFilters] = useAtomState($activeFilters);
 
-  const isShowingPoints = useMemo(() => {
-    const hasActiveFilters = Object.values(activeFilters).length > 0;
-    return hasActiveFilters && !isSplash;
-  }, [activeFilters, isSplash]);
-
-  const isAutoRotating = useMemo(() => {
-    return currentView !== 'space' || isSplash;
-  }, [currentView, isSplash]);
-
-  const [hasClosed, setHasClosed] = useState(false);
-
-  useEffect(() => {
-    const closeSplash = () => {
-      setHasClosed(true);
-    };
-    if (!isSplash) {
-      return;
-    }
-    document.addEventListener('splashcomplete', closeSplash);
-    return () => {
-      document.removeEventListener('splashcomplete', closeSplash);
-    };
-  }, []);
-
+const SimpleStadium = ({ isSplash } : Props) => {
   return (
-    <Canvas flat frameloop='demand' className={className} camera={{
-      position: [0, 180, -100],
-    }}>
-      {!hasClosed && (
-        <>
-          <Preload all />
-          <Overview isAutoRotating={isAutoRotating} isShowingPoints={isShowingPoints} />
-        </>
-      )}
-    </Canvas>
+    <>
+      <Canvas flat frameloop='demand' className={styles.stadium} camera={{
+        position: [0, 180, -100],
+      }}>
+        <Preload all />
+        <Overview hasStadium />
+      </Canvas>
+      <Canvas flat frameloop='demand' className={styles.points} camera={{
+        position: [0, 180, -100],
+      }}>
+        <Preload all />
+        <Overview hasPoints />
+        <EffectComposer>
+          <DepthOfField  
+            focusDistance={0}
+            bokehScale={2}
+          />
+          <Bloom
+            luminanceThreshold={0.1}
+            luminanceSmoothing={0.9}
+            intensity={0.4}
+            mipmapBlur
+          />
+        </EffectComposer>
+      </Canvas>
+    </>
   );
 }
 

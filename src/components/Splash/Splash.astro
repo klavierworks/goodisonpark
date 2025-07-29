@@ -1,5 +1,4 @@
 ---
-import SimpleStadium from "../SimpleStadium/SimpleStadium";
 import Stage1 from "./Stage1/Stage1.astro";
 import Stage2 from "./Stage2/Stage2.astro";
 ---
@@ -110,29 +109,11 @@ if (url.searchParams.get('bypassSplash') === 'true') {
 .box {
   transition: opacity 0.25s ease-in-out;
   position: relative;
-  width: 65%;
+  width: 85%;
   height: 70%;
   user-select: none;
-
-  .showing-stage1 & {
-    &::before,
-    &::after {
-      content: '';
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      transform-origin: center center;
-      height: 1px;
-      background-color: white;
-      scale: 0 1;
-      animation: border var(--duration) var(--delay) linear forwards;
-    }
-
-    &::after {
-      top: auto;
-      bottom: 0;
-    }
+  @media (min-width: 600px) {
+    width: 65%;
   }
 }
 .stage {

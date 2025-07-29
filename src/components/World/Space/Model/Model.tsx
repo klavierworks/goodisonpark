@@ -1,7 +1,7 @@
 import {  useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { STADIUM_Y_POSITION, TILE_Y_DEPTH } from "../constants.ts";
 import StadiumModel from '../../../StadiumLineModel.tsx';
-import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve } from "three";
+import { Group, Mesh, MeshBasicMaterial, Vector3, DoubleSide, Curve, Euler } from "three";
 import { Line } from "@react-three/drei";
 import Ring from "./Ring/Ring.tsx";
 import { drawStadiumShape, getStadiumSection } from "./drawUtils.ts";
@@ -76,7 +76,12 @@ const Model = ({ entries }: ModelProps) => {
       y
     } = controlsRef.current;
 
-    window.modelRotation = x;
+    if (!window.modelRotation) {
+      window.modelRotation = new Euler(0, 0, 0);
+    }
+  
+    window.modelRotation.x = y;
+    window.modelRotation.y = x;
   
     const initialOffset = line!.getPoint(x).negate();
 
@@ -96,7 +101,9 @@ const Model = ({ entries }: ModelProps) => {
     stadiumSceneRef.current.position.copy(initialOffset);
 
     const block = getStadiumSection(newAngle, y)
-    $block.set(block ?? '');
+    if (block) {
+      $block.set(block);
+    }
 
     invalidate()
   }, []);

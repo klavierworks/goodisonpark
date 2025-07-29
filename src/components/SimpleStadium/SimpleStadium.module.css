@@ -1,0 +1,15 @@
+.stadium,
+.points {
+  position: absolute !important;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.stadium {
+  z-index: 1;
+}
+
+.points {
+  z-index: 2;
+}

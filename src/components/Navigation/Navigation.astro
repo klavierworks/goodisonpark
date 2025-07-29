@@ -49,9 +49,9 @@ const handleNavigate = (e: Event, direction: 'left' | 'right') => {
   e.preventDefault();
 
   const isFocused = $focusedEntry.get() !== null;
-  const currentSelectedEntryId = isFocused ? $focusedEntry.get() : $selectedEntry.get();
+  let currentSelectedEntryId = isFocused ? $focusedEntry.get() : $selectedEntry.get();
   if (!currentSelectedEntryId) {
-    return;
+    currentSelectedEntryId = $entries.get()[0]?.id; 
   }
 
   const currentIndex = getEntryIndexById(currentSelectedEntryId);
@@ -71,13 +71,22 @@ const handleNavigate = (e: Event, direction: 'left' | 'right') => {
     $focusedEntry.set(nextEntry.id);
   }
   
+  console.log(`Navigating ${direction} to entry:`, nextEntry);
   $selectedEntry.set(nextEntry.id);
 }
 
 const leftButton = document.querySelector('.left')!;
 leftButton.addEventListener('click', e => handleNavigate(e, 'left'));
 const rightButton = document.querySelector('.right')!;
-rightButton.addEventListener('click', e => handleNavigate(e, 'right'));;
+rightButton.addEventListener('click', e => handleNavigate(e, 'right'));
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowLeft') {
+    handleNavigate(e, 'left');
+  } else if (e.key === 'ArrowRight') {
+    handleNavigate(e, 'right');
+  }
+});
 </script>
 <style>
   :root {

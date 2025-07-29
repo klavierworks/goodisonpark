@@ -2,13 +2,9 @@
 ---
 <video src="/splash/16-9.mp4" autoplay muted loop playsinline class="splash-video"></video>
 <div class="credit"></div>
-<div class="loading">
-  Loading
-</div>
-<div class="loaded">
-  Click to<br />
-  Enter
-</div>
+<button class="stage1-nav isLoading" disabled>
+  []
+</button>
 <script>
 import { $loadProgress } from "../../../store/ui";
 
@@ -19,31 +15,34 @@ window.addEventListener('load', () => {
     (document.querySelector('.splash-video') as HTMLVideoElement).src = '/splash/9-16.mp4';
   }
 });
+const stage1Nav = document.querySelector('.stage1-nav') as HTMLButtonElement;
 $loadProgress.subscribe((progress) => {
-  const progressElement = document.querySelector('.progress');
-  if (progressElement) {
-    progressElement.textContent = `${progress}%`;
+  if (stage1Nav) {
+    stage1Nav.innerText = `[${progress}%]`;
   }
 
   if (progress >= 100) {
-    document.querySelector('.isLoading')?.classList.remove('isLoading');
+    stage1Nav.innerText = '[Enter]';
+    const stages = document.querySelector('.stages')!;
+    stages.classList.remove('isLoading');
   }
+});
 
   const stages = document.querySelector('.stages')!;
 
-  const stagesClick = (e) => {
+  const stagesClick = (e: Event) => {
     e.stopPropagation();
     e.preventDefault();
     e.stopImmediatePropagation();
     if ($loadProgress.get() >= 100) {
       stages.removeEventListener('click', stagesClick);
+      console.log('remove');
       document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
     }
     return false;
   }
-
+  console.log('LOAD CHANGE')
   stages?.addEventListener('click', stagesClick);
-});
 
 
 window.setTimeout(() => {
@@ -77,122 +76,17 @@ window.setTimeout(() => {
   text-align: center;
   animation: initialStage var(--delay) linear forwards;
 }
-.loaded,
-.loading {
+.stage1-nav {
   @mixin button;
-  text-align: center;
-  grid-row: 6 / 7;
-  opacity: 0;
-  display: none;
-  animation: initialStage var(--delay) linear forwards;
-}
-.loaded {
-  display: block;
+  position: fixed;
+  bottom: 20px;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  color: white;
   cursor: pointer;
-}
-.word {
-  @mixin title;
-  font-size: 7vw;
-  text-align: center;
-  padding: 0 0.25em;
-  opacity: 0;
-
-  &.word1 {
-    animation: word1 var(--duration) var(--delay) linear forwards;
-  }
-  &.word2 {
-    animation: word2 var(--duration) var(--delay) linear forwards;
-  }
-  &.word3 {
-    animation: word3 var(--duration) var(--delay) linear forwards;
-  }
-  &.word4 {
-    animation: word4 var(--duration) var(--delay) linear forwards;
-  }
-}
-
-@keyframes initialStage {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes border {
-  0% {
-    scale: 0 1;
-  }
-  100% {
-    scale: 1 1;
-  }
-}
-
-@keyframes word1 {
-  0% {
-    opacity: 0;
-  }
-  15% {
-    opacity: 0;
-  }
-  45% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes word2 {
-  0% {
-    opacity: 0;
-  }
-  30% {
-    opacity: 0;
-  }
-  65% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-
-@keyframes word3 {
-  0% {
-    opacity: 0;
-  }
-  45% {
-    opacity: 0;
-  }
-  75% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes word4 {
-  0% {
-    opacity: 0;
-  }
-  60% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-@keyframes stadium {
-  0% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+  pointer-events: none;
+  text-transform: uppercase;
 }
 
 </style>

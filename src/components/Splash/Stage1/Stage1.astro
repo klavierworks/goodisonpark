@@ -36,6 +36,9 @@ $loadProgress.subscribe((progress) => {
     e.stopImmediatePropagation();
     if ($loadProgress.get() >= 100) {
       stages.removeEventListener('click', stagesClick);
+      const video = (document.querySelector('.splash-video') as HTMLVideoElement);
+      video.pause();
+      video.remove();
       document.dispatchEvent(new CustomEvent('stage2', { bubbles: true }));
     }
     return false;

@@ -8,6 +8,7 @@ import Navigation from "./Navigation/Navigation.astro";
 
 const entries = await getDatabase();
 setEntries(entries);
+console.log('Entries loaded:', entries);
 ---
 
 <html lang="en" class="noJs">

@@ -69,6 +69,7 @@ export class VideoPlayerElement extends HTMLElement {
     });
 
     this.videoElement.addEventListener('loadeddata', () => {
+      console.log(filename,this.videoElement,this.videoElement?.src, this.videoElement?.videoWidth, this.videoElement?.videoHeight);
       const aspectRatio = this.videoElement!.videoWidth / this.videoElement!.videoHeight;
       this.style.setProperty('--aspect-ratio', `${aspectRatio}`);
       const isLandscape = aspectRatio > 1;

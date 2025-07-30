@@ -6,7 +6,7 @@ import { updateGoogleSheet } from './_data';
 import { reformatLocalVideo } from './_reformat';
 
 const OUTPUT_FOLDER = 'public/videos';
-const REPROCESS_ALL = true; // Set to true to reprocess all previously downloaded videos
+const REPROCESS_ALL = false; // Set to true to reprocess all previously downloaded videos
 
 (async () => {
   console.log('Starting video processing...');
@@ -16,8 +16,8 @@ const REPROCESS_ALL = true; // Set to true to reprocess all previously downloade
   let index = 0;
   for await (const entry of entries) {
     index++;
-    if (!entry.videoUrl || (entry.filename && !REPROCESS_ALL) || !entry.videoUrl.includes('youtube')) {
-      console.log(`Skipping entry ${index} - no video URL or already processed.`, entry.videoUrl, entry.filename);
+    if (!entry.videoUrl || !entry.videoUrl.includes('youtube')) {
+      console.log(`Skipping entry ${index} - no video URL.`, entry.videoUrl, entry.filename);
       continue;
     }
 
@@ -29,6 +29,12 @@ const REPROCESS_ALL = true; // Set to true to reprocess all previously downloade
       path,
     } = await getYouTubeVideo(entry.videoUrl, OUTPUT_FOLDER, entry.filename ?? `${Date.now()}`);
 
+    if (!REPROCESS_ALL && fs.existsSync('./public/videos/' + entry.id + '/master.m3u8')) {
+      console.log(`Video already exists: ${filename}. Skipping reprocessing.`);
+      entry.filename = filename;
+      continue;
+    }
+    console.log(`Reformatting video: ${filename}`);
     await reformatLocalVideo(path, entry.id, entry.startTime, entry.endTime);
 
     entry.filename = filename;

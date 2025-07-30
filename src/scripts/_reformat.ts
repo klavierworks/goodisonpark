@@ -191,6 +191,48 @@ const logResolutionsToCreate = (resolutions: Resolution[]): void => {
   console.log(`  Creating 480p: ${resolutions.includes('480p')}`);
   console.log(`  Keeping audio: true`);
 };
+/**
+ * Get video bitrate using ffprobe
+ */
+const getVideoBitrate = async (inputFile: string): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(inputFile, (err, metadata) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const videoStream = metadata.streams.find(stream => stream.codec_type === 'video');
+      if (!videoStream || !videoStream.bit_rate) {
+        resolve(0);
+        return;
+      }
+      resolve(parseInt(videoStream.bit_rate));
+    });
+  });
+};
+
+/**
+ * Get video dimensions using ffprobe
+ */
+const getVideoDimensions = async (inputFile: string): Promise<{ width: number; height: number }> => {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(inputFile, (err, metadata) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      const videoStream = metadata.streams.find(stream => stream.codec_type === 'video');
+      if (!videoStream) {
+        reject(new Error('No video stream found'));
+        return;
+      }
+      resolve({
+        width: videoStream.width,
+        height: videoStream.height
+      });
+    });
+  });
+};
 
 /**
  * Create MP4 files for each resolution
@@ -204,27 +246,27 @@ const createResolutionFiles = async (
   endTime?: string
 ): Promise<VideoStream[]> => {
   const streams: VideoStream[] = [];
-  
+
   for (const resolution of resolutions) {
     const config = resolutionConfigs[resolution];
-    await fs.mkdir(`${outputFolder}/${resolution}`, { recursive: true })
+    await fs.mkdir(`${outputFolder}/${resolution}`, { recursive: true });
     const outputFile = `${outputFolder}/${resolution}_${filenameNoExt}.mp4`;
     console.log(`  Creating ${resolution} version...`);
-    
+
     // Create a new ffmpeg instance for this resolution
     const command = ffmpeg(inputFile);
-    
+
     // Set start time (0 if not provided)
     const startSeconds = startTime ? parseTimeToSeconds(startTime) : 0;
     command.seekInput(startSeconds);
-    
+
     // Set duration if endTime is provided
     if (endTime) {
       const endSeconds = parseTimeToSeconds(endTime);
       const duration = endSeconds - startSeconds;
       command.duration(duration);
     }
-    
+
     // Set basic encoding options
     command
       .videoCodec('libx264')
@@ -240,15 +282,15 @@ const createResolutionFiles = async (
         `-force_key_frames expr:gte(t,n_forced*2)`,
         `-movflags +faststart`,
         `-map_metadata -1`,
-        `-map_chapters -1`
+        `-map_chapters -1`,
+        `-metadata:s:v:0 rotate=0` // explicitly set orientation
       ]);
-    
+
     // Add scale filter for all resolutions
-    command.size(`${config.width}x${config.height}`);
-    
+    command.videoFilters(`scale=${config.width}:-2`);
     // Always keep audio
     command.audioCodec('aac').audioBitrate('128k');
-    
+
     // Wait for the file to be processed
     await new Promise<void>((resolve, reject) => {
       command
@@ -262,50 +304,34 @@ const createResolutionFiles = async (
         })
         .save(outputFile);
     });
-    
-    // Get actual bitrate
+
+    // Get actual bitrate and dimensions
     let bitrate = config.defaultBitrate;
+    let width = config.width;
+    let height = config.height;
+
     try {
-      const metadata = await getVideoBitrate(outputFile);
-      if (metadata > 0) {
-        bitrate = metadata;
+      const detectedBitrate = await getVideoBitrate(outputFile);
+      if (detectedBitrate > 0) {
+        bitrate = detectedBitrate;
       }
+
+      const dims = await getVideoDimensions(outputFile);
+      width = dims.width;
+      height = dims.height;
     } catch (error) {
-      console.warn(`  Warning: Could not detect bitrate for ${resolution}, using default.`);
+      console.warn(`  Warning: Could not detect bitrate/dimensions for ${resolution}, using defaults.`);
     }
-    
+    console.log(`  ${resolution} version bitrate: ${bitrate} bps, dimensions: ${width}x${height} vs expected ${config.width}x${config.height}`);
     streams.push({
       resolution,
       bitrate,
-      width: config.width,
-      height: config.height
+      width,
+      height
     });
   }
-  
-  return streams;
-};
 
-/**
- * Get video bitrate using ffprobe
- */
-const getVideoBitrate = async (inputFile: string): Promise<number> => {
-  return new Promise((resolve, reject) => {
-    ffmpeg.ffprobe(inputFile, (err, metadata) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      
-      const videoStream = metadata.streams.find(stream => stream.codec_type === 'video');
-      
-      if (!videoStream || !videoStream.bit_rate) {
-        resolve(0);
-        return;
-      }
-      
-      resolve(parseInt(videoStream.bit_rate));
-    });
-  });
+  return streams;
 };
 
 /**
@@ -316,41 +342,42 @@ const createHlsSegments = async (
   filenameNoExt: string,
   streams: VideoStream[]
 ): Promise<void> => {
-  await Promise.all(streams.map(async stream => {
-    const resolution = stream.resolution;
-    const inputFile = `${outputFolder}/${resolution}_${filenameNoExt}.mp4`;
-    const outputFile = `${outputFolder}/${resolution}/${filenameNoExt}.m3u8`;
-    
-    console.log(`  Creating HLS segments for ${resolution}...`);
-    
-    // Create a new ffmpeg instance
-    const command = ffmpeg(inputFile);
-    
-    // Copy video/audio (no re-encoding needed)
-    command.videoCodec('copy')
-           .audioCodec('copy');
-    
-    // Set HLS options
-    command.outputOptions([
-      `-hls_time 2`,
-      `-hls_list_size 0`,
-      `-hls_segment_filename ${outputFolder}/${resolution}/segment-%03d.ts`
-    ]);
-    
-    // Wait for the file to be processed
-    await new Promise<void>((resolve, reject) => {
-      command
-        .on('error', (err) => {
-          console.error(`Error creating HLS segments for ${resolution}:`, err);
-          reject(err);
-        })
-        .on('end', () => {
-          console.log(`  HLS segments for ${resolution} created successfully.`);
-          resolve();
-        })
-        .save(outputFile);
-    });
-  }));
+  await Promise.all(
+    streams.map(async (stream) => {
+      const resolution = stream.resolution;
+      const inputFile = `${outputFolder}/${resolution}_${filenameNoExt}.mp4`;
+      const outputFile = `${outputFolder}/${resolution}/${filenameNoExt}.m3u8`;
+
+      console.log(`  Creating HLS segments for ${resolution}...`);
+
+      // Create a new ffmpeg instance
+      const command = ffmpeg(inputFile);
+
+      // Copy video/audio (no re-encoding needed)
+      command.videoCodec('copy').audioCodec('copy');
+
+      // Set HLS options
+      command.outputOptions([
+        `-hls_time 2`,
+        `-hls_list_size 0`,
+        `-hls_segment_filename ${outputFolder}/${resolution}/segment-%03d.ts`
+      ]);
+
+      // Wait for the file to be processed
+      await new Promise<void>((resolve, reject) => {
+        command
+          .on('error', (err) => {
+            console.error(`Error creating HLS segments for ${resolution}:`, err);
+            reject(err);
+          })
+          .on('end', () => {
+            console.log(`  HLS segments for ${resolution} created successfully.`);
+            resolve();
+          })
+          .save(outputFile);
+      });
+    })
+  );
 };
 
 /**
@@ -362,22 +389,22 @@ const createMasterPlaylist = async (
   streams: VideoStream[]
 ): Promise<void> => {
   console.log(" Building master playlist based on enabled resolutions...");
-  
+
   let masterPlaylist = "#EXTM3U\n#EXT-X-VERSION:3";
-  
-  // Add each stream to the master playlist
+
+  // Add each stream to the master playlist with REAL dimensions
   for (const stream of streams) {
     console.log(` - ${stream.resolution} stream added to manifest, bitrate: ${stream.bitrate} bps`);
-    
+
     masterPlaylist += `\n#EXT-X-STREAM-INF:BANDWIDTH=${stream.bitrate},RESOLUTION=${stream.width}x${stream.height}`;
     masterPlaylist += `\n${stream.resolution}/${filenameNoExt}.m3u8`;
   }
-  
+
   // Write master playlist file
   console.log(" Creating master playlist...");
   await fs.writeFile(`${outputFolder}/master.m3u8`, masterPlaylist);
   console.log(` Master playlist created at ${outputFolder}/master.m3u8`);
-  
+
   // Validate the playlist has at least one entry
   if (streams.length === 0) {
     console.error(" ERROR: No resolution files were found! Master playlist will be empty.");

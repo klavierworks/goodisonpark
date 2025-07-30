@@ -14,7 +14,7 @@ const getDataFromApi = async (keepVideoUrls = false, key: string): Promise<Datab
   const data = await response.json() as {
     values: string[][]
   };
-
+  console.log(data)
   const keys = data.values[0];
   validateHeaders(keys);
 
@@ -47,7 +47,7 @@ const getDataFromApi = async (keepVideoUrls = false, key: string): Promise<Datab
       endTime: value[11]?.trim(),
     }
   }))).filter((entry) => entry !== null);
-
+  console.log(`Fetched ${formatted.length}`);
   return formatted;
 }
 
@@ -68,12 +68,13 @@ export const getDatabase = async (): Promise<Database> => {
 
   const database = await getDataFromApi(false, import.meta.env.VITE_GOOGLE_SHEETS_API_KEY);
   const {getImage} = await import('astro:assets');
-
-  const images = import.meta.glob('../../public/videos/thumbnails/*.jpg', { eager: true });
+  
+  const images = import.meta.glob('../../public/thumbnails/*.jpg', { eager: true });
+  console.log('Images:', images);
   // Filter out entries without minimum required fields
-  const entriesWithVideos = (await Promise.all(database.filter((entry) => entry.filename && entry.block && entry.stand && images[`../../public/videos/thumbnails/${entry.id}.jpg`]).map(async (entry) => {
+  const entriesWithVideos = (await Promise.all(database.filter((entry) => entry.filename && entry.block && entry.stand && images[`../../public/thumbnails/${entry.id}.jpg`]).map(async (entry) => {
     const image = await getImage({
-      src: images[`../../public/videos/thumbnails/${entry.id}.jpg`].default,
+      src: images[`../../public/thumbnails/${entry.id}.jpg`].default,
     });
     return {
       ...entry,

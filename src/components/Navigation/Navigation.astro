@@ -12,7 +12,7 @@ import Right from "./right.svg";
 const filters = getFilters();
 ---
 <Location />
-<div class="filter close">[close]</div>
+<div class="filter close">Close</div>
 {filters.map(filter => <Filter class="filter" filter={filter} />)}
 <div class="map">
   <SimpleStadium client:only />
@@ -98,7 +98,7 @@ window.addEventListener('keydown', (e) => {
   position: fixed;
   left: 20px;
   bottom: 20px;
-  right: 120px;
+  right: 106px;
   
   @media (min-width: 600px) {
     width: calc(var(--filter-width) * 5);
@@ -129,7 +129,6 @@ window.addEventListener('keydown', (e) => {
   align-items: center;
   padding: 3px;
   pointer-events: none;
-  text-transform: uppercase;
 
   @media (max-width: 600px) {
     :global(.isFocused) & {

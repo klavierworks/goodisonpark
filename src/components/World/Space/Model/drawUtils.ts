@@ -137,12 +137,13 @@ export const getStadiumSection =(xAngle: number, yLevel: number) => {
     normalizedPosition = (xAngle - Math.PI * 0.25) / (Math.PI * 0.5);
   } else if (section === 'topSemicircle') {
     // Handle the wraparound case: 3π/4 to π and -π to -3π/4
+    // Total range is π/2, split across the discontinuity
     if (xAngle >= Math.PI * 0.75) {
-      // 3π/4 to π maps to 0 to 0.5
-      normalizedPosition = (xAngle - Math.PI * 0.75) / (Math.PI * 0.25);
+        // 3π/4 to π maps to 0 to 0.5
+        normalizedPosition = (xAngle - Math.PI * 0.75) / (Math.PI * 0.5);
     } else {
-      // -π to -3π/4 maps to 0.5 to 1
-      normalizedPosition = 0.5 + (xAngle + Math.PI) / (Math.PI * 0.25);
+        // -π to -3π/4 maps to 0.5 to 1
+        normalizedPosition = 0.5 + (xAngle + Math.PI) / (Math.PI * 0.5);
     }
   } else { // rightStraight
     // Map -3π/4 to -π/4 onto 0 to 1

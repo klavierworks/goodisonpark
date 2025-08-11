@@ -16,7 +16,7 @@ const REPROCESS_ALL = false; // Set to true to reprocess all previously download
   let index = 0;
   for await (const entry of entries) {
     index++;
-    if (!entry.videoUrl || !entry.videoUrl.includes('youtube')) {
+    if ((!entry.videoUrl || entry.videoUrl === '') && !entry.filename) {
       console.log(`Skipping entry ${index} - no video URL.`, entry.videoUrl, entry.filename);
       continue;
     }
@@ -24,13 +24,12 @@ const REPROCESS_ALL = false; // Set to true to reprocess all previously download
     console.log(`Processing video for ${index} of ${entries.length}`);
 
     const {
-      filenameNoExt,
       filename,
       path,
-    } = await getYouTubeVideo(entry.videoUrl, OUTPUT_FOLDER, entry.filename ?? `${Date.now()}`);
+    } = await getYouTubeVideo(entry.videoUrl, OUTPUT_FOLDER, entry.filename ?? `${Date.now()}`, entry.rawFilename);
 
     if (!REPROCESS_ALL && fs.existsSync('./public/videos/' + entry.id + '/master.m3u8')) {
-      console.log(`Video already exists: ${filename}. Skipping reprocessing.`);
+      console.log(`Video already exists: ${'./public/videos/' + entry.id + '/master.m3u8'}. Skipping reprocessing.`);
       entry.filename = filename;
       continue;
     }

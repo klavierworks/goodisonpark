@@ -31,6 +31,7 @@ const getDataFromApi = async (keepVideoUrls = false, key: string): Promise<Datab
     return {
       id: value[0].trim(),
       filename,
+      rawFilename: value[13]?.trim(),
       ...(
         keepVideoUrls ? {
           videoUrl: value[1].trim()

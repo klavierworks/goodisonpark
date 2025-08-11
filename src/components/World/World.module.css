@@ -1,0 +1,7 @@
+.canvas {
+  :global(.isAboutActive) & {
+    pointer-events: none !important;
+    opacity: 0.5;
+    filter: blur(5px);
+  }
+}

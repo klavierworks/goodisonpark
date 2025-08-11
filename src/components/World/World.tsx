@@ -1,3 +1,4 @@
+import styles from './World.module.css';
 import { Canvas } from "@react-three/fiber";
 import SceneSwitcher, { GRID_CAMERA_POSITION, SPACE_CAMERA_POSITION } from "./SceneSwitcher/SceneSwitcher";
 import { AdaptiveDpr, Bvh, OrbitControls, PerspectiveCamera, Preload } from "@react-three/drei";;
@@ -10,7 +11,7 @@ const World = () => {
   const [isDebug] = useAtomState($isDebug);
 
   return (
-    <Canvas frameloop="demand" gl={{
+    <Canvas className={styles.canvas} frameloop="demand" gl={{
       outputColorSpace: SRGBColorSpace,
       toneMapping: NoToneMapping,
       logarithmicDepthBuffer: false,

@@ -51,6 +51,10 @@ $block.subscribe(block => {
   &.isSpaceView {
     display: block;
   }
+
+  :global(.isAboutActive) & {
+    display: none;
+  }
 }
 .locator {
   @mixin button;

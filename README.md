@@ -13,3 +13,4 @@
 ## Deploying
 1. Pushes to git main are automatically picked up by Cloudflare
 2. `npm run deploy:assets` deploys static assets to Cloudflare
+3. Assets are served from R2 assets.goodison.memorial domain

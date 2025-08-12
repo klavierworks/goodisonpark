@@ -4,7 +4,7 @@ export const STAND_MAPPING: Record<string, string[]> = {
     'GS1', 'GS2', 'GS3', 'GS4', 'GS5'
   ],
   'Bullens Road': [
-    'LV1', 'LV2', 'PK2', 'PK3', 'PK4', 'PK5',
+    'LV1', 'LV2', 'LV3', 'LV4', 'PK2', 'PK3', 'PK4', 'PK5',
     'UV1', 'UV2', 'LB2', 'LB3', 'LB4', 'LB5', 'LB6',
     'UB2', 'UB3', 'UB4', 'UB5', 'UB6'
   ],

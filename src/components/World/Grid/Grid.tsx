@@ -189,7 +189,7 @@ const Grid = () => {
       <group position={[0, 0, -1500]}>
         <mesh position={[0, 0, 350]}>
           <planeGeometry args={[15000,15000]} />
-          <meshBasicMaterial color="rgb(3, 14, 40)" transparent opacity={0.8} />
+          <meshBasicMaterial color="rgb(5, 7, 23)" transparent opacity={0.8} />
         </mesh>
       </group>
     </group>

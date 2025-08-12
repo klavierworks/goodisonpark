@@ -3,7 +3,7 @@
 <video src="/splash/16-9.mp4" autoplay muted loop playsinline class="splash-video"></video>
 <div class="credit"></div>
 <button class="stage1-nav isLoading" disabled>
-  [August 14, 2025]
+  []
 </button>
 <script>
 import { $loadProgress } from "../../../store/ui";
@@ -17,7 +17,6 @@ window.addEventListener('load', () => {
 });
 const stage1Nav = document.querySelector('.stage1-nav') as HTMLButtonElement;
 $loadProgress.subscribe((progress) => {
-  return
   if (stage1Nav) {
     stage1Nav.innerText = `[${progress}%]`;
   }
@@ -32,7 +31,6 @@ $loadProgress.subscribe((progress) => {
   const stages = document.querySelector('.stages')!;
 
   const stagesClick = (e: Event) => {
-    return
     e.stopPropagation();
     e.preventDefault();
     e.stopImmediatePropagation();

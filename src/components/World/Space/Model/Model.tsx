@@ -138,8 +138,8 @@ const Model = ({ entries }: ModelProps) => {
       <SimpleRotationControls
         controlsRef={controlsRef}
         enabled={currentlyViewingSpace === 'space' && !isTransitioning}
-        speedX={0.5}
-        speedY={2}
+        speedX={0.25}
+        speedY={1}
         yLimits={[0, 1]}
       />
       <group name="pivot-group">

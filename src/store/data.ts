@@ -140,7 +140,7 @@ export const getOptionsByFilter = (filter: Filter): string[] => {
       uniqueOptionsArray[cleanOption] = option;
     }
   });
-  const uniqueOptions = Object.values(uniqueOptionsArray);
+  const uniqueOptions = Object.values(uniqueOptionsArray).filter(option => option !== undefined && option !== '');
   const sortedOptions = uniqueOptions.sort((a, b) => {
     const aName = a.toLowerCase();
     const bName = b.toLowerCase();

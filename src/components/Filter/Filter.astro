@@ -23,7 +23,7 @@ const options = getOptionsByFilter(filter)
 </filter-element>
 <script>
 import { getFilterLabel } from "../../api/utils";
-import { $activeFilters } from "../../store/data";
+import { $activeFilters, $allEntries, $entries, getOptionsByFilter } from "../../store/data";
 import { $hasOpenFilters, $hoveredEntry } from "../../store/ui";
 
 class FilterElement extends HTMLElement {
@@ -37,6 +37,7 @@ class FilterElement extends HTMLElement {
 
     const activeFiltersCleanup = $activeFilters.subscribe(() => {
       this.writeName();
+      this.updateOptions();
 
       if ($activeFilters.get()[this.filter]) {
         this.classList.add('hasActiveOption');
@@ -82,6 +83,19 @@ class FilterElement extends HTMLElement {
     }
 
     nameElement.textContent = getFilterLabel(this.filter);
+  }
+
+  updateOptions() {
+    const matchingOptions = getOptionsByFilter(this.filter)
+
+    this.querySelector('.options')?.replaceChildren(
+      ...matchingOptions.map(option => {
+        const li = document.createElement('li');
+        li.setAttribute('data-option', option);
+        li.textContent = option;
+        return li;
+      })
+    );
   }
 
   handleClick(event: MouseEvent) {
@@ -185,6 +199,7 @@ filter-element {
   overflow: hidden;
   text-align: center;
   pointer-events: auto;
+  height: 24px;
   max-height: 24px;
 
   &.hasActiveOption {
@@ -194,6 +209,7 @@ filter-element {
   
   &.isOpen {
     max-height: 75vh;
+    height: auto;
   
     &:hover,
     &:active {
@@ -229,7 +245,7 @@ filter-element {
   align-content: flex-start;
   opacity: 0;
   pointer-events: none;
-  padding: 3px;
+  padding: 6px 3px;
   margin: 0;
 
   &::-webkit-scrollbar {
@@ -247,12 +263,18 @@ filter-element {
     pointer-events: auto;
   }
 
-  li {
+  :global(li) {
     cursor: pointer;
     width: 100%;
     list-style: none;
     margin: 2px 0;
     text-transform: capitalize;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    height: 1em;
+    overflow: hidden;
+    flex-shrink: 0;
   }
 }
 

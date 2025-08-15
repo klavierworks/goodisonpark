@@ -21,8 +21,7 @@ import External from './external.svg';
         <span class="heading">Music</span><span>David Coehorst</span>
         <span class="heading">Sound Design</span><span>Andrés Aracena</span>
       </p>
-      <a href="www.instagram.com/global_fandom" target="_blank" class="url">A project by Global Fandom in collaboration with Evertonian Alan Bond</a>
-    </div>
+      <div class="url">A project by <a href="https://global-fandom.com" target="_blank">Global Fandom <External /></a> in collaboration with Evertonian Alan Bond</div>
     <div class="caption">
       <a href="https://contribute.goodison.memorial" target="_blank">Submit Your Memory</a>
     </div>
@@ -112,16 +111,11 @@ header {
     }
   }
 
-  .table {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 0;
-    row-gap: 0.5em;
-    margin-top: 8px;
 
     a {
-      display: flex;
+      display: inline-flex;
       flex-direction: row;
+      font-weight: bold;
     }
     svg {
       height: 1em;
@@ -129,6 +123,12 @@ header {
       width: 1em;
       object-fit: contain;
     }
+  .table {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 0;
+    row-gap: 0.5em;
+    margin-top: 8px;
   }
   
   .caption {
@@ -141,7 +141,7 @@ header {
     left: 50%;
     transform: translateX(-50%);
     width: max-content;
-    padding: 0.5em;
+    padding: 0.5em 1em;
     backdrop-filter: blur(12px);
     pointer-events: none;
     box-shadow: 2px 2px 8px 0px rgba(255, 255, 255, 0.1);
@@ -149,8 +149,8 @@ header {
 
   .url { 
     display: block;
-    margin: 0.5em auto 0;
-    text-align: center;
+    margin: 0.5em 0 0;
+    text-align: left;
   }
 
   a {

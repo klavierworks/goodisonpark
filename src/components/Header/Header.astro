@@ -32,7 +32,10 @@ import External from './external.svg';
 <script>
 const link = document.getElementById('about-link')!;
 let isActive = false;
-link.addEventListener('click', (e) => {
+link.addEventListener('click', (e: PointerEvent) => {
+  if (isActive) {
+    return;
+  }
   e.preventDefault();
   isActive = !isActive;
   link.classList.toggle('isActive', isActive);

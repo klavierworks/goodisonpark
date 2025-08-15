@@ -31,7 +31,6 @@ import External from './external.svg';
 
 <script>
 const link = document.getElementById('about-link')!;
-console.log(link);
 let isActive = false;
 link.addEventListener('click', (e) => {
   e.preventDefault();
@@ -149,6 +148,10 @@ header {
     display: block;
     margin: 0.5em auto 0;
     text-align: center;
+  }
+
+  a {
+    pointer-events: all;
   }
   &.isActive {
     background: #FFFFFF0D;

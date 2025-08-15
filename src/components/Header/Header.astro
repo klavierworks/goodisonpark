@@ -21,9 +21,10 @@ import External from './external.svg';
         <span class="heading">Music</span><span>David Coehorst</span>
         <span class="heading">Sound Design</span><span>Andrés Aracena</span>
       </p>
+      <a href="www.instagram.com/global_fandom" target="_blank" class="url">A project by Global Fandom in collaboration with Evertonian Alan Bond</a>
     </div>
     <div class="caption">
-      <a href="www.instagram.com/global_fandom" target="_blank">A project by Global Fandom in collaboration with Evertonian Alan Bond</a>
+      <a href="https://contribute.goodison.memorial" target="_blank">Submit Your Memory</a>
     </div>
   </div>
 </header>
@@ -135,12 +136,19 @@ header {
     top: calc(100% + 1em);
     text-align: center;
     opacity: 0;
-    width: 100%;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
     padding: 0.5em;
     backdrop-filter: blur(12px);
     pointer-events: none;
     box-shadow: 2px 2px 8px 0px rgba(255, 255, 255, 0.1);
+  }
+
+  .url { 
+    display: block;
+    margin: 0.5em auto 0;
+    text-align: center;
   }
   &.isActive {
     background: #FFFFFF0D;

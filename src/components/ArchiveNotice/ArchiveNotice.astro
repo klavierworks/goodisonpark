@@ -1,0 +1,37 @@
+---
+---
+<div class="archive-notice" transition:persist>
+  <p>This is an archived build. Video playback and download performance is reduced, as well as range of resolutions and formats.</p>
+</div>
+<script>
+const notice = document.querySelector('.archive-notice')!;
+notice.addEventListener('click', (e) => {
+  e.stopPropagation();
+  notice.remove();
+}, {
+  once: true
+});
+</script>
+
+<style>
+.archive-notice {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: black;
+  color: white;
+  cursor: pointer;
+  user-select: none;
+
+  p {
+    @mixin text;
+    max-width: 24em;
+    margin: 0;
+    text-align: center;
+  }
+}
+</style>

@@ -1,5 +1,11 @@
 # Goodison Park
 
+## ARCHIVED BUILD AVAILABLE HERE:
+https://goodisonpark.pages.dev/
+
+Please note! Streaming and download bandwidth, video playback performance, range of resolutions has been heavily reduced from live version to minimise hosting expense. It uses URLs that do not support such features as gzip.
+
+
 ## How to install
 1.  Copy the repo
 2. Run `npm install`

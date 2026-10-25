@@ -7,10 +7,11 @@ import { DoubleSide, type Texture } from "three";
 
 type ThumbnailProps = {
   filename: string;
+  videoFilename: string;
   isHovered: boolean;
 } & React.ComponentPropsWithoutRef<'meshBasicMaterial'>;
 
-const Thumbnail = ({ filename, isHovered, ...rest }: ThumbnailProps) => {
+const Thumbnail = ({ filename, videoFilename, isHovered, ...rest }: ThumbnailProps) => {
   let texture: Texture;
   if (thumbnailCache.has(filename)) {
     texture = thumbnailCache.get(filename) as unknown as Texture;
@@ -24,7 +25,7 @@ const Thumbnail = ({ filename, isHovered, ...rest }: ThumbnailProps) => {
   if (isHovered) {
     return (
       <Suspense fallback={imageMaterial}>
-        <VideoThumbnail filename={filename} />
+        <VideoThumbnail filename={videoFilename} />
       </Suspense>
     )
   }

@@ -156,7 +156,7 @@ const Tile = ({ canInteract = true, entry, isActive = true, onClick, ...rest }: 
         >
         <primitive object={tileGeometry} attach="geometry" />
         <Suspense fallback={<></>}>
-          <Thumbnail filename={entry.id} isHovered={isHoveredWithIntention} />
+          <Thumbnail filename={entry.id} videoFilename={entry.filename} isHovered={isHoveredWithIntention} />
         </Suspense>
       </mesh>
       <Outline entry={entry} isHovered={isHovered} spriteRef={spriteRef} />
